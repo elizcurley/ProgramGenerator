@@ -352,7 +352,6 @@ function populateFields(data){
 function storageKey(){
   if(!current || !current.title) return null;
   const base = current.title.slice(0,50);
-  // keep original prefix for compatibility
   return `EBP_NOTE_${base}`;
 }
 
@@ -523,12 +522,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
   bindInputs();
 });
 
-/* ===================== Minimal offline htmlDocx.asBlob ===================== */
+/* ===================== Fixed offline htmlDocx.asBlob (UTF-8 + valid OOXML) ===================== */
 (function(){
-  function xmlEscape(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
-  function textRun(t, props=''){ return `<w:r>${props?`<w:rPr>${props}</w:rPr>`:''}<w:t xml:space="preserve">${xmlEscape(t)}</w:t></w:r>`; }
-  function br(){ return `<w:r><w:br/></w:r>`; }
-  function p(inner, pPr=''){ return `<w:p>${pPr?`<w:pPr>${pPr}</w:pPr>`:''}${inner||''}</w:p>`; }
+  const enc = new TextEncoder();
+  const utf8 = (s) => enc.encode(String(s ?? ""));
+  function xmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
+  const textRun = (t, props='') => `<w:r>${props?`<w:rPr>${props}</w:rPr>`:''}<w:t xml:space="preserve">${xmlEscape(t)}</w:t></w:r>`;
+  const br = () => `<w:r><w:br/></w:r>`;
+  const para = (inner, pPr='') => `<w:p>${pPr?`<w:pPr>${pPr}</w:pPr>`:''}${inner||''}</w:p>`;
 
   function nodeToParas(node){
     const out=[];
@@ -540,37 +541,45 @@ document.addEventListener('DOMContentLoaded', ()=>{
         if(tag==='br'){ accRuns.push(br()); }
         else if(['strong','b','em','i','u'].includes(tag)){
           const innerRuns=[]; n.childNodes.forEach(c=>walk(c, innerRuns));
-          let rPr=''; if(tag==='strong'||tag==='b') rPr += '<w:b/>'; if(tag==='em'||tag==='i') rPr += '<w:i/>'; if(tag==='u') rPr += '<w:u w:val="single"/>';
-          accRuns.push(`<w:r><w:rPr>${rPr}</w:rPr>${innerRuns.join('').replace(/^<w:r>|<\/w:r>$/g,'')}</w:r>`);
-        } else if(['span'].includes(tag)){
-          n.childNodes.forEach(c=>walk(c, accRuns));
-        } else if(['h1','h2','h3','p'].includes(tag)){
+          let rPr=''; if(tag==='strong'||tag==='b') rPr+='<w:b/>'; if(tag==='em'||tag==='i') rPr+='<w:i/>'; if(tag==='u') rPr+='<w:u w:val="single"/>';
+          const textOnly = innerRuns.join('').replace(/^<w:r>|<\/w:r>$/g,'');
+          accRuns.push(`<w:r><w:rPr>${rPr}</w:rPr>${textOnly}</w:r>`);
+        }
+        else if(tag==='span'){ n.childNodes.forEach(c=>walk(c, accRuns)); }
+        else if(['h1','h2','h3','p'].includes(tag)){
           const runs=[]; n.childNodes.forEach(c=>walk(c, runs));
-          let size = tag==='h1'?36:tag==='h2'?28:tag==='h3'?24:22;
-          if(tag==='p') size=22;
-          const para = p(runs.join(''), tag==='p'?'':`<w:pPr><w:spacing w:after="160"/></w:pPr>`);
-          out.push(tag==='p'?para:p(textRun('',`<w:b/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/>`) + runs.join('')));
-        } else if(tag==='ul'){
+          if(tag==='p'){
+            out.push(para(runs.join('')));
+          }else{
+            const size = tag==='h1'?36:tag==='h2'?28:24;
+            const first = runs.length ? runs[0].replace('<w:r>','<w:r><w:rPr><w:b/><w:sz w:val="'+size+'"/><w:szCs w:val="'+size+'"/></w:rPr>') : textRun('', `<w:b/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/>`);
+            const rest = runs.length ? runs.slice(1).join('') : '';
+            out.push(para(first+rest, '<w:spacing w:after="160"/>'));
+          }
+        }
+        else if(tag==='ul'){
           n.childNodes.forEach(li=>{
             if(li.tagName && li.tagName.toLowerCase()==='li'){
               const runs=[textRun('• ')];
               li.childNodes.forEach(c=>walk(c, runs));
-              out.push(p(runs.join('')));
+              out.push(para(runs.join('')));
             }
           });
-        } else {
+        }
+        else{
           n.childNodes.forEach(c=>walk(c, accRuns));
         }
       }
       return accRuns;
     };
+
     if(node.childNodes && node.childNodes.length){
       node.childNodes.forEach(ch=>{
-        if(ch.nodeType===3){ out.push(p(textRun(ch.nodeValue))); }
+        if(ch.nodeType===3){ out.push(para(textRun(ch.nodeValue))); }
         else if(ch.nodeType===1 && ['h1','h2','h3','p','ul'].includes(ch.tagName.toLowerCase())){
           walk(ch);
         } else if(ch.nodeType===1){
-          const runs=[]; walk(ch, runs); if(runs.length) out.push(p(runs.join('')));
+          const runs=[]; walk(ch, runs); if(runs.length) out.push(para(runs.join('')));
         }
       });
     }
@@ -580,8 +589,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   function buildDocumentXML(html){
     const doc = new DOMParser().parseFromString(html,'text/html');
     const body = doc.body;
-    const content = nodeToParas(body);
-    const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const content = nodeToParas(body) || para(textRun(''));
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
  xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -595,10 +604,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
- xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+ xmlns:wne="http://schemas.microsoft.com/office/2006/wordml"
  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14">
   <w:body>
-    ${content || p(textRun(''))}
+    ${content}
     <w:sectPr>
       <w:pgSz w:w="12240" w:h="15840"/>
       <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
@@ -607,25 +616,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
     </w:sectPr>
   </w:body>
 </w:document>`;
-    return xml;
   }
 
-  function strToUint8(str){ const arr=new Uint8Array(str.length); for(let i=0;i<str.length;i++) arr[i]=str.charCodeAt(i); return arr; }
-  function uint8Concat(chunks){ let len=0; chunks.forEach(c=>len+=c.length); const out=new Uint8Array(len); let o=0; chunks.forEach(c=>{out.set(c,o);o+=c.length;}); return out; }
-  function crc32(buf){
-    let c=~0; for(let i=0;i<buf.length;i++){ c=(c>>>8)^CRC_TABLE[(c^buf[i])&0xFF]; } return ~c>>>0;
-  }
+  function u8cat(chunks){ let len=0; chunks.forEach(c=>len+=c.length); const out=new Uint8Array(len); let o=0; chunks.forEach(c=>{out.set(c,o);o+=c.length;}); return out; }
   const CRC_TABLE = (()=>{ let c,t=new Uint32Array(256); for(let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1)); t[n]=c>>>0; } return t; })();
+  function crc32(buf){ let c=~0>>>0; for(let i=0;i<buf.length;i++){ c=(c>>>8)^CRC_TABLE[(c^buf[i])&0xFF]; } return (~c)>>>0; }
   function dateToDos(d=new Date()){
-    const time = (d.getHours()<<11) | (d.getMinutes()<<5) | (d.getSeconds()/2|0);
+    const time = (d.getHours()<<11) | (d.getMinutes()<<5) | ((d.getSeconds()/2)|0);
     const date = ((d.getFullYear()-1980)<<9) | ((d.getMonth()+1)<<5) | d.getDate();
     return {time, date};
   }
   function zipStore(files){
     const cd=[]; let offset=0; const chunks=[];
-    const now= dateToDos(new Date());
+    const now = dateToDos(new Date());
     files.forEach(f=>{
-      const nameBytes = strToUint8(f.name);
+      const nameBytes = utf8(f.name);
       const data = f.data;
       const crc = crc32(data);
       const localHeader = new Uint8Array(30 + nameBytes.length);
@@ -643,6 +648,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       dv.setUint16(28, 0, true);
       localHeader.set(nameBytes,30);
       chunks.push(localHeader, data);
+
       const cdH = new Uint8Array(46 + nameBytes.length);
       const cdv = new DataView(cdH.buffer);
       cdv.setUint32(0,0x02014b50,true);
@@ -650,12 +656,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
       cdv.setUint16(6,20,true);
       cdv.setUint16(8,0,true);
       cdv.setUint16(10,0,true);
-      cdv.setUint16(12,now.time,true);
-      cdv.setUint16(14,now.date,true);
-      cdv.setUint32(16,crc,true);
-      cdv.setUint32(20,data.length,true);
-      cdv.setUint32(24,data.length,true);
-      cdv.setUint16(28,nameBytes.length,true);
+      cdv.setUint16(12, now.time, true);
+      cdv.setUint16(14, now.date, true);
+      cdv.setUint32(16, crc, true);
+      cdv.setUint32(20, data.length, true);
+      cdv.setUint32(24, data.length, true);
+      cdv.setUint16(28, nameBytes.length, true);
       cdv.setUint16(30,0,true);
       cdv.setUint16(32,0,true);
       cdv.setUint16(34,0,true);
@@ -664,9 +670,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       cdv.setUint32(42,offset,true);
       cdH.set(nameBytes,46);
       cd.push(cdH);
+
       offset += localHeader.length + data.length;
     });
-    const central = uint8Concat(cd);
+    const central = u8cat(cd);
     const end = new Uint8Array(22);
     const edv = new DataView(end.buffer);
     edv.setUint32(0,0x06054b50,true);
@@ -677,22 +684,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
     edv.setUint32(12, central.length, true);
     edv.setUint32(16, offset, true);
     edv.setUint16(20, 0, true);
-    return new Blob([uint8Concat([...chunks, central, end])], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    return new Blob([u8cat([...chunks, central, end])], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   }
   function asBlob(html){
     const docXml = buildDocumentXML(html);
     const files = [
-      { name:'[Content_Types].xml', data: strToUint8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      { name:'[Content_Types].xml', data: utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
  <Default Extension="xml" ContentType="application/xml"/>
  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 </Types>`)},
-      { name:'_rels/.rels', data: strToUint8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      { name:'_rels/.rels', data: utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>`)},
-      { name:'word/document.xml', data: strToUint8(docXml) }
+      { name:'word/document.xml', data: utf8(docXml) }
     ];
     return zipStore(files);
   }
