@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title data-bind="siteTitle">Sister Site – EBP Builder</title>
+  <style>
+    :root{ --bg:#f6f7fb;--card:#ffffff;--ink:#111827;--muted:#6b7280;--primary:#6d28d9;--primary-ink:#fff;--ring:#c4b5fd;--ok:#059669;--warn:#b45309;}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";color:var(--ink);background:var(--bg)}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .title{font-weight:800;font-size:20px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+    button{appearance:none;border:1px solid transparent;background:var(--primary);color:var(--primary-ink);padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;color:var(--ink);border-color:#e5e7eb}
+    button.secondary{background:#111827;color:#fff}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px}
+    @media (max-width: 960px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:16px}
+    .card h2{margin:0 0 8px 0;font-size:18px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    label{font-size:12px;color:#374151;font-weight:700}
+    .hint{font-size:11px;color:#6b7280}
+    input,textarea{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+    textarea{min-height:110px;resize:vertical}
+    .kvs{display:grid;grid-template-columns:180px 1fr;gap:8px}
+    .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;font-size:12px}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .chip{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;font-size:12px}
+    .hr{height:1px;background:#eef0f4;margin:12px 0}
+    .monospace{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .right{margin-left:auto}
+    .ok{color:var(--ok)} .warn{color:var(--warn)}
+    .study{border:1px solid #e5e7eb;border-radius:12px;padding:12px}
+    .counter{font-size:12px;color:var(--muted)} .status{font-size:12px}
+    .footer{margin-top:14px;font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .focus-ring:focus{outline:3px solid var(--ring);outline-offset:2px}
+    .spin{animation:spin 1s linear infinite;display:inline-block} @keyframes spin{to{transform:rotate(360deg)}}
+    .hidden{display:none}
+    /* paragraph spacing for narrative */
+    #vNarrative p{margin:0 0 10px 0}
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="row">
+      <div class="title" id="siteTitle">EBP Case Vignette Randomizer & Note Builder</div>
+      <span class="badge" id="siteSubtitle">No login • Works offline • Export Word / Copy Text</span>
+    </div>
+    <div class="toolbar" role="toolbar" aria-label="Main">
+      <button id="btnRandom" class="focus-ring" title="Randomize a case (R)">🎲 Randomize</button>
+      <button id="btnLock" class="ghost focus-ring" title="Lock/unlock the current case (L)">🔒 Lock</button>
+      <button id="btnNew" class="ghost focus-ring" title="Start a fresh note (N)">🧼 New</button>
+      <button id="btnSave" class="ghost focus-ring" title="Save to this browser (S)">💾 Save</button>
+      <button id="btnLoad" class="ghost focus-ring" title="Load last (O)">📂 Load</button>
+      <button id="btnCopyFactors" class="ghost focus-ring" title="Copy Intake as plain text">🧾 Copy Case Factors</button>
+      <button id="btnExport" class="secondary focus-ring" title="Export to Word (E)">⬇️ Export Word</button>
+      <button id="btnCopy" class="ghost focus-ring" title="Copy as plain text">📋 Copy Text</button>
+      <button id="btnPrint" class="ghost focus-ring" title="Print (P)">🖨️ Print</button>
+      <button id="btnImport" class="ghost focus-ring" title="Import cases JSON">📥 Import Cases</button>
+      <button id="btnExportCases" class="ghost focus-ring" title="Export cases JSON">📤 Export Cases</button>
+      <input id="fileInput" type="file" accept="application/json" class="hidden"/>
+    </div>
+  </header>
+
+  <div class="grid" id="app">
+    <section class="card" aria-labelledby="caseTitle">
+      <h2 id="caseTitle">Case Vignette</h2>
+      <div id="caseEmpty" class="muted">Click <strong>Randomize</strong> to draw a client vignette. Lock to begin the EBP note.</div>
+
+      <div id="caseWrap" hidden>
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div class="row" style="gap:8px;align-items:center">
+            <div class="badge hidden" id="caseId">ID</div>
+            <div class="chip hidden" id="caseTitleChip"></div>
+          </div>
+          <div class="status" id="lockStatus"></div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="row"><div class="badge" id="intakeLabel">INTAKE SHEET</div></div>
+        <div class="kvs">
+          <div class="muted">Title</div><div id="vTitle"></div>
+          <div class="muted">Client Profile</div><div id="vClient"></div>
+          <div class="muted">Setting</div><div id="vSetting"></div>
+          <div class="muted">Presenting Problem</div><div id="vProblem"></div>
+          <div class="muted">Relevant History</div><div id="vHistory"></div>
+          <div class="muted">Goals & Preferences</div><div id="vGoals"></div>
+          <div class="muted">Strengths & Resources</div><div id="vStrengths"></div>
+          <div class="muted">Contextual Factors & Barriers</div><div id="vContextual"></div>
+          <div class="muted">EBP Decision Point</div><div id="vDecision"></div>
+          <div class="muted">Target Outcomes</div><div id="vOutcomes"></div>
+          <div class="muted">Risks & Ethics</div><div id="vRisks"></div>
+          <div class="muted">Equity Signal</div><div id="vEquity"></div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="row"><div class="badge" id="narrativeLabel">NARRATIVE</div></div>
+        <div id="vNarrative"></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="builderTitle">
+      <h2 id="builderTitle">EBP Process Note Builder</h2>
+      <div id="lockGate" class="muted">Lock a case to enable editing.</div>
+      <div id="builder" hidden>
+        <div class="field">
+          <label for="fContext" id="lblContext">Client & Practice Context</label>
+          <div class="hint" id="hintContext">Describe client, identities, setting, constraints, goals, and why this matters for ethical practice.</div>
+          <textarea id="fContext"></textarea>
+          <div class="row"><span class="counter" id="cntContext">0 words</span></div>
+        </div>
+
+        <div class="field">
+          <label id="lblPico">PICO-style EBP Question</label>
+          <div class="hint" id="hintPico">Fill Population, Intervention, (optional) Comparison, Outcome, Timeframe. Preview shows a full question.</div>
+          <div class="row">
+            <div class="field" style="flex:1;min-width:160px"><label for="pPop">Population</label><input id="pPop"/></div>
+            <div class="field" style="flex:1;min-width:160px"><label for="pInt">Intervention</label><input id="pInt"/></div>
+          </div>
+          <div class="row">
+            <div class="field" style="flex:1;min-width:160px"><label for="pComp">Comparison (optional)</label><input id="pComp"/></div>
+            <div class="field" style="flex:1;min-width:160px"><label for="pOut">Outcome</label><input id="pOut"/></div>
+            <div class="field" style="width:160px"><label for="pTime">Timeframe</label><input id="pTime"/></div>
+          </div>
+          <div class="badge monospace" id="picoPreview">PICO preview...</div>
+        </div>
+
+        <div class="field">
+          <label for="fSearch" id="lblSearch">Search Strategy & Study Selection</label>
+          <div class="hint" id="hintSearch">Databases, keywords/MeSH, filters, inclusion/exclusion, equity/representation considerations.</div>
+          <textarea id="fSearch"></textarea>
+          <div class="row"><span class="counter" id="cntSearch">0 words</span></div>
+        </div>
+
+        <div class="field">
+          <label id="lblStudies">Study Summaries</label>
+          <div class="hint" id="hintStudies">Goal is usually <strong>3–5</strong> relevant peer-reviewed studies. Summarize what they did and found in your own words.</div>
+          <div class="row"><span class="counter" id="cntStudies">Studies added: 0 / 3–5</span></div>
+          <div id="studyList" class="list"></div>
+          <details>
+            <summary class="badge">➕ Add a study</summary>
+            <div class="study" style="margin-top:10px">
+              <div class="row">
+                <div class="field" style="flex:2"><label for="sTitle">Title</label><input id="sTitle"/></div>
+                <div class="field" style="width:120px"><label for="sYear">Year</label><input id="sYear" inputmode="numeric"/></div>
+                <div class="field" style="flex:1"><label for="sDesign">Design</label><input id="sDesign" placeholder="RCT, cohort, qual, etc."/></div>
+              </div>
+              <div class="row">
+                <div class="field" style="flex:1"><label for="sSample">Population / sample</label><input id="sSample" placeholder="n, demographics, setting"/></div>
+                <div class="field" style="flex:1"><label for="sMethods">Methods</label><input id="sMethods" placeholder="measures, procedures"/></div>
+              </div>
+              <div class="field"><label for="sFindings">Key findings (your words)</label><textarea id="sFindings"></textarea></div>
+              <div class="row">
+                <div class="field" style="flex:1"><label for="sLimits">Limitations</label><input id="sLimits"/></div>
+                <div class="field" style="flex:1"><label for="sEquity">Equity/representation</label><input id="sEquity" placeholder="representation, cultural fit"/></div>
+              </div>
+              <div class="row">
+                <div class="field" style="flex:1"><label for="sUrl">DOI/URL</label><input id="sUrl" placeholder="https://... or doi:..."/></div>
+                <button id="btnAddStudy" class="right">Add Study</button>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="field">
+          <label for="fAppraise" id="lblAppraise">Critical Appraisal (incl. equity/representation)</label>
+          <div class="hint" id="hintAppraise">Discuss strengths/limitations, bias risks, cultural responsiveness, harms/benefits, power/representation, funding/conflicts.</div>
+          <textarea id="fAppraise"></textarea>
+          <div class="row"><span class="counter" id="cntAppraise">0 words</span></div>
+        </div>
+
+        <div class="field">
+          <label for="fApply" id="lblApply">Application & Delivery Plan</label>
+          <div class="hint" id="hintApply">What the evidence suggests for this client, adaptations, shared decision-making language, monitoring, consent, ethics.</div>
+          <textarea id="fApply"></textarea>
+          <div class="row"><span class="counter" id="cntApply">0 words</span></div>
+        </div>
+
+        <div class="field">
+          <label for="fAssumptions" id="lblAssumptions">Assumptions I am Making (optional)</label>
+          <div class="hint" id="hintAssumptions">Note reasonable assumptions due to missing or ambiguous details.</div>
+          <textarea id="fAssumptions"></textarea>
+        </div>
+
+        <div class="hr"></div>
+        <div class="row" style="justify-content:space-between">
+          <div class="badge">Rubric checklist</div>
+          <div id="progress" class="status">0/6 sections with 100+ words</div>
+        </div>
+        <ul id="rubric" class="list" style="margin:8px 0 0 18px">
+          <li>Client & context clearly described with equity/ethics lens</li>
+          <li>Focused, researchable PICO(T) reflects client goals</li>
+          <li>Transparent search & selection, includes equity considerations</li>
+          <li>Accurate study summaries in your own words</li>
+          <li>Critical appraisal of strength, bias, and representation</li>
+          <li>Practice application & shared decision-making plan</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+    <span>Autosave:</span><span id="saveStatus">idle</span>
+    <span class="muted">•</span><span id="tip">Tip: R = Randomize, L = Lock, E = Export Word.</span>
+  </div>
+</div>
+
+<script>
+  // ======= CONFIG (edit only this block for the sister site) =======
+  const CONFIG = {
+    siteTitle: "EBP Builder – Sister Site",
+    siteSubtitle: "No login • Works offline • Import your own cases",
+    exportFileName: "EBP_Note_SisterSite.doc",
+    labels: {
+      intake: "INTAKE SHEET",
+      narrative: "NARRATIVE",
+      builderTitle: "EBP Process Note Builder",
+      context: ["Client & Practice Context", "Describe client, identities, setting, constraints, goals, and why this matters for ethical practice."],
+      pico: ["PICO-style EBP Question", "Fill Population, Intervention, (optional) Comparison, Outcome, Timeframe. Preview shows a full question."],
+      search: ["Search Strategy & Study Selection", "Databases, keywords/MeSH, filters, inclusion/exclusion, equity/representation considerations."],
+      studies: ["Study Summaries", "Goal is usually 3–5 relevant peer-reviewed studies. Summarize what they did and found in your own words."],
+      appraise: ["Critical Appraisal (incl. equity/representation)", "Discuss strengths/limitations, bias risks, cultural responsiveness, harms/benefits, power/representation, funding/conflicts."],
+      apply: ["Application & Delivery Plan", "What the evidence suggests for this client, adaptations, shared decision-making language, monitoring, consent, ethics."],
+      assumptions: ["Assumptions I am Making (optional)", "Note reasonable assumptions due to missing or ambiguous details."]
+    }
+  };
+
+  // ======= Utilities =======
+  const noDash=(s)=>(s||'').toString().replace(/[—–]/g,'-');
+  const stripDashesDeep = (v)=>{
+    if(Array.isArray(v)) return v.map(stripDashesDeep);
+    if(v && typeof v==='object'){ const o={}; for(const k in v) o[k]=stripDashesDeep(v[k]); return o; }
+    if(typeof v==='string') return noDash(v);
+    return v;
+  };
+  const $ = (sel)=>document.querySelector(sel);
+  const uid=()=>Math.random().toString(36).slice(2,9);
+  const nowISO=()=>new Date().toISOString();
+  const wordCount=(s)=>(s||"").trim().split(/\s+/).filter(Boolean).length;
+  const sanitize=(s)=>(s||"").toString().replace(/[\t\r]/g,' ').trim();
+  const debounce=(fn,ms=800)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(null,a),ms);};};
+  const escapeHtml=s=>(s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const linkify=u=>!u?'':`<a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(u)}</a>`;
+  function paragraphsHTML(text){
+    const safe = noDash(text||'').replace(/\r\n/g,'\n');
+    const blocks = safe.split(/\n\s*\n/).map(t=>t.trim()).filter(Boolean);
+    return blocks.map(b=>`<p>${escapeHtml(b)}</p>`).join('');
+  }
+
+  // ======= Minimal placeholder dataset (replace or Import JSON) =======
+  let VIGNETTES = stripDashesDeep([
+    {
+      id: "case_placeholder_01",
+      title: "Placeholder Case A: Replace Me",
+      client_profile: {
+        age: "35-year-old", pronouns: "they/them",
+        race_ethnicity: "Select appropriate data",
+        gender_sexuality: "As relevant",
+        primary_language: "As relevant",
+        disability_health: "As relevant"
+      },
+      setting: "Describe setting.",
+      presenting_problem: "Primary reason for contact in 2–4 sentences.",
+      relevant_history: "Concise background that matters for the problem.",
+      goals_and_preferences: "Client-stated goals/preferences.",
+      strengths_and_resources: "Concrete strengths and supports.",
+      contextual_factors_and_barriers: "Structural realities that affect care.",
+      ebp_decision_point: "1–3 sentences naming the practice choice guided by evidence.",
+      target_outcomes: ["example outcome 1","example outcome 2"],
+      risks_and_ethics: "Current/historical risk and ethics notes (non-graphic).",
+      equity_signal: "One-sentence equity/representation lens.",
+      narrative: `Write your narrative here.
+
+Split paragraphs with blank lines.
+
+Keep it under ~500 words.`
+    },
+    {
+      id: "case_placeholder_02",
+      title: "Placeholder Case B: Replace Me",
+      client_profile: {
+        age: "17-year-old", pronouns: "she/her",
+        race_ethnicity: "As relevant",
+        gender_sexuality: "As relevant",
+        primary_language: "As relevant",
+        disability_health: "As relevant"
+      },
+      setting: "Describe setting.",
+      presenting_problem: "Primary concern or cluster of concerns.",
+      relevant_history: "Key family context, systems involvement, prior services.",
+      goals_and_preferences: "What the client wants or is unsure about.",
+      strengths_and_resources: "Personal qualities, community anchors.",
+      contextual_factors_and_barriers: "Housing, transit, work/school, discrimination, etc.",
+      ebp_decision_point: "Make the decision point explicit.",
+      target_outcomes: ["outcome a","outcome b","outcome c"],
+      risks_and_ethics: "Risk acknowledged; what already done.",
+      equity_signal: "Equity signal goes here.",
+      narrative: `Write a clinician-encounter vignette that demonstrates the intake facts.
+
+Use clear paragraphs.
+
+Avoid em dashes automatically handled by the app.`
+    }
+  ]);
+
+  // ======= State & elements =======
+  let current=null, locked=false, studies=[];
+  let showIds=false; // hidden by default
+  const F = { context:$('#fContext'), search:$('#fSearch'), appraise:$('#fAppraise'), apply:$('#fApply'), assumptions:$('#fAssumptions') };
+  const PICO = { pop:$('#pPop'), int:$('#pInt'), comp:$('#pComp'), out:$('#pOut'), time:$('#pTime'), preview:$('#picoPreview') };
+  const els = {
+    caseEmpty:$('#caseEmpty'), caseWrap:$('#caseWrap'), caseId:$('#caseId'), lockStatus:$('#lockStatus'),
+    caseTitleChip:$('#caseTitleChip'),
+    vTitle:$('#vTitle'), vClient:$('#vClient'), vSetting:$('#vSetting'), vProblem:$('#vProblem'),
+    vHistory:$('#vHistory'), vGoals:$('#vGoals'), vStrengths:$('#vStrengths'), vContextual:$('#vContextual'),
+    vDecision:$('#vDecision'), vOutcomes:$('#vOutcomes'), vRisks:$('#vRisks'), vEquity:$('#vEquity'), vNarrative:$('#vNarrative'),
+    lockGate:$('#lockGate'), builder:$('#builder'),
+    studyList:$('#studyList'), saveStatus:$('#saveStatus'), progress:$('#progress'), cntStudies:$('#cntStudies')
+  };
+
+  // ======= Apply CONFIG =======
+  (function applyConfig(){
+    $('#siteTitle').textContent = CONFIG.siteTitle;
+    document.title = CONFIG.siteTitle;
+    $('#siteSubtitle').textContent = CONFIG.siteSubtitle;
+    $('#builderTitle').textContent = CONFIG.labels.builderTitle;
+    $('#intakeLabel').textContent = CONFIG.labels.intake;
+    $('#narrativeLabel').textContent = CONFIG.labels.narrative;
+
+    $('#lblContext').textContent = CONFIG.labels.context[0];
+    $('#hintContext').textContent = CONFIG.labels.context[1];
+    $('#lblPico').textContent = CONFIG.labels.pico[0];
+    $('#hintPico').textContent = CONFIG.labels.pico[1];
+    $('#lblSearch').textContent = CONFIG.labels.search[0];
+    $('#hintSearch').textContent = CONFIG.labels.search[1];
+    $('#lblStudies').textContent = CONFIG.labels.studies[0];
+    $('#hintStudies').textContent = CONFIG.labels.studies[1];
+    $('#lblAppraise').textContent = CONFIG.labels.appraise[0];
+    $('#hintAppraise').textContent = CONFIG.labels.appraise[1];
+    $('#lblApply').textContent = CONFIG.labels.apply[0];
+    $('#hintApply').textContent = CONFIG.labels.apply[1];
+    $('#lblAssumptions').textContent = CONFIG.labels.assumptions[0];
+    $('#hintAssumptions').textContent = CONFIG.labels.assumptions[1];
+  })();
+
+  // ======= Helpers =======
+  function renderClientProfile(cp){
+    const bits=[]; if(cp.age) bits.push(noDash(cp.age));
+    if(cp.pronouns) bits.push(`(${noDash(cp.pronouns)})`);
+    if(cp.race_ethnicity) bits.push(noDash(cp.race_ethnicity));
+    if(cp.gender_sexuality) bits.push(noDash(cp.gender_sexuality));
+    const lang = cp.primary_language?` • Language: ${noDash(cp.primary_language)}`:'';
+    const health = cp.disability_health?` • Health: ${noDash(cp.disability_health)}`:'';
+    return `${bits.join(' • ')}${lang}${health}`;
+  }
+  function applyShowIds(){
+    const method = showIds ? 'remove' : 'add';
+    els.caseId.classList[method]('hidden');
+    els.caseTitleChip.classList[method]('hidden');
+  }
+  function updateLockUi(){
+    els.lockStatus.innerHTML = locked ? '<span class="ok">Locked for editing</span>' : '<span class="warn">Unlocked</span>';
+    $('#btnLock').textContent = locked ? '🔓 Unlock' : '🔒 Lock';
+    els.lockGate.hidden = locked;
+    els.builder.hidden = !locked;
+  }
+  function renderCase(){
+    if(!current){ els.caseWrap.hidden=true; els.caseEmpty.hidden=false; return; }
+    els.caseEmpty.hidden=false; els.caseWrap.hidden=false;
+    els.caseId.textContent = current.id;
+    els.caseTitleChip.textContent = noDash(current.title);
+    els.vTitle.textContent = noDash(current.title);
+    els.vClient.textContent = renderClientProfile(current.client_profile||{});
+    els.vSetting.textContent = noDash(current.setting);
+    els.vProblem.textContent = noDash(current.presenting_problem);
+    els.vHistory.textContent = noDash(current.relevant_history);
+    els.vGoals.textContent = noDash(current.goals_and_preferences);
+    els.vStrengths.textContent = noDash(current.strengths_and_resources);
+    els.vContextual.textContent = noDash(current.contextual_factors_and_barriers);
+    els.vDecision.textContent = noDash(current.ebp_decision_point);
+    const to = Array.isArray(current.target_outcomes)? current.target_outcomes.join('; ') : current.target_outcomes;
+    els.vOutcomes.textContent = noDash(to);
+    els.vRisks.textContent = noDash(current.risks_and_ethics);
+    els.vEquity.textContent = noDash(current.equity_signal);
+    els.vNarrative.innerHTML = paragraphsHTML(current.narrative || '');
+    applyShowIds(); updateLockUi();
+  }
+
+  // ======= Randomize / Lock =======
+  function randomize(){
+    const b=$('#btnRandom'); b.disabled=true; b.innerHTML='<span class="spin">🎲</span> Rolling...';
+    setTimeout(()=>{
+      current = VIGNETTES[Math.floor(Math.random()*VIGNETTES.length)];
+      locked=false; studies=[];
+      clearAllFields(); renderCase(); renderStudies();
+      b.disabled=false; b.textContent='🎲 Randomize';
+      toast('New case drawn. Review and lock to start.');
+    },600);
+  }
+  function toggleLock(){ if(!current){ toast('Draw a case first.'); return; } locked=!locked; updateLockUi(); if(locked){ loadDraft(); } }
+  function clearAllFields(){
+    Object.values(F).forEach(el=>{ if(el) el.value=''; });
+    [PICO.pop,PICO.int,PICO.comp,PICO.out,PICO.time].forEach(el=>el.value='');
+    picoPreview(); updateCounters();
+  }
+
+  // ======= PICO & counters =======
+  function picoPreview(){
+    const p=[PICO.pop.value,PICO.int.value,PICO.comp.value,PICO.out.value,PICO.time.value].map(sanitize);
+    const [pop,intv,comp,out,time]=p;
+    PICO.preview.textContent = `In ${pop||'__'}, does ${intv||'__'}${comp?(' compared to '+comp):''} improve ${out||'__'}${time?(' over '+time):''}?`;
+  }
+  function updateCounters(){
+    $('#cntContext').textContent = `${wordCount(F.context.value)} words`;
+    $('#cntSearch').textContent = `${wordCount(F.search.value)} words`;
+    $('#cntAppraise').textContent = `${wordCount(F.appraise.value)} words`;
+    $('#cntApply').textContent = `${wordCount(F.apply.value)} words`;
+    els.cntStudies.textContent = `Studies added: ${studies.length} / 3–5`;
+    const hits=[F.context,F.search,F.appraise,F.apply].filter(x=>wordCount(x.value)>=100).length;
+    els.progress.textContent = `${hits}/6 sections with 100+ words`;
+  }
+
+  // ======= Studies =======
+  function addStudy(){
+    const s = {
+      id:uid(),
+      title:sanitize($('#sTitle').value),
+      year:sanitize($('#sYear').value),
+      design:sanitize($('#sDesign').value),
+      sample:sanitize($('#sSample').value),
+      methods:sanitize($('#sMethods').value),
+      findings:sanitize($('#sFindings').value),
+      limits:sanitize($('#sLimits').value),
+      equity:sanitize($('#sEquity').value),
+      url:sanitize($('#sUrl').value)
+    };
+    if(!s.title || !s.findings){ toast('Title and findings are required.'); return; }
+    if(s.year && !/^\d{4}$/.test(s.year)){ toast('Year must be 4 digits.'); return; }
+    studies.push(stripDashesDeep(s)); renderStudies(); ['#sTitle','#sYear','#sDesign','#sSample','#sMethods','#sFindings','#sLimits','#sEquity','#sUrl'].forEach(sel=>$(sel).value=''); autosave();
+  }
+  function removeStudy(id){ studies = studies.filter(x=>x.id!==id); renderStudies(); autosave(); }
+  function renderStudies(){
+    const wrap=els.studyList; wrap.innerHTML='';
+    if(studies.length===0){
+      const p=document.createElement('div'); p.className='muted'; p.textContent='No studies yet. Aim for 3–5 relevant peer-reviewed sources.'; wrap.appendChild(p); updateCounters(); return;
+    }
+    for(const s of studies){
+      const div=document.createElement('div'); div.className='study';
+      div.innerHTML = `
+        <div class="row">
+          <strong>${escapeHtml(noDash(s.title))}</strong>
+          <span class="chip">${noDash(s.design||'Design n/a')}</span>
+          <span class="chip">${noDash(s.year||'Year n/a')}</span>
+          <button class="ghost right" data-id="${s.id}">Remove</button>
+        </div>
+        <div class="kvs" style="margin-top:6px">
+          <div class="muted">Population</div><div>${escapeHtml(noDash(s.sample||'-'))}</div>
+          <div class="muted">Methods</div><div>${escapeHtml(noDash(s.methods||'-'))}</div>
+          <div class="muted">Findings</div><div>${escapeHtml(noDash(s.findings||'-'))}</div>
+          <div class="muted">Limitations</div><div>${escapeHtml(noDash(s.limits||'-'))}</div>
+          <div class="muted">Equity</div><div>${escapeHtml(noDash(s.equity||'-'))}</div>
+          <div class="muted">DOI/URL</div><div>${linkify(noDash(s.url))||'-'}</div>
+        </div>`;
+      div.querySelector('button[data-id]').addEventListener('click',()=>removeStudy(s.id));
+      wrap.appendChild(div);
+    }
+    updateCounters();
+  }
+
+  // ======= Autosave =======
+  const autoKey=()=> current ? `EBP_NOTE_${current.id}` : 'EBP_NOTE_UNSET';
+  const autosave = debounce(()=>{
+    if(!current || !locked) return;
+    const data = {
+      case: current, locked, studies,
+      fields: { context:F.context.value, search:F.search.value, appraise:F.appraise.value, apply:F.apply.value, assumptions:F.assumptions.value },
+      pico: { pop:PICO.pop.value, int:PICO.int.value, comp:PICO.comp.value, out:PICO.out.value, time:PICO.time.value },
+      ts: nowISO()
+    };
+    try { localStorage.setItem(autoKey(), JSON.stringify(data)); els.saveStatus.textContent = `saved ${new Date().toLocaleTimeString()}`; }
+    catch { els.saveStatus.textContent = 'save failed'; }
+  }, 1200);
+  function loadDraft(){
+    const raw = localStorage.getItem(autoKey());
+    if(!raw){ els.saveStatus.textContent='no draft'; return; }
+    try{
+      const d=JSON.parse(raw);
+      studies = Array.isArray(d.studies)? d.studies : [];
+      F.context.value = d.fields?.context||'';
+      F.search.value = d.fields?.search||'';
+      F.appraise.value = d.fields?.appraise||'';
+      F.apply.value = d.fields?.apply||'';
+      F.assumptions.value = d.fields?.assumptions||'';
+      PICO.pop.value = d.pico?.pop||'';
+      PICO.int.value = d.pico?.int||'';
+      PICO.comp.value = d.pico?.comp||'';
+      PICO.out.value = d.pico?.out||'';
+      PICO.time.value = d.pico?.time||'';
+      picoPreview(); updateCounters(); renderStudies();
+      els.saveStatus.textContent = `loaded draft (${new Date(d.ts).toLocaleString()})`;
+    }catch{ els.saveStatus.textContent='load failed'; }
+  }
+
+  // ======= Export / Copy / Print =======
+  function buildDocHtml(){
+    if(!current) return '<!doctype html><html><head><meta charset="utf-8"><title>EBP Note</title></head><body><p>No case selected.</p></body></html>';
+    const esc=(s)=>escapeHtml(noDash((s||'').toString()));
+    const pico = PICO.preview.textContent;
+    const h=[];
+    h.push('<!doctype html><html><head><meta charset="utf-8"><title>EBP Note</title>');
+    h.push('<style>body{font-family:Calibri,Arial,Helvetica,sans-serif;line-height:1.45;color:#111} h1,h2,h3{margin:0 0 6px} h1{font-size:22px} h2{font-size:18px;margin-top:16px} h3{font-size:15px;margin-top:12px} ul{margin:4px 0 8px 18px} .meta li{margin:2px 0} .k{color:#374151} .small{color:#555;font-size:12px} @page{margin:1in} p{margin:0 0 10px 0}</style></head><body>');
+    h.push(`<h1>${esc(CONFIG.siteTitle)}</h1>`);
+    h.push('<h2>Case Vignette</h2><ul class="meta">');
+    h.push('<li><span class="k">Client Profile:</span> '+esc(renderClientProfile(current.client_profile||{}))+'</li>');
+    h.push('<li><span class="k">Setting:</span> '+esc(current.setting)+'</li>');
+    h.push('<li><span class="k">Presenting Problem:</span> '+esc(current.presenting_problem)+'</li>');
+    h.push('<li><span class="k">Relevant History:</span> '+esc(current.relevant_history)+'</li>');
+    h.push('<li><span class="k">Goals & Preferences:</span> '+esc(current.goals_and_preferences)+'</li>');
+    h.push('<li><span class="k">Strengths & Resources:</span> '+esc(current.strengths_and_resources)+'</li>');
+    h.push('<li><span class="k">Contextual Factors & Barriers:</span> '+esc(current.contextual_factors_and_barriers)+'</li>');
+    h.push('<li><span class="k">EBP Decision Point:</span> '+esc(current.ebp_decision_point)+'</li>');
+    const to = Array.isArray(current.target_outcomes)? current.target_outcomes.join('; ') : current.target_outcomes;
+    h.push('<li><span class="k">Target Outcomes:</span> '+esc(to||'')+'</li>');
+    h.push('<li><span class="k">Risks & Ethics:</span> '+esc(current.risks_and_ethics)+'</li>');
+    h.push('<li><span class="k">Equity Signal:</span> '+esc(current.equity_signal)+'</li></ul>');
+    h.push('<h2>Narrative</h2>');
+    h.push(paragraphsHTML(current.narrative||'')); // paragraph blocks
+    h.push(`<h2>${esc(CONFIG.labels.context[0])}</h2><p>${esc($('#fContext').value).replace(/\n/g,'<br>')}</p>`);
+    h.push(`<h2>${esc(CONFIG.labels.pico[0])}</h2><p><strong>Question:</strong> ${esc(pico)}</p>`);
+    h.push(`<h2>${esc(CONFIG.labels.search[0])}</h2><p>${esc($('#fSearch').value).replace(/\n/g,'<br>')}</p>`);
+    h.push(`<h2>${esc(CONFIG.labels.studies[0])}</h2>`);
+    if(studies.length===0){ h.push('<p><em>No studies added yet.</em></p>'); }
+    else{
+      studies.forEach((s,i)=>{
+        h.push('<h3>Study '+(i+1)+': '+esc(s.title)+(s.year?(' ('+esc(s.year)+')'):'')+'</h3><ul>');
+        if(s.design) h.push('<li><strong>Design:</strong> '+esc(s.design)+'</li>');
+        if(s.sample) h.push('<li><strong>Population/Sample:</strong> '+esc(s.sample)+'</li>');
+        if(s.methods) h.push('<li><strong>Methods:</strong> '+esc(s.methods)+'</li>');
+        if(s.findings) h.push('<li><strong>Key Findings (own words):</strong> '+esc(s.findings)+'</li>');
+        if(s.limits) h.push('<li><strong>Limitations:</strong> '+esc(s.limits)+'</li>');
+        if(s.equity) h.push('<li><strong>Equity/Representation:</strong> '+esc(s.equity)+'</li>');
+        if(s.url) h.push('<li><strong>DOI/URL:</strong> '+esc(s.url)+'</li>');
+        h.push('</ul>');
+      });
+    }
+    h.push(`<h2>${esc(CONFIG.labels.appraise[0])}</h2><p>${esc($('#fAppraise').value).replace(/\n/g,'<br>')}</p>`);
+    h.push(`<h2>${esc(CONFIG.labels.apply[0])}</h2><p>${esc($('#fApply').value).replace(/\n/g,'<br>')}</p>`);
+    const ass = $('#fAssumptions').value;
+    if(ass){ h.push(`<h2>${esc(CONFIG.labels.assumptions[0])}</h2><p>${esc(ass).replace(/\n/g,'<br>')}</p>`); }
+    h.push('<p class="small">Generated '+new Date().toLocaleString()+'</p>');
+    h.push('</body></html>');
+    return h.join('');
+  }
+  function buildPlainText(){
+    if(!current) return 'No case selected.';
+    const lines=[];
+    const pico=PICO.preview.textContent;
+    lines.push(CONFIG.siteTitle,'');
+    lines.push('Case Vignette');
+    lines.push(`- Client Profile: ${renderClientProfile(current.client_profile||{})}`);
+    lines.push(`- Setting: ${noDash(current.setting)}`);
+    lines.push(`- Presenting Problem: ${noDash(current.presenting_problem)}`);
+    lines.push(`- Relevant History: ${noDash(current.relevant_history)}`);
+    lines.push(`- Goals & Preferences: ${noDash(current.goals_and_preferences)}`);
+    lines.push(`- Strengths & Resources: ${noDash(current.strengths_and_resources)}`);
+    lines.push(`- Contextual Factors & Barriers: ${noDash(current.contextual_factors_and_barriers)}`);
+    lines.push(`- EBP Decision Point: ${noDash(current.ebp_decision_point)}`);
+    const to = Array.isArray(current.target_outcomes)? current.target_outcomes.join('; ') : current.target_outcomes;
+    lines.push(`- Target Outcomes: ${noDash(to||'')}`);
+    lines.push(`- Risks & Ethics: ${noDash(current.risks_and_ethics)}`);
+    lines.push(`- Equity Signal: ${noDash(current.equity_signal)}`,'');
+    lines.push('Narrative'); lines.push(noDash((current.narrative||'').replace(/\r\n/g,'\n')),'');
+    lines.push(CONFIG.labels.context[0]); lines.push($('#fContext').value,'');
+    lines.push(CONFIG.labels.pico[0]); lines.push(`Question: ${pico}`,'');
+    lines.push(CONFIG.labels.search[0]); lines.push($('#fSearch').value,'');
+    lines.push(CONFIG.labels.studies[0]);
+    if(studies.length===0){ lines.push('No studies added yet.'); }
+    else{
+      studies.forEach((s,i)=>{
+        lines.push(`Study ${i+1}: ${noDash(s.title)}${s.year?` (${noDash(s.year)})`:''}`);
+        if(s.design) lines.push(`  - Design: ${noDash(s.design)}`);
+        if(s.sample) lines.push(`  - Population/Sample: ${noDash(s.sample)}`);
+        if(s.methods) lines.push(`  - Methods: ${noDash(s.methods)}`);
+        if(s.findings) lines.push(`  - Key Findings: ${noDash(s.findings)}`);
+        if(s.limits) lines.push(`  - Limitations: ${noDash(s.limits)}`);
+        if(s.equity) lines.push(`  - Equity/Representation: ${noDash(s.equity)}`);
+        if(s.url) lines.push(`  - DOI/URL: ${noDash(s.url)}`);
+      });
+    }
+    lines.push('',CONFIG.labels.appraise[0]); lines.push($('#fAppraise').value,'');
+    lines.push(CONFIG.labels.apply[0]); lines.push($('#fApply').value,'');
+    const ass=$('#fAssumptions').value; if(ass){ lines.push(CONFIG.labels.assumptions[0]); lines.push(ass,''); }
+    lines.push(`Generated ${new Date().toLocaleString()}`);
+    return lines.join('\n');
+  }
+  function downloadWord(){
+    const html = buildDocHtml();
+    const blob = new Blob([html], {type:'application/msword'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = CONFIG.exportFileName; a.click(); URL.revokeObjectURL(url);
+    toast('Word file downloaded.');
+  }
+  async function copyPlain(){
+    try{ await navigator.clipboard.writeText(buildPlainText()); toast('Copied as plain text.'); }
+    catch{ toast('Copy failed. Use Export Word instead.'); }
+  }
+  async function copyCaseFactors(){
+    if(!current){ toast('Draw a case first.'); return; }
+    const txt = [
+      `Title: ${noDash(current.title)}`,
+      `Client Profile: ${renderClientProfile(current.client_profile||{})}`,
+      `Setting: ${noDash(current.setting)}`,
+      `Presenting Problem: ${noDash(current.presenting_problem)}`,
+      `Relevant History: ${noDash(current.relevant_history)}`,
+      `Goals & Preferences: ${noDash(current.goals_and_preferences)}`,
+      `Strengths & Resources: ${noDash(current.strengths_and_resources)}`,
+      `Contextual Factors & Barriers: ${noDash(current.contextual_factors_and_barriers)}`,
+      `EBP Decision Point: ${noDash(current.ebp_decision_point)}`,
+      `Target Outcomes: ${Array.isArray(current.target_outcomes)? noDash(current.target_outcomes.join('; ')) : noDash(current.target_outcomes)}`,
+      `Risks & Ethics: ${noDash(current.risks_and_ethics)}`,
+      `Equity Signal: ${noDash(current.equity_signal)}`
+    ].join('\n');
+    try{ await navigator.clipboard.writeText(txt); toast('Case factors copied.'); }
+    catch{ toast('Copy failed.'); }
+  }
+  function printPage(){ window.print(); }
+
+  // ======= Case Import/Export =======
+  $('#btnImport').addEventListener('click', ()=>$('#fileInput').click());
+  $('#fileInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if(!Array.isArray(data)) throw new Error('JSON must be an array of cases.');
+      // validate minimally
+      data.forEach((c,i)=>{
+        if(!c.title || !c.narrative) throw new Error(`Case at index ${i} missing title or narrative.`);
+      });
+      VIGNETTES = stripDashesDeep(data);
+      toast(`Imported ${VIGNETTES.length} cases.`);
+      e.target.value=''; // reset
+    }catch(err){
+      toast('Import failed: '+(err.message||'Invalid JSON'));
+    }
+  });
+  $('#btnExportCases').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(VIGNETTES, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'cases_export.json'; a.click(); URL.revokeObjectURL(url);
+    toast('Cases JSON exported.');
+  });
+
+  // ======= Toast =======
+  let toastTimer=null; const toastDiv=document.createElement('div');
+  toastDiv.style.position='fixed'; toastDiv.style.bottom='16px'; toastDiv.style.left='50%'; toastDiv.style.transform='translateX(-50%)';
+  toastDiv.style.background='#111827'; toastDiv.style.color='#fff'; toastDiv.style.padding='10px 14px';
+  toastDiv.style.borderRadius='10px'; toastDiv.style.boxShadow='0 6px 20px rgba(0,0,0,.15)'; toastDiv.style.zIndex='9999'; toastDiv.style.display='none';
+  document.body.appendChild(toastDiv);
+  function toast(msg){ clearTimeout(toastTimer); toastDiv.textContent=msg; toastDiv.style.display='block'; toastTimer=setTimeout(()=>toastDiv.style.display='none',1900); }
+
+  // ======= Events =======
+  $('#btnRandom').addEventListener('click', randomize);
+  $('#btnLock').addEventListener('click', toggleLock);
+  $('#btnNew').addEventListener('click', ()=>{ if(confirm('Clear current note?')){ clearAllFields(); studies=[]; renderStudies(); autosave(); }});
+  $('#btnSave').addEventListener('click', ()=>autosave());
+  $('#btnLoad').addEventListener('click', ()=>{ if(!current){ toast('Select and lock a case first.'); return;} loadDraft(); });
+  $('#btnExport').addEventListener('click', downloadWord);
+  $('#btnCopy').addEventListener('click', copyPlain);
+  $('#btnPrint').addEventListener('click', ()=>printPage());
+  $('#btnAddStudy').addEventListener('click', addStudy);
+  $('#btnCopyFactors').addEventListener('click', copyCaseFactors);
+  [$('#fContext'),$('#fSearch'),$('#fAppraise'),$('#fApply'),$('#fAssumptions')].forEach(el=>el.addEventListener('input', ()=>{ updateCounters(); autosave(); }));
+  [$('#pPop'),$('#pInt'),$('#pComp'),$('#pOut'),$('#pTime')].forEach(el=>el.addEventListener('input', ()=>{ picoPreview(); autosave(); }));
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown',(e)=>{
+    if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName) && (e.ctrlKey||e.metaKey)) return;
+    if(e.key==='r'||e.key==='R'){ e.preventDefault(); randomize(); }
+    if(e.key==='l'||e.key==='L'){ e.preventDefault(); toggleLock(); }
+    if(e.key==='p'||e.key==='P'){ e.preventDefault(); printPage(); }
+    if((e.key==='e'||e.key==='E') && locked){ e.preventDefault(); downloadWord(); }
+  });
+
+  // ======= Init =======
+  function renderStudies(){
+    const wrap=els.studyList; wrap.innerHTML='';
+    const p=document.createElement('div'); p.className='muted'; p.textContent='No studies yet. Aim for 3–5 relevant peer-reviewed sources.';
+    wrap.appendChild(p); updateCounters();
+  }
+  function picoPreview(){ const p=[$('#pPop').value,$('#pInt').value,$('#pComp').value,$('#pOut').value,$('#pTime').value].map(sanitize); const [pop,intv,comp,out,time]=p; $('#picoPreview').textContent = `In ${pop||'__'}, does ${intv||'__'}${comp?(' compared to '+comp):''} improve ${out||'__'}${time?(' over '+time):''}?`; }
+  function updateCounters(){ $('#cntContext').textContent = `${wordCount($('#fContext').value)} words`; $('#cntSearch').textContent = `${wordCount($('#fSearch').value)} words`; $('#cntAppraise').textContent = `${wordCount($('#fAppraise').value)} words`; $('#cntApply').textContent = `${wordCount($('#fApply').value)} words`; $('#cntStudies').textContent = `Studies added: ${studies.length} / 3–5`; const hits=[$('#fContext'),$('#fSearch'),$('#fAppraise'),$('#fApply')].filter(x=>wordCount(x.value)>=100).length; $('#progress').textContent = `${hits}/6 sections with 100+ words`; }
+  applyShowIds(); picoPreview(); updateLockUi(); renderStudies(); renderCase();
+</script>
+</body>
+</html>
