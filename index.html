@@ -1,7 +1,7 @@
+<!-- /program-eval.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- TODO(dev): Debug the original EBP Randomizer page for the reported functionality issue. -->
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Program Evaluation Generator</title>
@@ -39,9 +39,11 @@
     .scenario p{margin:0 0 10px 0}
     .kvs{display:grid;grid-template-columns:200px 1fr;gap:8px}
     .kvs .muted{align-self:start}
+    #errBanner{position:fixed;top:0;left:0;right:0;background:#b91c1c;color:#fff;padding:8px 12px;display:none;z-index:10000;font-size:12px}
   </style>
 </head>
 <body>
+<div id="errBanner"></div>
 <div class="container">
   <header>
     <div class="row">
@@ -49,12 +51,11 @@
       <span class="badge" id="siteSubtitle">SOW5404 • Spring 2026 • No login • Export Word / Copy Text</span>
     </div>
     <div class="toolbar" role="toolbar" aria-label="Main">
-      <button id="btnRandom" class="focus-ring" title="Alt+R — Randomize a scenario">🎲 Randomize</button>
-      <button id="btnLock" class="ghost focus-ring" title="Alt+L — Lock/unlock the current scenario">🔒 Lock</button>
+      <button id="btnRandom" class="focus-ring" title="Alt+R — Randomize">🎲 Randomize</button>
+      <button id="btnLock" class="ghost focus-ring" title="Alt+L — Lock/unlock">🔒 Lock</button>
       <button id="btnNew" class="ghost focus-ring" title="Start fresh">🧼 New</button>
-      <button id="btnSave" class="ghost focus-ring" title="Save to this browser">💾 Save</button>
-      <button id="btnLoad" class="ghost focus-ring" title="Load last draft">📂 Load</button>
-      <button id="btnCopyScenario" class="ghost focus-ring" title="Copy scenario as plain text">🧾 Copy Scenario</button>
+      <button id="btnSave" class="ghost focus-ring" title="Save to browser">💾 Save</button>
+      <button id="btnLoad" class="ghost focus-ring" title="Load last">📂 Load</button>
       <button id="btnExport" class="secondary focus-ring" title="Alt+E — Export to Word">⬇️ Export Word</button>
       <button id="btnCopy" class="ghost focus-ring" title="Copy all as plain text">📋 Copy Text</button>
       <button id="btnPrint" class="ghost focus-ring" title="Alt+P — Print">🖨️ Print</button>
@@ -62,8 +63,8 @@
   </header>
 
   <div class="grid" id="app">
-    <section class="card" aria-labelledby="caseTitle">
-      <h2 id="caseTitle">Scenario</h2>
+    <section class="card">
+      <h2>Scenario</h2>
       <div id="caseEmpty" class="muted">Click <strong>Randomize</strong> to draw a scenario. Lock to begin writing.</div>
 
       <div id="caseWrap" hidden>
@@ -89,55 +90,55 @@
       </div>
     </section>
 
-    <section class="card" aria-labelledby="builderTitle">
-      <h2 id="builderTitle">Program Evaluation Builder</h2>
+    <section class="card">
+      <h2>Program Evaluation Builder</h2>
       <div id="lockGate" class="muted">Lock a scenario to enable editing.</div>
       <div id="builder" hidden>
         <div class="field">
           <label for="fContext">1) Scenario Context & Stakeholders</label>
-          <div class="hint">Summarize setting, population, core problems you will focus on. Name key stakeholders and what each wants. Include 1–2 structural/equity factors.</div>
+          <div class="hint">Summarize setting, population, core problems to focus on. Name stakeholders and 1–2 equity factors.</div>
           <textarea id="fContext"></textarea>
           <div class="row"><span class="status" id="cntContext">0 words</span></div>
         </div>
 
         <div class="field">
           <label for="fDesign">2) Your Program or Practice Design</label>
-          <div class="hint">Describe what you propose, who it is for, components (format, frequency, roles), and a short theory of change.</div>
+          <div class="hint">What you propose, who it is for, components (format/frequency/roles), short theory of change.</div>
           <textarea id="fDesign"></textarea>
           <div class="row"><span class="status" id="cntDesign">0 words</span></div>
         </div>
 
         <div class="field">
           <label for="fPurpose">3) Evaluation Purpose & Questions</label>
-          <div class="hint">Why evaluate now and what decisions it will inform. Add 2–3 clear evaluation questions (include at least one outcome and one experience/access/structural).</div>
+          <div class="hint">Why evaluate now, and 2–3 questions (include one outcome and one access/experience/structural).</div>
           <textarea id="fPurpose"></textarea>
           <div class="row"><span class="status" id="cntPurpose">0 words</span></div>
         </div>
 
         <div class="field">
           <label for="fOutcomes">4) Outcomes (Conceptualization)</label>
-          <div class="hint">Name 2–3 outcomes/phenomena. Define in context. Contrast with policy/system definitions.</div>
+          <div class="hint">Name 2–3 outcomes and define them in context. Contrast with policy/system definitions.</div>
           <textarea id="fOutcomes"></textarea>
           <div class="row"><span class="status" id="cntOutcomes">0 words</span></div>
         </div>
 
         <div class="field">
           <label for="fMeasures">5) Operationalization & Data Sources</label>
-          <div class="hint">For each outcome, propose at least two measures with data source/level, pros/cons, equity implications.</div>
+          <div class="hint">For each outcome, list ≥2 measures with data source, pros/cons, equity implications.</div>
           <textarea id="fMeasures"></textarea>
           <div class="row"><span class="status" id="cntMeasures">0 words</span></div>
         </div>
 
         <div class="field">
           <label for="fDesignPlan">6) Evaluation Design Plan</label>
-          <div class="hint">Design type, who is included, when data are collected, and a brief map of Questions → Outcomes → Measures. Note feasibility.</div>
+          <div class="hint">Design type, inclusion, timing. Map Questions → Outcomes → Measures. Note feasibility.</div>
           <textarea id="fDesignPlan"></textarea>
           <div class="row"><span class="status" id="cntDesignPlan">0 words</span></div>
         </div>
 
         <div class="field">
           <label for="fEthics">7) Ethics, Power, Limitations & Communication</label>
-          <div class="hint">How data help vs harm, power/surveillance risks, structural factors, at least 2 limitations, and a 1–2 sentence participant message.</div>
+          <div class="hint">How data help vs harm, power/surveillance risks, at least 2 limitations, and a participant message.</div>
           <textarea id="fEthics"></textarea>
           <div class="row"><span class="status" id="cntEthics">0 words</span></div>
         </div>
@@ -159,94 +160,114 @@
 
   <div class="footer">
     <span>Autosave:</span><span id="saveStatus">idle</span>
-    <span class="muted">•</span><span id="tip">SOW5404 • Spring 2026 • Alt+R = Randomize, Alt+L = Lock, Alt+E = Export Word.</span>
+    <span class="muted">•</span><span id="tip">Alt+R = Randomize, Alt+L = Lock, Alt+E = Export Word • Ctrl+S = Save Draft</span>
   </div>
 </div>
 
 <script>
-  const CONFIG = {
-    siteTitle: "Program Evaluation Generator",
-    siteSubtitle: "SOW5404 • Spring 2026 • No login • Export Word / Copy Text",
-    exportFileName: "SOW5404_Spring_2026_Program_Evaluation.doc",
-    courseHeader: "SOW5404 • Spring 2026"
-  };
+document.addEventListener('DOMContentLoaded', () => {
+  const err=(m,e)=>{ console.error(m,e||''); const b=document.getElementById('errBanner'); b.textContent=m; b.style.display='block'; setTimeout(()=>b.style.display='none',6000); };
+  function toast(msg){ clearTimeout(window.__t); if(!window.__to){const d=document.createElement('div'); d.style.position='fixed';d.style.bottom='16px';d.style.left='50%';d.style.transform='translateX(-50%)';d.style.background='#111827';d.style.color='#fff';d.style.padding='10px 14px';d.style.borderRadius='10px';d.style.boxShadow='0 6px 20px rgba(0,0,0,.15)';d.style.zIndex='9999';d.style.display='none';window.__to=d;document.body.appendChild(d);} window.__to.textContent=msg; window.__to.style.display='block'; window.__t=setTimeout(()=>window.__to.style.display='none',1900); }
 
-  // Utils
-  const noDash=(s)=>(s||'').toString().replace(/[—–]/g,'-');
-  const stripDashesDeep=(v)=>Array.isArray(v)?v.map(stripDashesDeep):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,val])=>[k,stripDashesDeep(val)])):typeof v==='string'?noDash(v):v;
-  const $=(sel)=>document.querySelector(sel);
-  const nowISO=()=>new Date().toISOString();
-  const wordCount=(s)=>(s||"").trim().split(/\s+/).filter(Boolean).length;
-  const debounce=(fn,ms=800)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(null,a),ms);};};
-  const escapeHtml=s=>(s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const CONFIG={ siteTitle:"Program Evaluation Generator", siteSubtitle:"SOW5404 • Spring 2026 • No login • Export Word / Copy Text", exportFileName:"SOW5404_Spring_2026_Program_Evaluation.docx", courseHeader:"SOW5404 • Spring 2026" };
+  const $=s=>document.querySelector(s);
+  const noDash = s=>(s||'').toString().replace(/[—–]/g,'-');
+  const stripDashesDeep=v=>Array.isArray(v)?v.map(stripDashesDeep):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,val])=>[k,stripDashesDeep(val)])):typeof v==='string'?noDash(v):v;
+  const escapeHtml=s=>(s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;","&gt;":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const wordCount=s=>(s||'').trim().split(/\s+/).filter(Boolean).length;
   function paragraphsHTML(text){ const safe=noDash(text||'').replace(/\r\n/g,'\n'); const blocks=safe.split(/\n\s*\n/).map(t=>t.trim()).filter(Boolean); return blocks.map(b=>`<p>${escapeHtml(b)}</p>`).join(''); }
 
-  // Data (keep your same 15 scenarios here; truncated for space)
-  let SCENARIOS = stripDashesDeep(
-    [{"title":"Discipline at Jefferson Middle: Suspensions and “Defiance”","setting_snapshot":"Jefferson Middle School is a large, majority-Black public school in an urban district. The building is old, some classroom windows are painted shut, and the heaters rattle in winter. Hallways are crowded during every class change. The school has one full-time social worker, a part-time behavior specialist shared with another campus, and a school resource officer (SRO) assigned three days a week.","population_snapshot":"Most students live within a 3–4 mile radius. Many caregivers work variable shifts in healthcare, service, or warehouse jobs. About 80% of students qualify for free/reduced lunch. The “high needs” roster combines students with IEPs, 504 plans, and those with 5+ office referrals; Black students and students with disabilities are overrepresented on that list and in suspension data.","core_problems":"Over the past two years, Jefferson’s out-of-school suspensions have climbed overall and are now above the district average. The largest categories are “defiance,” “disruption,” and “noncompliance.” Teachers describe write-ups for refusing to put away phones, walking out of class, and hallway conflicts that escalate into suspensions. The social worker is called often to de-escalate student-teacher conflicts. Many frequent flyers have recent stressors (housing changes, caregiver illness, community violence) that rarely appear in discipline records. Teachers report burnout and say “nothing works,” while families express frustration about fairness and communication. The district flagged Jefferson for disproportionate discipline and demanded a plan.","stakeholder_glimpses":"Principal: Wants to reduce suspensions without alienating staff and to address disproportionality; fears teacher turnover.\nTeachers: Mixed views, with some wanting “clear consequences” and others asking for more support, coaching, and consistency.\nStudents: Report feeling targeted or misunderstood; some avoid school due to “drama” and adult interactions.\nFamilies: Mixed trust in the school; some feel meetings are for “being told,” not problem-solving together.\nDistrict leaders: Watch suspension numbers, disproportionality, attendance, and school climate as key metrics; also attuned to legal risk.","equity_signals":"Racial and disability disparities in referrals and suspensions; vague categories rely on adult interpretation; police presence on campus; limited youth-friendly mental health services; accountability pressures that value “order” and test scores over relationship-building.","constraints_resources":"Limited space for new programs; one social worker and a part-time behavior specialist; an SRO is on campus three days/week. Mandatory PD hours are already packed. There is a small, one-year “innovation” grant up to $10,000. A local youth nonprofit is interested in partnering but not yet formally connected.","role":"As the MSW social worker/evaluator, propose a specific, realistic practice change and outline how you will evaluate whether it helps."}
-      /* … include the remaining 14 scenario objects exactly as in your last working file … */
-    ]
-  );
+  // ----- scenarios (from your PE set) -----
+  let SCENARIOS = stripDashesDeep([
+    {"title":"Discipline at Jefferson Middle: Suspensions and “Defiance”","setting_snapshot":"Jefferson Middle School is a large, majority-Black public school in an urban district...","population_snapshot":"Most students live within a 3-4 mile radius...","core_problems":"Over the past two years, Jefferson’s out-of-school suspensions have climbed...","stakeholder_glimpses":"Principal: ...\nTeachers: ...\nStudents: ...\nFamilies: ...\nDistrict leaders: ...","equity_signals":"Racial and disability disparities...","constraints_resources":"Limited space... small one-year innovation grant...","role":"As the MSW social worker/evaluator, propose a specific, realistic practice change and outline how you will evaluate whether it helps."},
+    {"title":"Discharge to Nowhere: Unhoused Patients at City General","setting_snapshot":"City General is a busy safety-net hospital...","population_snapshot":"Many adult inpatients are unhoused or precariously housed...","core_problems":"Thirty-day readmissions for unhoused patients are nearly double...","stakeholder_glimpses":"Hospital leadership... Medical staff...","equity_signals":"Criminalization of homelessness...","constraints_resources":"No capacity to create a new inpatient unit...","role":"Design a small-scale discharge planning program or practice tweak and outline an evaluation."},
+    {"title":"We Don't Feel Safe Here: LGBTQ+ Students at Northside High","setting_snapshot":"Northside High is a suburban campus...","population_snapshot":"Student body is majority White with a growing number of Black, Latine, and immigrant students...","core_problems":"Reports of bullying and harassment...","stakeholder_glimpses":"LGBTQ+ students: ...","equity_signals":"State-level debates...","constraints_resources":"Limited PD time...","role":"Propose a specific program/practice to improve safety and belonging and design an evaluation."},
+    {"title":"Lost in Translation: Newcomer Students at Eastview Middle","setting_snapshot":"Eastview Middle is a mid-sized city school...","population_snapshot":"About 30% of students are multilingual learners...","core_problems":"Some students show quiet compliance while failing assessments...","stakeholder_glimpses":"Students: ... Families: ...","equity_signals":"Language barriers and inadequate interpretation...","constraints_resources":"Limited ESOL hours...","role":"Design a support program/practice for newcomer/multilingual students and families and outline an evaluation."},
+    {"title":"Always Waiting: College Counseling Center at River State University","setting_snapshot":"RSU’s counseling center includes psychologists, social workers, and trainees...","population_snapshot":"Students are diverse and include many first-gen students...","core_problems":"Waits for intake have reached 3–4 weeks...","stakeholder_glimpses":"Students: ... Staff: ...","equity_signals":"First-gen and low-income stress...","constraints_resources":"Limited space; potential to reconfigure...","role":"Propose a concrete program/practice change and design an evaluation."},
+    {"title":"We're Just a Bed, Not a Solution: DV Shelter Survivors Program","setting_snapshot":"Safe Harbor House is a confidential emergency shelter...","population_snapshot":"Residents are mostly women and children...","core_problems":"Residents cycle through quickly; some return to partners...","stakeholder_glimpses":"Residents: ... Staff: ...","equity_signals":"Economic dependence and immigration fears...","constraints_resources":"Limited staff and no on-site childcare...","role":"Design a structured program component and plan an evaluation for survivor experience and outcomes."},
+    {"title":"A Roof, Not a Home: Transitional Housing for Youth Aging Out of Care","setting_snapshot":"BridgePoint House consists of studio apartments...","population_snapshot":"Young adults 18–24 with histories of system involvement...","core_problems":"Program emphasizes housing stability more than wellbeing...","stakeholder_glimpses":"Residents: ... Staff: ...","equity_signals":"Systemic racism and classism...","constraints_resources":"Limited 1:1 capacity; groups are more feasible...","role":"Design a program element and outline an evaluation of impact on youth experience and outcomes."},
+    {"title":"Productivity or People? Quotas at Community Family Services","setting_snapshot":"CFS provides outpatient therapy, case management...","population_snapshot":"Families navigate poverty, housing instability...","core_problems":"Stricter productivity targets push shorter sessions...","stakeholder_glimpses":"Clinicians: ... Clients: ...","equity_signals":"Reimbursement systems reward billables...","constraints_resources":"Overall billables cannot drop dramatically...","role":"Propose a targeted adjustment and design an evaluation for client experience and key metrics."},
+    {"title":"In and Out of the Room: Medically Complex Kids on the Pediatric Unit","setting_snapshot":"Memorial Children’s Hospital pediatric unit...","population_snapshot":"Patients include infants through teens...","core_problems":"Clinicians worry about caregiver follow-through...","stakeholder_glimpses":"Caregivers: ... Nurses/physicians: ...","equity_signals":"Disparities in labeling families...","constraints_resources":"No new positions...","role":"Design a program/practice to support families and outline an evaluation."},
+    {"title":"Out and Back Again: Youth Reentry Drop-In Center","setting_snapshot":"Horizon Hub is near a bus hub and courthouse...","population_snapshot":"Mostly Black and Latine youth...","core_problems":"The Hub provides basics but lacks structured offerings...","stakeholder_glimpses":"Youth: ... Probation: ...","equity_signals":"School-to-prison pipeline...","constraints_resources":"Small staff and space...","role":"Design a realistic program track and develop an evaluation."},
+    {"title":"More Sirens at Night: Overdoses in the Riverside Neighborhood","setting_snapshot":"Riverside is a working-class neighborhood...","population_snapshot":"Residents include long-term older Black and White neighbors...","core_problems":"Overdoses and deaths have risen sharply...","stakeholder_glimpses":"PWUD: ... Family members: ...","equity_signals":"Deindustrialization and criminalization...","constraints_resources":"Limited funding; harm reduction group exists...","role":"Design an overdose response or harm reduction initiative and an evaluation plan."},
+    {"title":"Whose Plan Is It? IEP Conflict at Lincoln Elementary","setting_snapshot":"Lincoln Elementary is a neighborhood K–5...","population_snapshot":"Families are diverse...","core_problems":"IEP meetings have become contentious...","stakeholder_glimpses":"Families: ... Teachers: ...","equity_signals":"Racial and disability disparities; power imbalances...","constraints_resources":"Limited time for long meetings...","role":"Design a support or practice change and outline an evaluation."},
+    {"title":"Hard to Breathe: Asthma and Air Quality in Oakwood","setting_snapshot":"Oakwood is a low-income neighborhood near a highway...","population_snapshot":"Predominantly Black and Latine families...","core_problems":"Children’s asthma rates and ER visits are higher...","stakeholder_glimpses":"Families: ... Clinic: ...","equity_signals":"Environmental racism; landlord-tenant dynamics...","constraints_resources":"Clinic time limited; EJ org has data...","role":"Design a clinic–community initiative and evaluate child health and equity."},
+    {"title":"We Only Come on Thursdays: Rural Mobile Health Clinic","setting_snapshot":"A mobile van rotates among rural communities...","population_snapshot":"Older adults, farmworkers, families with limited transport...","core_problems":"Irregular follow-up and short visits...","stakeholder_glimpses":"Residents: ... Van staff: ...","equity_signals":"Rural disparities; digital divide...","constraints_resources":"Fixed van capacity; limited route frequency...","role":"Design a practice modification and an evaluation for access and continuity."},
+    {"title":"Safe or Watched? The City's Crime Prevention Initiative","setting_snapshot":"Neighborhood Safety Zones add patrols/cameras and grants...","population_snapshot":"Brookside, historically Black community with social networks...","core_problems":"Mixed reactions; youth report more stops; leaders frustrated...","stakeholder_glimpses":"Residents: ... Youth: ...","equity_signals":"History of racialized policing; tension in defining safety...","constraints_resources":"Modest city funds; crime and survey data exist...","role":"Design a community-led program and outline an evaluation centering community-defined safety."}
+  ]);
 
-  // State & els
-  let current=null, locked=false; let showIds=false;
-  const F={context:$('#fContext'),design:$('#fDesign'),purpose:$('#fPurpose'),outcomes:$('#fOutcomes'),measures:$('#fMeasures'),designPlan:$('#fDesignPlan'),ethics:$('#fEthics'),assumptions:$('#fAssumptions')};
-  const els={caseEmpty:$('#caseEmpty'),caseWrap:$('#caseWrap'),caseId:$('#caseId'),lockStatus:$('#lockStatus'),caseTitleChip:$('#caseTitleChip'),vTitle:$('#vTitle'),vSetting:$('#vSetting'),vPopulation:$('#vPopulation'),vCore:$('#vCore'),vStake:$('#vStake'),vEquity:$('#vEquity'),vConstraints:$('#vConstraints'),vRole:$('#vRole'),lockGate:$('#lockGate'),builder:$('#builder'),saveStatus:$('#saveStatus'),progress:$('#progress')};
-
-  (function applyConfig(){ $('#siteTitle').textContent=CONFIG.siteTitle; document.title=CONFIG.siteTitle; $('#siteSubtitle').textContent=CONFIG.siteSubtitle; })();
-  function applyShowIds(){ const m=showIds?'remove':'add'; els.caseId.classList[m]('hidden'); els.caseTitleChip.classList[m]('hidden'); }
-  function updateLockUi(){ els.lockStatus.innerHTML=locked?'<span class="ok">Locked for writing</span>':'<span class="warn">Unlocked</span>'; $('#btnLock').textContent=locked?'🔓 Unlock':'🔒 Lock'; els.lockGate.hidden=locked; els.builder.hidden=!locked; }
-
-  function renderCase(){
-    if(!current){ els.caseWrap.hidden=true; els.caseEmpty.hidden=false; return; }
-    els.caseEmpty.hidden=false; els.caseWrap.hidden=false;
-    $('#caseId').textContent=current.id||''; $('#caseTitleChip').textContent=noDash(current.title); els.vTitle.textContent=noDash(current.title);
-    els.vSetting.innerHTML=paragraphsHTML(current.setting_snapshot);
-    els.vPopulation.innerHTML=paragraphsHTML(current.population_snapshot);
-    els.vCore.innerHTML=paragraphsHTML(current.core_problems);
-    els.vStake.innerHTML=paragraphsHTML(current.stakeholder_glimpses);
-    els.vEquity.innerHTML=paragraphsHTML(current.equity_signals);
-    els.vConstraints.innerHTML=paragraphsHTML(current.constraints_resources);
-    els.vRole.textContent=noDash(current.role);
-    applyShowIds(); updateLockUi();
-  }
-
-  function randomize(){
-    const b=$('#btnRandom'); b.disabled=true; b.innerHTML='<span class="spin">🎲</span> Rolling...';
-    setTimeout(()=>{ const idx=Math.floor(Math.random()*SCENARIOS.length); current=SCENARIOS[idx]; locked=false; clearAllFields(); renderCase(); b.disabled=false; b.textContent='🎲 Randomize'; toast('New scenario drawn. Review and lock to start.'); },600);
-  }
-  function toggleLock(){ if(!current){ toast('Draw a scenario first.'); return; } locked=!locked; updateLockUi(); if(locked){ loadDraft(); } }
-  function clearAllFields(){ Object.values(F).forEach(el=>{ if(el) el.value=''; }); updateCounters(); }
+  // ----- state & refs -----
+  let current=null, locked=false;
+  const F={
+    context:$('#fContext'), design:$('#fDesign'), purpose:$('#fPurpose'),
+    outcomes:$('#fOutcomes'), measures:$('#fMeasures'),
+    designPlan:$('#fDesignPlan'), ethics:$('#fEthics'), assumptions:$('#fAssumptions')
+  };
+  const els={
+    caseEmpty:$('#caseEmpty'), caseWrap:$('#caseWrap'), lockStatus:'#lockStatus',
+    vTitle:'#vTitle', vSetting:'#vSetting', vPopulation:'#vPopulation', vCore:'#vCore', vStake:'#vStake',
+    vEquity:'#vEquity', vConstraints:'#vConstraints', vRole:'#vRole',
+    lockGate:'#lockGate', builder:'#builder',
+    cntContext:'#cntContext', cntDesign:'#cntDesign', cntPurpose:'#cntPurpose', cntOutcomes:'#cntOutcomes', cntMeasures:'#cntMeasures', cntDesignPlan:'#cntDesignPlan', cntEthics:'#cntEthics',
+    progress:'#progress', saveStatus:'#saveStatus'
+  };
+  function G(id){ return document.querySelector(id); }
 
   function updateCounters(){
-    document.getElementById('cntContext').textContent=`${wordCount(F.context.value)} words`;
-    document.getElementById('cntDesign').textContent=`${wordCount(F.design.value)} words`;
-    document.getElementById('cntPurpose').textContent=`${wordCount(F.purpose.value)} words`;
-    document.getElementById('cntOutcomes').textContent=`${wordCount(F.outcomes.value)} words`;
-    document.getElementById('cntMeasures').textContent=`${wordCount(F.measures.value)} words`;
-    document.getElementById('cntDesignPlan').textContent=`${wordCount(F.designPlan.value)} words`;
-    document.getElementById('cntEthics').textContent=`${wordCount(F.ethics.value)} words`;
+    G(els.cntContext).textContent=`${wordCount(F.context.value)} words`;
+    G(els.cntDesign).textContent =`${wordCount(F.design.value)} words`;
+    G(els.cntPurpose).textContent=`${wordCount(F.purpose.value)} words`;
+    G(els.cntOutcomes).textContent=`${wordCount(F.outcomes.value)} words`;
+    G(els.cntMeasures).textContent=`${wordCount(F.measures.value)} words`;
+    G(els.cntDesignPlan).textContent=`${wordCount(F.designPlan.value)} words`;
+    G(els.cntEthics).textContent =`${wordCount(F.ethics.value)} words`;
     const hits=[F.context,F.design,F.purpose,F.outcomes,F.measures,F.designPlan,F.ethics].filter(x=>wordCount(x.value)>=100).length;
-    els.progress.textContent=`${hits}/7 sections with 100+ words`;
+    G(els.progress).textContent=`${hits}/7 sections with 100+ words`;
+  }
+  function updateLockUi(){ G(els.lockStatus).textContent = locked ? 'Locked for writing' : 'Unlocked'; $('#btnLock').textContent = locked ? '🔓 Unlock' : '🔒 Lock'; G(els.lockGate).hidden=locked; G(els.builder).hidden=!locked; }
+  function renderCase(){
+    if(!current){ $('#caseWrap').hidden=true; $('#caseEmpty').hidden=false; return; }
+    $('#caseEmpty').hidden=true; $('#caseWrap').hidden=false;
+    G(els.vTitle).textContent=noDash(current.title);
+    G(els.vSetting).innerHTML=paragraphsHTML(current.setting_snapshot);
+    G(els.vPopulation).innerHTML=paragraphsHTML(current.population_snapshot);
+    G(els.vCore).innerHTML=paragraphsHTML(current.core_problems);
+    G(els.vStake).innerHTML=paragraphsHTML(current.stakeholder_glimpses);
+    G(els.vEquity).innerHTML=paragraphsHTML(current.equity_signals);
+    G(els.vConstraints).innerHTML=paragraphsHTML(current.constraints_resources);
+    G(els.vRole).textContent=noDash(current.role);
+    updateLockUi();
+  }
+  function randomize(){
+    if(!Array.isArray(SCENARIOS)||!SCENARIOS.length){ err('No scenarios loaded.'); return; }
+    const b=$('#btnRandom'); b.disabled=true; b.innerHTML='<span class="spin">🎲</span> Rolling...';
+    setTimeout(()=>{ current=SCENARIOS[Math.floor(Math.random()*SCENARIOS.length)]; locked=false; clearAllFields(); renderCase(); b.disabled=false; b.textContent='🎲 Randomize'; toast('New scenario drawn. Review and lock to start.'); }, 450);
+  }
+  function toggleLock(){ if(!current){ toast('Draw a scenario first.'); return; } locked=!locked; updateLockUi(); if(locked) loadDraft(); }
+  function clearAllFields(){ Object.values(F).forEach(el=>{ if(el) el.value=''; }); updateCounters(); }
+
+  // autosave
+  const autoKey=()=> current ? `PE_NOTE_${noDash(current.title).slice(0,40)}` : 'PE_NOTE_UNSET';
+  const autosave = (silent)=>saveNowPE(silent);
+  function saveNowPE(silent){
+    if(!current||!locked){ if(!silent) toast('Lock a scenario to save.'); return; }
+    const data={ case: current, locked, fields:{ context:F.context.value, design:F.design.value, purpose:F.purpose.value, outcomes:F.outcomes.value, measures:F.measures.value, designPlan:F.designPlan.value, ethics:F.ethics.value, assumptions:F.assumptions.value }, ts:new Date().toISOString() };
+    try{ localStorage.setItem(autoKey(), JSON.stringify(data)); G(els.saveStatus).textContent=`saved ${new Date().toLocaleTimeString()}`; if(!silent) toast('Draft saved'); }catch{ G(els.saveStatus).textContent='save failed'; if(!silent) toast('Save failed'); }
+  }
+  function loadDraft(){
+    const raw=localStorage.getItem(autoKey()); if(!raw){ G(els.saveStatus).textContent='no draft'; return; }
+    try{ const d=JSON.parse(raw); F.context.value=d.fields?.context||''; F.design.value=d.fields?.design||''; F.purpose.value=d.fields?.purpose||''; F.outcomes.value=d.fields?.outcomes||''; F.measures.value=d.fields?.measures||''; F.designPlan.value=d.fields?.designPlan||''; F.ethics.value=d.fields?.ethics||''; F.assumptions.value=d.fields?.assumptions||''; updateCounters(); G(els.saveStatus).textContent=`loaded draft (${new Date(d.ts).toLocaleString()})`; }catch{ G(els.saveStatus).textContent='load failed'; }
   }
 
-  // Autosave
-  const autoKey=()=> current ? `PE_NOTE_${noDash(current.title).slice(0,40)}` : 'PE_NOTE_UNSET';
-  const autosave=debounce(()=>{ if(!current||!locked) return; const data={case:current,locked,fields:{context:F.context.value,design:F.design.value,purpose:F.purpose.value,outcomes:F.outcomes.value,measures:F.measures.value,designPlan:F.designPlan.value,ethics:F.ethics.value,assumptions:F.assumptions.value},ts:nowISO()}; try{ localStorage.setItem(autoKey(), JSON.stringify(data)); els.saveStatus.textContent=`saved ${new Date().toLocaleTimeString()}`; }catch{ els.saveStatus.textContent='save failed'; } },1200);
-  function loadDraft(){ const raw=localStorage.getItem(autoKey()); if(!raw){ els.saveStatus.textContent='no draft'; return; } try{ const d=JSON.parse(raw); F.context.value=d.fields?.context||''; F.design.value=d.fields?.design||''; F.purpose.value=d.fields?.purpose||''; F.outcomes.value=d.fields?.outcomes||''; F.measures.value=d.fields?.measures||''; F.designPlan.value=d.fields?.designPlan||''; F.ethics.value=d.fields?.ethics||''; F.assumptions.value=d.fields?.assumptions||''; updateCounters(); els.saveStatus.textContent=`loaded draft (${new Date(d.ts).toLocaleString()})`; }catch{ els.saveStatus.textContent='load failed'; } }
-
-  // Export / Copy / Print
+  // export / copy / print
   function buildDocHtml(){
     if(!current) return '<!doctype html><html><head><meta charset="utf-8"><title>Program Evaluation</title></head><body><p>No scenario selected.</p></body></html>';
-    const esc=(s)=>escapeHtml(noDash((s||'').toString()));
+    const esc=s=>escapeHtml(noDash((s||'')+''));
     const h=[];
     h.push('<!doctype html><html><head><meta charset="utf-8"><title>Program Evaluation</title>');
     h.push('<style>body{font-family:Calibri,Arial,Helvetica,sans-serif;line-height:1.45;color:#111} h1,h2,h3{margin:0 0 6px} h1{font-size:22px} h2{font-size:18px;margin-top:16px} p{margin:0 0 10px 0} ul{margin:4px 0 8px 18px} .k{color:#374151} .small{color:#555;font-size:12px} @page{margin:1in}</style></head><body>');
-    h.push(`<h1>${esc(CONFIG.siteTitle)}</h1>`);
-    h.push(`<p class="small">${esc(CONFIG.courseHeader)}</p>`);
-    h.push('<h2>Scenario</h2><ul>');
-    h.push('<li><span class="k">Title:</span> '+esc(current.title)+'</li>');
-    h.push('</ul>');
+    h.push(`<h1>${esc(CONFIG.siteTitle)}</h1><p class="small">${esc(CONFIG.courseHeader)}</p>`);
+    h.push('<h2>Scenario</h2><ul>'); h.push('<li><span class="k">Title:</span> '+esc(current.title)+'</li>'); h.push('</ul>');
     h.push('<h3>Setting snapshot</h3>'+paragraphsHTML(current.setting_snapshot));
     h.push('<h3>Population snapshot</h3>'+paragraphsHTML(current.population_snapshot));
     h.push('<h3>Core problems / tensions</h3>'+paragraphsHTML(current.core_problems));
@@ -262,16 +283,13 @@
     h.push('<h2>6) Evaluation Design Plan</h2><p>'+esc($('#fDesignPlan').value).replace(/\n/g,'<br>')+'</p>');
     h.push('<h2>7) Ethics, Power, Limitations & Communication</h2><p>'+esc($('#fEthics').value).replace(/\n/g,'<br>')+'</p>');
     const ass=$('#fAssumptions').value; if(ass){ h.push('<h2>Assumptions</h2><p>'+esc(ass).replace(/\n/g,'<br>')+'</p>'); }
-    h.push('<p class="small">Generated '+new Date().toLocaleString()+'</p>');
-    h.push('</body></html>');
+    h.push('<p class="small">Generated '+new Date().toLocaleString()+'</p></body></html>');
     return h.join('');
   }
-  function buildPlainText(){
-    if(!current) return 'No scenario selected.';
-    const lines=[];
-    lines.push(CONFIG.siteTitle, CONFIG.courseHeader, '');
-    lines.push('Scenario');
-    lines.push(`- Title: ${noDash(current.title)}`,'');
+  function downloadWord(){ try{ const html=buildDocHtml(); const blob=window.htmlDocx.asBlob(html,{orientation:'portrait'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=CONFIG.exportFileName; a.click(); URL.revokeObjectURL(url); toast('Word (.docx) downloaded.'); }catch(e){ err('DOCX export failed.', e); } }
+  async function copyPlain(){
+    if(!current){ toast('Draw a scenario first.'); return; }
+    const lines=[]; lines.push(CONFIG.siteTitle, CONFIG.courseHeader, ''); lines.push('Scenario'); lines.push(`- Title: ${noDash(current.title)}`,'');
     lines.push('Setting snapshot'); lines.push(noDash(current.setting_snapshot),'');
     lines.push('Population snapshot'); lines.push(noDash(current.population_snapshot),'');
     lines.push('Core problems / tensions'); lines.push(noDash(current.core_problems),'');
@@ -288,77 +306,44 @@
     lines.push('7) Ethics, Power, Limitations & Communication'); lines.push($('#fEthics').value,'');
     const ass=$('#fAssumptions').value; if(ass){ lines.push('Assumptions'); lines.push(ass,''); }
     lines.push(`Generated ${new Date().toLocaleString()}`);
-    return lines.join('\n');
-  }
-  function downloadWord(){
-    const html=buildDocHtml();
-    const blob=new Blob([html],{type:'application/msword'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download=CONFIG.exportFileName; a.click(); URL.revokeObjectURL(url);
-    toast('Word file downloaded.');
-  }
-  async function copyPlain(){ try{ await navigator.clipboard.writeText(buildPlainText()); toast('Copied as plain text.'); } catch{ toast('Copy failed. Use Export Word instead.'); } }
-  async function copyScenario(){
-    if(!current){ toast('Draw a scenario first.'); return; }
-    const txt=[
-      `Title: ${noDash(current.title)}`,
-      `Setting snapshot: ${noDash(current.setting_snapshot)}`,
-      `Population snapshot: ${noDash(current.population_snapshot)}`,
-      `Core problems / tensions: ${noDash(current.core_problems)}`,
-      `Stakeholder glimpses: ${noDash(current.stakeholder_glimpses)}`,
-      `Structural / equity signals: ${noDash(current.equity_signals)}`,
-      `Known constraints / resources: ${noDash(current.constraints_resources)}`,
-      `Your role: ${noDash(current.role)}`
-    ].join('\n\n');
-    try{ await navigator.clipboard.writeText(txt); toast('Scenario copied.'); } catch{ toast('Copy failed.'); }
+    try{ await navigator.clipboard.writeText(lines.join('\n')); toast('Copied as plain text.'); }catch{ toast('Copy failed. Use Export Word instead.'); }
   }
   function printPage(){ window.print(); }
 
-  // Toast
-  let toastTimer=null; const toastDiv=document.createElement('div');
-  toastDiv.style.position='fixed'; toastDiv.style.bottom='16px'; toastDiv.style.left='50%'; toastDiv.style.transform='translateX(-50%)';
-  toastDiv.style.background='#111827'; toastDiv.style.color='#fff'; toastDiv.style.padding='10px 14px';
-  toastDiv.style.borderRadius='10px'; toastDiv.style.boxShadow='0 6px 20px rgba(0,0,0,.15)'; toastDiv.style.zIndex='9999'; toastDiv.style.display='none';
-  document.body.appendChild(toastDiv);
-  function toast(msg){ clearTimeout(toastTimer); toastDiv.textContent=msg; toastDiv.style.display='block'; toastTimer=setTimeout(()=>toastDiv.style.display='none',1900); }
-
-  // Click events
+  // bind
   $('#btnRandom').addEventListener('click', randomize);
   $('#btnLock').addEventListener('click', toggleLock);
-  $('#btnNew').addEventListener('click', ()=>{ if(confirm('Clear current note?')){ clearAllFields(); autosave(); }});
-  $('#btnSave').addEventListener('click', ()=>autosave());
+  $('#btnNew').addEventListener('click', ()=>{ if(confirm('Clear current note?')){ clearAllFields(); autosave(true); }});
+  $('#btnSave').addEventListener('click', ()=>saveNowPE(false));
   $('#btnLoad').addEventListener('click', ()=>{ if(!current){ toast('Select and lock a scenario first.'); return;} loadDraft(); });
   $('#btnExport').addEventListener('click', downloadWord);
   $('#btnCopy').addEventListener('click', copyPlain);
-  $('#btnCopyScenario').addEventListener('click', copyScenario);
   $('#btnPrint').addEventListener('click', ()=>printPage());
-  [F.context,F.design,F.purpose,F.outcomes,F.measures,F.designPlan,F.ethics,F.assumptions].forEach(el=>el.addEventListener('input', ()=>{ updateCounters(); autosave(); }));
+  [F.context,F.design,F.purpose,F.outcomes,F.measures,F.designPlan,F.ethics,F.assumptions].forEach(el=>el.addEventListener('input', ()=>{ updateCounters(); autosave(true); }));
 
-  // Keyboard shortcuts (safe): ignore when typing; require Alt
-  function isTypingTarget(el){ if(!el) return false; const tag=el.tagName; return tag==='INPUT'||tag==='TEXTAREA'||el.isContentEditable; }
-  window.addEventListener('keydown',(e)=>{
+  // shortcuts
+  function isTypingTarget(el){ if(!el) return false; const t=el.tagName; return t==='INPUT'||t==='TEXTAREA'||el.isContentEditable; }
+  window.addEventListener('keydown', (e)=>{
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); saveNowPE(false); return; }
     if(isTypingTarget(document.activeElement)||isTypingTarget(e.target)) return;
     if(!e.altKey) return;
     const k=e.key.toLowerCase();
     if(k==='r'){ e.preventDefault(); randomize(); }
     if(k==='l'){ e.preventDefault(); toggleLock(); }
-    if(k==='p'){ e.preventDefault(); printPage(); }
     if(k==='e'){ e.preventDefault(); downloadWord(); }
+    if(k==='p'){ e.preventDefault(); printPage(); }
   });
 
-  // Init
-  function updateCounters(){ 
-    document.getElementById('cntContext').textContent=`${wordCount(document.getElementById('fContext').value)} words`;
-    document.getElementById('cntDesign').textContent=`${wordCount(document.getElementById('fDesign').value)} words`;
-    document.getElementById('cntPurpose').textContent=`${wordCount(document.getElementById('fPurpose').value)} words`;
-    document.getElementById('cntOutcomes').textContent=`${wordCount(document.getElementById('fOutcomes').value)} words`;
-    document.getElementById('cntMeasures').textContent=`${wordCount(document.getElementById('fMeasures').value)} words`;
-    document.getElementById('cntDesignPlan').textContent=`${wordCount(document.getElementById('fDesignPlan').value)} words`;
-    document.getElementById('cntEthics').textContent=`${wordCount(document.getElementById('fEthics').value)} words`;
-    const hits=[document.getElementById('fContext'),document.getElementById('fDesign'),document.getElementById('fPurpose'),document.getElementById('fOutcomes'),document.getElementById('fMeasures'),document.getElementById('fDesignPlan'),document.getElementById('fEthics')].filter(x=>wordCount(x.value)>=100).length;
-    document.getElementById('progress').textContent=`${hits}/7 sections with 100+ words`;
-  }
-  updateLockUi(); applyShowIds(); renderCase();
+  // init
+  $('#siteTitle').textContent=CONFIG.siteTitle; document.title=CONFIG.siteTitle; $('#siteSubtitle').textContent=CONFIG.siteSubtitle;
+  updateCounters(); updateLockUi();
+});
+</script>
+
+<!-- Embedded html-docx-js (MIT) -->
+<script>
+/*! html-docx-js | MIT | minimal build */
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.htmlDocx=t():e.htmlDocx=t()}("undefined"!=typeof self?self:this,function(){return function(){"use strict";var e={};function t(e,t){return e.replace(/{{\s*?([a-zA-Z0-9_]+)\s*?}}/g,function(e,n){return t[n]||""})}function n(e){var t=document.createElement("a");t.href=e;var n=t.pathname;return 0===n.indexOf("/")&&(n=n.substr(1)),n}function r(e){var t=document.implementation.createHTMLDocument("");return t.documentElement.innerHTML=e,t}function a(e){var t=r(e),n=t.querySelector("base"),a=location.protocol+"//"+location.host,o=n&&n.getAttribute("href")||a;return'\nMIME-Version: 1.0\nContent-Type: multipart/related; boundary="----=_NextPart_01D39E06.56EA2C50"\nX-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830\n\nThis is a multi-part message in MIME format.\n\n------=_NextPart_01D39E06.56EA2C50\nContent-Type: text/html; charset="utf-8"\nContent-Location: file:///C:/fake/document.html\n\n'+t.documentElement.outerHTML+"\n\n------=_NextPart_01D39E06.56EA2C50--"}var o='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:wpc="http://schemas.microsoft.com/office/2010/wordprocessingCanvas" xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/2010/wordprocessingShape" mc:Ignorable="w14 wp14">\n  <w:body>\n    <w:altChunk r:id="htmlChunk"/>\n    <w:sectPr>\n      <w:pgSz w:w="11906" w:h="16838"/>\n      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>\n      <w:cols w:space="708"/>\n      <w:docGrid w:type="lines" w:linePitch="360"/>\n    </w:sectPr>\n  </w:body>\n</w:document>',i='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>\n</Relationships>',s='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n  <Default Extension="xml" ContentType="application/xml"/>\n  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>\n  <Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>\n  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>\n  <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>\n  <Override PartName="/word/webSettings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/>\n  <Override PartName="/word/fontTable.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>\n  <Override PartName="/word/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>\n  <Override PartName="/word/_rels/document.xml.rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n  <Override PartName="/word/afchunk.mht" ContentType="message/rfc822"/>\n</Types>',l='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  <Relationship Id="htmlChunk" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/aFChunk" Target="afchunk.mht"/>\n</Relationships>',c='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">\n    <w:name w:val="Normal"/>\n    <w:qFormat/>\n    <w:pPr/>\n    <w:rPr>\n      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>\n      <w:sz w:val="22"/>\n    </w:rPr>\n  </w:style>\n</w:styles>',d='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>',u='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>',p='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:webSettings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>',f='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:fonts xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>',m='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="dummy"/>',h=function(e){var r=a(e),o=n(location.href),s=n(o);return t('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<?mso-application progid="Word.Document"?>\n<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns="http://www.w3.org/TR/REC-html40">\n<head><meta charset="utf-8"></head><body>{{html}}</body></html>\n',{html:r})},g=function(e){function t(e){this.files=[],this.length=0,this.name=e,this.offset=0,this.crc=0,this.compressedLength=0,this.uncompressedLength=0}function n(){this.files=[],this.length=0}function r(e){for(var t=0,n=0;n<e.length;n++)t=(t>>>8)^S[255&(t^e.charCodeAt(n))];return 4294967295^t}function a(){return String.fromCharCode(80,75,3,4)+String.fromCharCode(20,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)}function o(e,t,n,r){return String.fromCharCode(80,75,1,2)+String.fromCharCode(20,0)+String.fromCharCode(20,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0)+e+t}function i(){return String.fromCharCode(80,75,5,6)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0)+String.fromCharCode(0,0)}var s=function(e){var n=new t(e);return n},l=function(){var e=new n;return e.file=function(e,t){var n=new s(e);return n.uncompressedLength=t.length,n.compressedLength=t.length,n.crc=r(t),this.files.push(n),this},e.generate=function(){for(var e="",t="",n=0,s=0;s<this.files.length;s++){var l=this.files[s];l.offset=n,e+=a()+String.fromCharCode(l.crc&255,l.crc>>8&255,l.crc>>16&255,l.crc>>24&255)+String.fromCharCode(l.compressedLength&255,l.compressedLength>>8&255,l.compressedLength>>16&255,l.compressedLength>>24&255)+String.fromCharCode(l.uncompressedLength&255,l.uncompressedLength>>8&255,l.uncompressedLength>>16&255,l.uncompressedLength>>24&255)+String.fromCharCode(l.name.length&255,l.name.length>>8&255)+String.fromCharCode(0,0)+l.name+"",n+=30+l.name.length}var r=n,a="";for(s=0;s<this.files.length;s++){l=this.files[s];var d=String.fromCharCode(l.crc&255,l.crc>>8&255,l.crc>>16&255,l.crc>>24&255)+String.fromCharCode(l.compressedLength&255,l.compressedLength>>8&255,l.compressedLength>>16&255,l.compressedLength>>24&255)+String.fromCharCode(l.uncompressedLength&255,l.uncompressedLength>>8&255,l.uncompressedLength>>16&255,l.uncompressedLength>>24&255)+String.fromCharCode(l.name.length&255,l.name.length>>8&255)+String.fromCharCode(0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0,0,0)+String.fromCharCode(0,0);t+=o(l.name,d,l.offset,0)}var u=i();return{zip:e+t+u,length:e.length+t.length+u.length,centralDirStart:r,centralDirLength:t.length}},e}();return function(e){var t=function(t){var n=l();n.file("[Content_Types].xml",s),n.file("_rels/.rels",i),n.file("word/document.xml",o),n.file("word/_rels/document.xml.rels",c),n.file("word/styles.xml",d),n.file("word/numbering.xml",u),n.file("word/settings.xml",p),n.file("word/webSettings.xml",f),n.file("word/fontTable.xml",""),n.file("word/theme/theme1.xml",""),n.file("word/afchunk.mht",h(t));var r=n.generate();return new Blob([function(e){for(var t=new Uint8Array(e.length),n=0;n<e.length;n++)t[n]=e.charCodeAt(n);return t}(r.zip)],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})};return{asBlob:t}}()}()});
 </script>
 </body>
 </html>
