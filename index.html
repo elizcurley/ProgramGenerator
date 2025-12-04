@@ -58,8 +58,6 @@
       <button id="btnExport" class="secondary focus-ring" title="Alt+E — Export to Word">⬇️ Export Word</button>
       <button id="btnCopy" class="ghost focus-ring" title="Copy all as plain text">📋 Copy Text</button>
       <button id="btnPrint" class="ghost focus-ring" title="Alt+P — Print">🖨️ Print</button>
-      <!-- Removed Import/Export JSON buttons to prevent confusion -->
-      <input id="fileInput" type="file" accept="application/json" class="hidden"/>
     </div>
   </header>
 
@@ -183,10 +181,10 @@
   const escapeHtml=s=>(s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   function paragraphsHTML(text){ const safe=noDash(text||'').replace(/\r\n/g,'\n'); const blocks=safe.split(/\n\s*\n/).map(t=>t.trim()).filter(Boolean); return blocks.map(b=>`<p>${escapeHtml(b)}</p>`).join(''); }
 
-  // Data (15 scenarios – keep your full set here; truncated in this snippet for space)
+  // Data (keep your same 15 scenarios here; truncated for space)
   let SCENARIOS = stripDashesDeep(
     [{"title":"Discipline at Jefferson Middle: Suspensions and “Defiance”","setting_snapshot":"Jefferson Middle School is a large, majority-Black public school in an urban district. The building is old, some classroom windows are painted shut, and the heaters rattle in winter. Hallways are crowded during every class change. The school has one full-time social worker, a part-time behavior specialist shared with another campus, and a school resource officer (SRO) assigned three days a week.","population_snapshot":"Most students live within a 3–4 mile radius. Many caregivers work variable shifts in healthcare, service, or warehouse jobs. About 80% of students qualify for free/reduced lunch. The “high needs” roster combines students with IEPs, 504 plans, and those with 5+ office referrals; Black students and students with disabilities are overrepresented on that list and in suspension data.","core_problems":"Over the past two years, Jefferson’s out-of-school suspensions have climbed overall and are now above the district average. The largest categories are “defiance,” “disruption,” and “noncompliance.” Teachers describe write-ups for refusing to put away phones, walking out of class, and hallway conflicts that escalate into suspensions. The social worker is called often to de-escalate student-teacher conflicts. Many frequent flyers have recent stressors (housing changes, caregiver illness, community violence) that rarely appear in discipline records. Teachers report burnout and say “nothing works,” while families express frustration about fairness and communication. The district flagged Jefferson for disproportionate discipline and demanded a plan.","stakeholder_glimpses":"Principal: Wants to reduce suspensions without alienating staff and to address disproportionality; fears teacher turnover.\nTeachers: Mixed views, with some wanting “clear consequences” and others asking for more support, coaching, and consistency.\nStudents: Report feeling targeted or misunderstood; some avoid school due to “drama” and adult interactions.\nFamilies: Mixed trust in the school; some feel meetings are for “being told,” not problem-solving together.\nDistrict leaders: Watch suspension numbers, disproportionality, attendance, and school climate as key metrics; also attuned to legal risk.","equity_signals":"Racial and disability disparities in referrals and suspensions; vague categories rely on adult interpretation; police presence on campus; limited youth-friendly mental health services; accountability pressures that value “order” and test scores over relationship-building.","constraints_resources":"Limited space for new programs; one social worker and a part-time behavior specialist; an SRO is on campus three days/week. Mandatory PD hours are already packed. There is a small, one-year “innovation” grant up to $10,000. A local youth nonprofit is interested in partnering but not yet formally connected.","role":"As the MSW social worker/evaluator, propose a specific, realistic practice change and outline how you will evaluate whether it helps."}
-      /* … include remaining 14 scenario objects exactly as before … */
+      /* … include the remaining 14 scenario objects exactly as in your last working file … */
     ]
   );
 
