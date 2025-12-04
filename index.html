@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- TODO(dev): Debug the original EBP Randomizer page for the reported functionality issue. -->
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Program Evaluation Generator</title>
@@ -35,7 +36,6 @@
     .focus-ring:focus{outline:3px solid var(--ring);outline-offset:2px}
     .spin{animation:spin 1s linear infinite;display:inline-block} @keyframes spin{to{transform:rotate(360deg)}}
     .hidden{display:none}
-    /* scenario paragraph spacing */
     .scenario p{margin:0 0 10px 0}
     .kvs{display:grid;grid-template-columns:200px 1fr;gap:8px}
     .kvs .muted{align-self:start}
@@ -46,7 +46,7 @@
   <header>
     <div class="row">
       <div class="title" id="siteTitle">Program Evaluation Generator</div>
-      <span class="badge" id="siteSubtitle">No login • Works offline • Export Word / Copy Text</span>
+      <span class="badge" id="siteSubtitle">SOW5404 • Spring 2026 • No login • Export Word / Copy Text</span>
     </div>
     <div class="toolbar" role="toolbar" aria-label="Main">
       <button id="btnRandom" class="focus-ring" title="Randomize a scenario (R)">🎲 Randomize</button>
@@ -162,19 +162,19 @@
 
   <div class="footer">
     <span>Autosave:</span><span id="saveStatus">idle</span>
-    <span class="muted">•</span><span id="tip">Tip: R = Randomize, L = Lock, E = Export Word.</span>
+    <span class="muted">•</span><span id="tip">SOW5404 • Spring 2026 • R = Randomize, L = Lock, E = Export Word.</span>
   </div>
 </div>
 
 <script>
-  // ======= CONFIG =======
   const CONFIG = {
     siteTitle: "Program Evaluation Generator",
-    siteSubtitle: "No login • Works offline • Export Word / Copy Text",
-    exportFileName: "Program_Evaluation_Note.doc"
+    siteSubtitle: "SOW5404 • Spring 2026 • No login • Export Word / Copy Text",
+    exportFileName: "SOW5404_Spring_2026_Program_Evaluation.doc",
+    courseHeader: "SOW5404 • Spring 2026"
   };
 
-  // ======= Utilities =======
+  // Utilities
   const noDash=(s)=>(s||'').toString().replace(/[—–]/g,'-');
   const stripDashesDeep = (v)=>{
     if(Array.isArray(v)) return v.map(stripDashesDeep);
@@ -182,8 +182,7 @@
     if(typeof v==='string') return noDash(v);
     return v;
   };
-  const $ = (sel)=>document.querySelector(sel);
-  const uid=()=>Math.random().toString(36).slice(2,9);
+  const $=(sel)=>document.querySelector(sel);
   const nowISO=()=>new Date().toISOString();
   const wordCount=(s)=>(s||"").trim().split(/\s+/).filter(Boolean).length;
   const sanitize=(s)=>(s||"").toString().replace(/[\t\r]/g,' ').trim();
@@ -195,178 +194,28 @@
     return blocks.map(b=>`<p>${escapeHtml(b)}</p>`).join('');
   }
 
-  // ======= Scenarios (15) =======
-  let SCENARIOS = stripDashesDeep([
-    {
-      id:"case_01_jefferson_discipline",
-      title:"Discipline at Jefferson Middle: Suspensions and 'Defiance'",
-      setting_snapshot:`Jefferson Middle School is a large, majority-Black public school in an urban district. The building is old; some classroom windows are painted shut, and the heaters rattle in winter. Hallways are crowded during every class change. The school has one full-time social worker, a part-time behavior specialist shared with another campus, and a school resource officer assigned three days a week.`,
-      population_snapshot:`Most students live within a 3–4 mile radius. Many caregivers work variable shifts in healthcare, service, or warehouse jobs. About 80% of students qualify for free/reduced lunch. The “high needs” roster combines students with IEPs, 504 plans, and those with 5+ office referrals; Black students and students with disabilities are overrepresented on that list and in suspension data.`,
-      core_problems:`Over the past two years, out-of-school suspensions have climbed, especially for “defiance,” “disruption,” and “noncompliance.” Teachers describe write-ups for refusing to put away phones, walking out of class, and hallway conflicts leading to suspensions. The social worker is called often to de-escalate. Many frequent flyers have recent stressors that rarely appear in discipline records. Teachers are burning out; families are frustrated. The district flagged Jefferson for disproportionate discipline and demanded a plan.`,
-      stakeholder_glimpses:`Principal: Reduce suspensions without alienating staff.\nTeachers: Mix of demand for consequences and desire for support.\nStudents: Some feel targeted; some avoid school due to “drama.”\nFamilies: Mixed trust; worry about juvenile justice involvement.\nDistrict leaders: Focus on suspension metrics and disproportionality.`,
-      equity_signals:`Racial and disability disparities in referrals and suspensions; vague categories rely on adult interpretation; policing presence; limited youth-friendly mental health services; accountability pressures valuing order and test scores.`,
-      constraints_resources:`Limited space; one social worker, part-time specialist, SRO presence; mandatory PD hours are packed; small one-year innovation grant up to $10,000; local youth nonprofit interested but not yet partnered.`,
-      role:`As the MSW social worker/evaluator, propose a specific, realistic practice change and outline how you will evaluate whether it helps.`
-    },
-    {
-      id:"case_02_hospital_unhoused",
-      title:"Discharge to Nowhere: Unhoused Patients at City General",
-      setting_snapshot:`City General is a busy safety-net hospital. Social workers juggle crisis consults and discharge planning; ED hallways are often lined with stretchers.`,
-      population_snapshot:`Many adult inpatients are unhoused or precariously housed with co-occurring chronic illness, mental health diagnoses, and substance use; some are on probation or lack ID.`,
-      core_problems:`30-day readmissions for unhoused patients are nearly double housed patients. Staff see familiar faces returning. Patients report rushed, confusing discharges and unsafe conditions post-discharge. Staff feel pressured to move people out; social workers face moral distress with limited placement options.`,
-      stakeholder_glimpses:`Leadership: Concerned about penalties and throughput.\nMedical staff: Want fewer bounce-backs, safer discharges.\nSocial work/case mgmt: Stretched thin.\nPatients: Want respect and realistic plans.\nCommunity partners: At capacity; feel “dumped” on.`,
-      equity_signals:`Criminalization of homelessness; racialized patterns of who becomes and stays unhoused; insurance gaps; lack of medical respite; policy incentives for rapid discharge.`,
-      constraints_resources:`No capacity for new units; limited motel vouchers; must work within current staffing; EHR can track readmissions/ED visits; FQHC and one shelter interested in coordination; leadership open to a small targeted pilot.`,
-      role:`Design a small-scale discharge planning program or practice tweak for unhoused patients and outline an evaluation of outcomes and experiences.`
-    },
-    {
-      id:"case_03_lgbtq_northside",
-      title:"We Don't Feel Safe Here: LGBTQ+ Students at Northside High",
-      setting_snapshot:`Suburban high school with one counselor, a shared social worker, no recognized GSA; campus spread across multiple buildings.`,
-      population_snapshot:`Majority White with growing Black, Latine, and immigrant students; visible group of queer and trans students clustering in supportive spaces.`,
-      core_problems:`Increased bullying/harassment reports with social media incidents. Staff split between supportive and minimizing responses. Admin sends generic emails; no specific LGBTQ+ policies or trainings. Students avoid bathrooms, certain hallways, and sometimes school.`,
-      stakeholder_glimpses:`LGBTQ+ students: Safety, correct names/pronouns, brave adults.\nOther students: Range from bullying to quietly supportive.\nStaff: Need tools and admin backing; fear backlash.\nAdmin: Wants fewer reports, less controversy.\nFamilies: Mixed views.`,
-      equity_signals:`State-level debates on LGBTQ+ issues; religious/cultural beliefs; intersection with race/disability/immigration; policies lacking explicit protections.`,
-      constraints_resources:`Limited PD time; no dedicated LGBTQ+ budget or staff; informal lunch group exists; local LGBTQ+ youth center interested; general anti-bullying policy lacks implementation guidance.`,
-      role:`Propose a specific program/practice to improve safety and belonging and design an evaluation to understand impact.`
-    },
-    {
-      id:"case_04_newcomer_eastview",
-      title:"Lost in Translation: Newcomer Students at Eastview Middle",
-      setting_snapshot:`Mid-sized city school with an ESOL teacher and part-time interpreter services by phone/video.`,
-      population_snapshot:`About 30% multilingual students; newcomers from Central America, the Middle East, Southeast Asia; some with gaps in schooling or trauma.`,
-      core_problems:`Quiet compliance with failing assessments, acting out, or skipping class. Family communications often in English only. Misplacement into lower-level courses due to English level; IEP referrals without full cultural/linguistic consideration.`,
-      stakeholder_glimpses:`Students: Want friends, understanding, and support.\nFamilies: Want success but may fear systems.\nTeachers: Want to adapt but lack time/training.\nAdmin: Worried about accountability metrics.`,
-      equity_signals:`Language barriers; immigration status and trauma; tracking into lower coursework; English-only metrics of success.`,
-      constraints_resources:`Limited ESOL hours; interpreter service requires planning; resettlement agency has evening programs; small grant possible; no new full-time positions promised.`,
-      role:`Design a support program/practice for newcomer/multilingual students and families and outline an evaluation on access, experience, and outcomes.`
-    },
-    {
-      id:"case_05_rsu_counseling",
-      title:"Always Waiting: College Counseling Center at River State University",
-      setting_snapshot:`Public university counseling center with psychologists, social workers, and trainees; reputation for being overbooked.`,
-      population_snapshot:`Diverse students, many first-gen balancing work/school; concerns include anxiety, depression, trauma, family conflict, substance use, academics.`,
-      core_problems:`Waits of 3–4 weeks for intake; some never make it past the waitlist; staff burnout. Students complain about delays and retelling their story.`,
-      stakeholder_glimpses:`Students: Timely, culturally responsive support.\nStaff: Quality care without burnout.\nAdministration: Proactive optics and access.\nFaculty: Clear referral pathways.`,
-      equity_signals:`First-gen and low-income stress; stigma and mistrust; representation gaps among providers; insurance/off-campus barriers.`,
-      constraints_resources:`Limited space; potential to reconfigure scheduling, groups, stepped care; some pilot funding if it reduces waits; ties to off-campus providers.`,
-      role:`Propose a concrete program/practice change (e.g., brief track, workshops, triage protocol) and design an evaluation for access, experience, and outcomes.`
-    },
-    {
-      id:"case_06_dv_shelter",
-      title:"We're Just a Bed, Not a Solution: DV Shelter Survivors Program",
-      setting_snapshot:`Safe Harbor House is a confidential emergency shelter with 18 beds, two case managers, a children’s advocate, and a part-time clinical social worker.`,
-      population_snapshot:`Mostly women and children; mix of racial/cultural backgrounds; some undocumented; stays typically 30–60 days.`,
-      core_problems:`Residents cycle through; early returns to partners; juggling court, jobs, school with trauma and childcare. Loose groups and variable participation; unclear if services help.`,
-      stakeholder_glimpses:`Residents: Safety, non-judgment, practical help.\nStaff: Structure without rigidity; meaning in efforts.\nBoard/funders: Evidence of effectiveness.\nPartners: Narrow outcome views like permanent separation.`,
-      equity_signals:`Economic dependence; immigration fears; trauma-uninformed systems; racism and stereotypes.`,
-      constraints_resources:`Limited staff; no on-site childcare; some grant flexibility; basic data but no standardized measures.`,
-      role:`Design a structured program component (group, individualized track, follow-up outreach) and plan an evaluation for survivor experience and key outcomes.`
-    },
-    {
-      id:"case_07_transitional_youth",
-      title:"A Roof, Not a Home: Transitional Housing for Youth Aging Out of Care",
-      setting_snapshot:`BridgePoint House has studio apartments with two case managers and a life skills coach.`,
-      population_snapshot:`Young adults 18–24 with system involvement, trauma, disrupted schooling; some are parents.`,
-      core_problems:`Program emphasizes housing stability, less on wellbeing or connection. Isolation, conflicts, early exits, disengagement. Funders track exits to housing but miss wellbeing.`,
-      stakeholder_glimpses:`Residents: Autonomy, respect, non-surveillant support.\nStaff: Trust-building without rigid rules.\nFunders: Measurable outcomes.\nCommunity partners: Unsure how to engage.`,
-      equity_signals:`Systemic racism/classism; barriers for youth with records; lack of affordable housing; stigma.`,
-      constraints_resources:`Limited 1:1 capacity; groups more feasible; small budget for stipends/activities; basic length-of-stay and exit data; little on mental health/belonging.`,
-      role:`Design a program element (peer-led group, mentorship, coaching, partnered activity) and outline an evaluation of impact on youth experience and outcomes.`
-    },
-    {
-      id:"case_08_cfs_productivity",
-      title:"Productivity or People? Quotas at Community Family Services",
-      setting_snapshot:`CFS provides outpatient therapy, case management, and parenting support; mostly Medicaid-insured families in a large metro area.`,
-      population_snapshot:`Families navigating poverty, housing instability, child welfare, parental MH/SUD, IPV; many single parents or grandparents raising grandchildren.`,
-      core_problems:`Stricter productivity targets push short sessions and less coordination. Clients feel rushed; some drop out. Leadership worries about revenue; open to small changes.`,
-      stakeholder_glimpses:`Clinicians: Relational work and flexibility.\nSupervisors: Support staff while meeting budgets.\nExecutive/Board: Financial viability and retention.\nClients: Feeling heard; flexible options.`,
-      equity_signals:`Reimbursement rewarding billable hours over advocacy; impact on families with higher structural barriers; risk of pushing out client-centered staff.`,
-      constraints_resources:`Cannot reduce overall billables dramatically; potential pilots for subsets (scheduling templates, group + individual blends); EHR/billing data; basic satisfaction forms.`,
-      role:`Propose a targeted adjustment (pilot caseload model, integrated group+individual, structured relational time) and design an evaluation for client experience and key metrics.`
-    },
-    {
-      id:"case_09_peds_complex",
-      title:"In and Out of the Room: Medically Complex Kids on the Pediatric Unit",
-      setting_snapshot:`Memorial Children’s Hospital pediatric unit with semi-private rooms; child life specialist, social worker, rotating residents and nurses.`,
-      population_snapshot:`Infants through teens with complex conditions; diverse families; some rural; subset with child welfare involvement.`,
-      core_problems:`Questions about caregiver follow-through; repeated readmissions; caregivers overwhelmed by work, transport, health literacy; tension with child welfare involvement and equity concerns.`,
-      stakeholder_glimpses:`Caregivers: Respectful, clear communication.\nNurses/physicians: Safe home care readiness.\nSocial worker: Prevent unnecessary CPS involvement.\nCW workers: Safety assessments with limited time.\nLeadership: Readmissions and quality scores.`,
-      equity_signals:`Disparities in labeling and CPS reporting; language/health literacy; limited home supports; policies treating missed appointments as caregiver failure.`,
-      constraints_resources:`No new positions; teaching materials exist but not always plain-language or multilingual; small grant for caregiver engagement; EHR tracks readmissions/LOS.`,
-      role:`Design a program/practice to support families (teaching protocols, peer support, discharge tweaks) and outline an evaluation of outcomes and experiences.`
-    },
-    {
-      id:"case_10_youth_reentry_hub",
-      title:"Out and Back Again: Youth Reentry Drop-In Center",
-      setting_snapshot:`Horizon Hub near bus hub and courthouse serves ages 16–24 on probation, recently released, or aging out.`,
-      population_snapshot:`Mostly Black and Latine youth with school exclusion, family instability, trauma; some parents; juggling probation, jobs, court, housing.`,
-      core_problems:`Hub provides basics without structured program; engagement is episodic. Funders and probation want outcomes; Hub has limited data.`,
-      stakeholder_glimpses:`Youth: Respect, practical help, non-surveillance spaces.\nStaff: Deepen services without mission drift.\nProbation: Engagement proof and fewer violations.\nFunders/Board: Recidivism, employment, education.\nCommunity: Mixed perceptions.`,
-      equity_signals:`School-to-prison pipeline; concentrated policing; tension between carceral logic and youth development; barriers to ID, employment, housing.`,
-      constraints_resources:`Small staff and space; flexible room; grant requires documentation of services/outcomes; partners include legal aid, community college, employers.`,
-      role:`Design a realistic program track (planning series, peer-led groups, structured case management) and develop an evaluation for youth experience and reentry outcomes.`
-    },
-    {
-      id:"case_11_riverside_overdose",
-      title:"More Sirens at Night: Overdoses in the Riverside Neighborhood",
-      setting_snapshot:`Working-class neighborhood near industrial corridor with visible drug use and increased police presence.`,
-      population_snapshot:`Long-term older Black/White residents and newer young renters; many face job loss, health issues, and limited transport; portion uses opioids publicly.`,
-      core_problems:`Sharp rise in overdoses/deaths over 18 months; EMS repeat runs; community meetings divided between enforcement and harm reduction; small harm reduction van operates with limited coverage.`,
-      stakeholder_glimpses:`PWUD: Stay alive, avoid withdrawal, respect.\nFamily members: Safety and care access.\nNeighbors: Safety and cleanliness concerns.\nPolice: Pressure to act; mixed harm reduction buy-in.\nHealth dept: Open to innovative strategies.`,
-      equity_signals:`Deindustrialization and instability; criminalization; underfunded services; stigma shaping who is seen as deserving.`,
-      constraints_resources:`Limited funding; available data from EMS/ED; existing harm reduction group with peer workers; community tensions to navigate.`,
-      role:`Design an overdose response or harm reduction initiative and an evaluation plan for overdose risk, safety perceptions, and equity.`
-    },
-    {
-      id:"case_12_lincoln_iep",
-      title:"Whose Plan Is It? IEP Conflict at Lincoln Elementary",
-      setting_snapshot:`Neighborhood K–5 with resource room, speech office, small sensory space; part-time psychologist; shared social worker.`,
-      population_snapshot:`Diverse families; many hourly workers; noticeable number receiving special education services.`,
-      core_problems:`Contentious IEP meetings; families feel outnumbered and rushed; staff feel attacked; examples include restrictive placement pressure, English-only drafts minutes before meetings.`,
-      stakeholder_glimpses:`Families: Partnership and understandable language.\nTeachers: Support for behavior and differentiation.\nSpecial ed staff: Compliance and services under constraints.\nAdministrators: Avoid due process and manage burnout.\nStudents: Belonging in classrooms.`,
-      equity_signals:`Racial/disability disparities; power imbalances; language access; paperwork compliance over relationships.`,
-      constraints_resources:`Limited time for long meetings or pre-meetings; standard district trainings; some flexibility to pilot meeting formats and tools; local parent advocacy org exists.`,
-      role:`Design a support or practice change to improve family–school collaboration and outline an evaluation for family/staff experience and IEP outcomes.`
-    },
-    {
-      id:"case_13_oakwood_asthma",
-      title:"Hard to Breathe: Asthma and Air Quality in Oakwood",
-      setting_snapshot:`Low-income neighborhood near highway and warehouses; community clinic plus a small environmental justice org.`,
-      population_snapshot:`Predominantly Black and Latine families in older rentals with mold, pests, poor ventilation; many parents in service/warehouse/gig work.`,
-      core_problems:`Higher child asthma, ER visits, and missed school; families struggle with landlords and get one-time medical education focused on meds; EJ group collected air data with limited follow-through.`,
-      stakeholder_glimpses:`Families: Kids breathing easier, fewer ER trips, leverage with landlords.\nClinic: Reduce acute visits; better chronic care under time limits.\nEJ group: Turn data into action and power.\nSchools: Absences tied to asthma.\nCity/public health: Aware but juggling demands.`,
-      equity_signals:`Environmental racism; landlord-tenant power; insurance/access barriers; school metrics miss structural determinants.`,
-      constraints_resources:`Visit time limited; EJ volunteers and data skills; small grant for community–clinic asthma initiative; data from EHR and community assessment; possibly school attendance records.`,
-      role:`Design a clinic–community initiative (CHW visits, tenant support, school-clinic partnership, action groups) and evaluate child health, family empowerment, and equity.`
-    },
-    {
-      id:"case_14_rural_mobile",
-      title:"We Only Come on Thursdays: Rural Mobile Health Clinic",
-      setting_snapshot:`Mobile van rotates among rural communities; parks at churches, schools, grocery lots; provides basic primary care and brief BH screens.`,
-      population_snapshot:`Older adults, farmworkers, families with limited transport; many uninsured/underinsured; spotty interpreter services; limited broadband.`,
-      core_problems:`Irregular follow-up and short visits; coordination challenges; community appreciates access but misses van due to schedule/work conflicts; staff want to support chronic disease and MH but feel constrained.`,
-      stakeholder_glimpses:`Residents: Respectful local care without long drives.\nVan staff: Balance reach and depth.\nLocal leaders: Healthier communities, trusted spaces.\nHealth system: Show impact and justify costs.`,
-      equity_signals:`Rural disparities; transportation barriers; digital divide; immigration concerns among farmworkers.`,
-      constraints_resources:`Fixed van capacity; limited route frequency; some grant funding for chronic disease/BH pilots; basic EHR data on visits/diagnoses/labs; trusted local institutions.`,
-      role:`Design a practice modification (follow-up system, CHW role, group visits, reminders) and an evaluation for access, continuity, and experience.`
-    },
-    {
-      id:"case_15_brookside_safety",
-      title:"Safe or Watched? The City's Crime Prevention Initiative",
-      setting_snapshot:`Neighborhood Safety Zones bring increased patrols, cameras, and small grants for community programming in three areas including Brookside, a historically Black community.`,
-      population_snapshot:`Deep-rooted social networks amid disinvestment, closures, and rising rents.`,
-      core_problems:`Visible patrols and cameras; pop-up events led by outsiders; mixed resident reactions; youth report more stops; leaders frustrated by top-down decisions. City wants data to show what works with little guidance.`,
-      stakeholder_glimpses:`Residents: Safety without harassment; real voice.\nYouth: Spaces to gather and feel respected.\nPolice: Reduce crime stats; mixed views on relationships.\nCity: Measurable reductions and political optics.\nCommunity orgs: Funding interest with skepticism of surveillance.`,
-      equity_signals:`History of racialized policing; disinvestment and instability; tension between crime stats and community-defined safety; risk of counting arrests as success.`,
-      constraints_resources:`Modest city funds for community-led safety programs; crime data and some surveys exist; no restriction on lead agency type; grassroots groups present but wary.`,
-      role:`Design a community-led program (youth peace fellows, restorative circles, tenant safety organizing) and outline an evaluation centering community-defined safety and equity along with required city metrics.`
-    }
-  ]);
+  // ===== Verbatim scenarios (15) from your DOCX =====
+  let SCENARIOS = stripDashesDeep(
+  [{"title":"Discipline at Jefferson Middle: Suspensions and “Defiance”","setting_snapshot":"Jefferson Middle School is a large, majority-Black public school in an urban district. The building is old, some classroom windows are painted shut, and the heaters rattle in winter. Hallways are crowded during every class change. The school has one full-time social worker, a part-time behavior specialist shared with another campus, and a school resource officer (SRO) assigned three days a week.","population_snapshot":"Most students live within a 3–4 mile radius. Many caregivers work variable shifts in healthcare, service, or warehouse jobs. About 80% of students qualify for free/reduced lunch. The “high needs” roster combines students with IEPs, 504 plans, and those with 5+ office referrals; Black students and students with disabilities are overrepresented on that list and in suspension data.","core_problems":"Over the past two years, Jefferson’s out-of-school suspensions have climbed overall and are now above the district average. The largest categories are “defiance,” “disruption,” and “noncompliance.” Teachers describe write-ups for refusing to put away phones, walking out of class, and hallway conflicts that escalate into suspensions. The social worker is called often to de-escalate student-teacher conflicts. Many frequent flyers have recent stressors (housing changes, caregiver illness, community violence) that rarely appear in discipline records. Teachers report burnout and say “nothing works,” while families express frustration about fairness and communication. The district flagged Jefferson for disproportionate discipline and demanded a plan.","stakeholder_glimpses":"Principal: Wants to reduce suspensions without alienating staff and to address disproportionality; fears teacher turnover.\nTeachers: Mixed views, with some wanting “clear consequences” and others asking for more support, coaching, and consistency.\nStudents: Report feeling targeted or misunderstood; some avoid school due to “drama” and adult interactions.\nFamilies: Mixed trust in the school; some feel meetings are for “being told,” not problem-solving together.\nDistrict leaders: Watch suspension numbers, disproportionality, attendance, and school climate as key metrics; also attuned to legal risk.","equity_signals":"Racial and disability disparities in referrals and suspensions; vague categories rely on adult interpretation; police presence on campus; limited youth-friendly mental health services; accountability pressures that value “order” and test scores over relationship-building.","constraints_resources":"Limited space for new programs; one social worker and a part-time behavior specialist; an SRO is on campus three days/week. Mandatory PD hours are already packed. There is a small, one-year “innovation” grant up to $10,000. A local youth nonprofit is interested in partnering but not yet formally connected.","role":"As the MSW social worker/evaluator, propose a specific, realistic practice change and outline how you will evaluate whether it helps."},
+{"title":"Discharge to Nowhere: Unhoused Patients at City General","setting_snapshot":"City General is a busy safety-net hospital. Social workers juggle crisis consults and discharge planning. The ED hallways are often lined with stretchers waiting for beds. Units are short-staffed at times, and weekends are especially tight.","population_snapshot":"Many adult inpatients are unhoused or precariously housed. Co-occurring chronic illnesses, mental health diagnoses, and substance use are common. Some patients have probation requirements or lack identification and documents needed for services.","core_problems":"Thirty-day readmissions for unhoused patients are nearly double those of housed patients. Staff see familiar faces returning within weeks. Patients report rushed, confusing discharges and unsafe post-discharge conditions. Staff feel pressured to move people out quickly. Social workers describe “moral distress” with limited placement options and time to coordinate with community resources.","stakeholder_glimpses":"Hospital leadership / risk management: Concerned about readmission penalties and ED throughput.\nMedical staff: Want fewer bounce-backs and safer, realistic discharges.\nSocial work / case management: Overextended; want time to coordinate resources.\nPatients: Want respect and plans that fit their reality.\nCommunity partners: At capacity; feel the hospital “dumps” people on them without coordination.","equity_signals":"Criminalization of homelessness (loitering, trespassing); racialized patterns in who becomes and remains unhoused; insurance gaps; lack of medical respite; policy incentives that prioritize rapid discharge over continuity and relationship.","constraints_resources":"No capacity to create a new inpatient unit. Limited motel vouchers. Must work within current staffing. EHR can track readmissions and ED visits. One FQHC and a shelter are open to coordination. Leadership is open to a small, targeted pilot.","role":"Design a small-scale discharge planning program or practice tweak for unhoused patients and outline an evaluation of outcomes and experiences."},
+{"title":"We Don't Feel Safe Here: LGBTQ+ Students at Northside High","setting_snapshot":"Northside High is a suburban campus spread across multiple buildings. There is one counselor, a shared social worker across two schools, and no recognized GSA. Student clubs meet at lunch or after school depending on room availability.","population_snapshot":"Student body is majority White with a growing number of Black, Latine, and immigrant students. There is a visible group of queer and trans students who cluster in certain teacher rooms and outdoor areas they perceive as safer.","core_problems":"Reports of bullying and harassment, including social media incidents, have increased. Staff responses vary—some are supportive, others minimize concerns or avoid involvement. Admin sends generic anti-bullying emails but has not adopted specific LGBTQ+ policies or training. Students avoid certain bathrooms and hallways and sometimes avoid school entirely.","stakeholder_glimpses":"LGBTQ+ students: Want basic safety, correct names/pronouns, and adults who intervene.\nOther students: Range from bullying to quietly supportive.\nStaff: Desire tools, consistent admin backing, and clarity; fear community backlash.\nAdministration: Wants fewer reports and lower controversy.\nFamilies: Mixed views influenced by beliefs and experiences.","equity_signals":"State-level debates on LGBTQ+ issues; intersection with race, disability, and immigration; absence of explicit protections; variation in staff beliefs and training.","constraints_resources":"Limited PD time. No dedicated LGBTQ+ budget or staff. An informal lunch group exists. A local LGBTQ+ youth center is willing to partner. The anti-bullying policy is general and lacks implementation guidance specific to LGBTQ+ students.","role":"Propose a specific program/practice to improve safety and belonging and design an evaluation to understand impact."},
+{"title":"Lost in Translation: Newcomer Students at Eastview Middle","setting_snapshot":"Eastview Middle is a mid-sized city school with one ESOL teacher and part-time interpreter services by phone/video. Parent nights have high turnout but limited language access.","population_snapshot":"About 30% of students are multilingual learners. Recent newcomers include students from Central America, the Middle East, and Southeast Asia. Some have significant gaps in schooling or trauma histories.","core_problems":"Some students show quiet compliance while failing assessments; others act out or skip class. Family communications from school are often in English only. Students are sometimes placed into lower-level courses based on English level rather than prior knowledge. IEP referrals happen without full cultural and linguistic consideration.","stakeholder_glimpses":"Students: Want friends, understanding, and support.\nFamilies: Want their children to succeed but may fear systems.\nTeachers: Want to adapt instruction but have limited time and training.\nAdministrators: Focused on accountability metrics and placement targets.","equity_signals":"Language barriers and inadequate interpretation; immigration status and trauma; tracking into lower coursework; English-only metrics of success and “readiness.”","constraints_resources":"Limited ESOL hours. Interpreter services require planning. Resettlement agency has evening programs. A small grant is possible, but no new full-time positions are promised.","role":"Design a support program/practice for newcomer/multilingual students and families and outline an evaluation on access, experience, and outcomes."},
+{"title":"Always Waiting: College Counseling Center at River State University","setting_snapshot":"RSU’s counseling center includes psychologists, social workers, and trainees. It has a reputation among students for being overbooked and hard to access quickly.","population_snapshot":"Students are diverse and include many first-gen students balancing work and school. Presenting concerns include anxiety, depression, trauma, family conflict, substance use, and academic performance.","core_problems":"Waits for intake have reached 3–4 weeks, with some students never making it past the waitlist. Staff report burnout. Students complain about delays and having to retell their story multiple times.","stakeholder_glimpses":"Students: Want timely, culturally responsive support.\nStaff: Want to provide quality care without burnout.\nAdministration: Wants improved access and optics.\nFaculty: Want clear referral pathways and guidance.","equity_signals":"First-gen and low-income stress; stigma and mistrust of services; representation gaps among providers; insurance barriers to off-campus referrals.","constraints_resources":"Limited space; potential to reconfigure scheduling, workshops, and stepped care; some pilot funding tied to reducing wait times; relationships with off-campus providers exist.","role":"Propose a concrete program/practice change (e.g., brief track, workshops, triage protocol) and design an evaluation for access, experience, and outcomes."},
+{"title":"We're Just a Bed, Not a Solution: DV Shelter Survivors Program","setting_snapshot":"Safe Harbor House is a confidential emergency shelter with 18 beds, two case managers, a children’s advocate, and a part-time clinical social worker.","population_snapshot":"Residents are mostly women and children from a mix of racial and cultural backgrounds; some are undocumented. Typical stays are 30–60 days.","core_problems":"Residents cycle through quickly; some return to partners soon after leaving. Survivors juggle court, jobs, school, and trauma while managing childcare. Groups are loosely structured with variable participation, and it is unclear which services help most.","stakeholder_glimpses":"Residents: Want safety, non-judgment, and practical help.\nStaff: Seek structure without rigidity; want to see meaning in efforts.\nBoard/funders: Want evidence of effectiveness.\nPartners: Sometimes hold narrow outcome views (e.g., permanent separation).","equity_signals":"Economic dependence and immigration fears; trauma-uninformed systems; racism and stereotypes about who is believed and supported.","constraints_resources":"Limited staff and no on-site childcare. Some grant flexibility exists. Basic data are tracked, but there are no standardized measures across services.","role":"Design a structured program component (group, individualized track, follow-up outreach) and plan an evaluation for survivor experience and key outcomes."},
+{"title":"A Roof, Not a Home: Transitional Housing for Youth Aging Out of Care","setting_snapshot":"BridgePoint House consists of studio apartments with two case managers and a life skills coach.","population_snapshot":"Young adults 18–24 with histories of system involvement, trauma, and disrupted schooling; some are parents.","core_problems":"The program emphasizes housing stability more than wellbeing or connection. Residents report isolation, conflicts, early exits, and disengagement from services. Funders track exits to housing but not broader dimensions of wellbeing.","stakeholder_glimpses":"Residents: Want autonomy, respect, and support that is not surveillance.\nStaff: Need to build trust without rigid rules that backfire.\nFunders: Want measurable outcomes.\nCommunity partners: Unsure how best to engage residents.","equity_signals":"Systemic racism and classism; barriers for youth with records; lack of affordable housing; stigma toward youth who have been in care.","constraints_resources":"Limited 1:1 capacity; groups are more feasible. Small budget for stipends and activities. Program tracks length of stay and exit destination, but has little data on mental health or belonging.","role":"Design a program element (peer-led group, mentorship, coaching, partnered activity) and outline an evaluation of impact on youth experience and outcomes."},
+{"title":"Productivity or People? Quotas at Community Family Services","setting_snapshot":"CFS provides outpatient therapy, case management, and parenting support to mostly Medicaid-insured families in a large metro area.","population_snapshot":"Families navigate poverty, housing instability, child welfare involvement, parental mental health/substance use, and IPV. Many are single parents or grandparents raising grandchildren.","core_problems":"Stricter productivity targets push shorter sessions and less coordination. Clients feel rushed; some disengage. Leadership worries about revenue but is open to targeted changes.","stakeholder_glimpses":"Clinicians: Want time for relational work and flexibility.\nSupervisors: Want to support staff while meeting budgets.\nExecutive/Board: Seek financial viability and retention.\nClients: Want to feel heard and have flexible options.","equity_signals":"Reimbursement systems reward billable hours over advocacy and coordination; impact falls hardest on families facing greater structural barriers; risk of pushing out client-centered staff.","constraints_resources":"Overall billables cannot drop dramatically. Pilots for subsets may be possible (e.g., scheduling templates, group + individual blends). EHR/billing data are available; basic satisfaction forms are used.","role":"Propose a targeted adjustment (pilot caseload/scheduling model, integrated group+individual, structured relational time) and design an evaluation for client experience and key metrics."},
+{"title":"In and Out of the Room: Medically Complex Kids on the Pediatric Unit","setting_snapshot":"Memorial Children’s Hospital pediatric unit has semi-private rooms, a child life specialist, a social worker, and rotating residents and nurses.","population_snapshot":"Patients include infants through teens with complex conditions. Families are diverse; some travel from rural areas. A subset has child welfare involvement.","core_problems":"Clinicians worry about caregiver follow-through after discharge and repeated readmissions. Caregivers describe being overwhelmed by work, transportation, and health literacy demands. There is tension around child welfare involvement and equity concerns in when families are reported.","stakeholder_glimpses":"Caregivers: Want respectful, clear communication and support to care for their child at home.\nNurses/physicians: Want to know that home care will be safe and feasible.\nSocial worker: Wants to prevent unnecessary CPS involvement.\nChild welfare workers: Make safety assessments with limited time and information.\nHospital leadership: Tracks readmissions and quality metrics.","equity_signals":"Disparities in labeling families and in CPS reporting; language and health literacy barriers; limited home supports; policies that treat missed appointments as caregiver failure.","constraints_resources":"No new positions. Teaching materials exist but are not always plain-language or multilingual. A small grant could support caregiver engagement. EHR tracks readmissions and length of stay.","role":"Design a program/practice to support families (teaching protocols, peer support, discharge tweaks) and outline an evaluation of outcomes and experiences."},
+{"title":"Out and Back Again: Youth Reentry Drop-In Center","setting_snapshot":"Horizon Hub is near a bus hub and courthouse and serves ages 16–24 on probation, recently released, or aging out of systems.","population_snapshot":"Mostly Black and Latine youth with histories of school exclusion, family instability, trauma; some are young parents. They juggle probation, jobs, court, and housing.","core_problems":"The Hub provides basics (showers, laundry, snacks) but lacks structured program offerings. Engagement is episodic. Funders and probation ask for outcomes, but the Hub has limited data and systems.","stakeholder_glimpses":"Youth: Want respect, practical help, and spaces that don’t feel like surveillance.\nStaff: Want to deepen services without mission drift.\nProbation: Wants proof of engagement and fewer violations.\nFunders/Board: Look for education, employment, and recidivism metrics.\nCommunity: Mixed perceptions of the Hub and youth it serves.","equity_signals":"School-to-prison pipeline and concentrated policing; tension between carceral logic and youth development; barriers to ID, employment, and housing.","constraints_resources":"Small staff and space; flexible multi-use room; grant requires documentation of services and outcomes. Partners include legal aid, community college, and employers.","role":"Design a realistic program track (e.g., planning series, peer-led groups, structured case management) and develop an evaluation for youth experience and reentry outcomes."},
+{"title":"More Sirens at Night: Overdoses in the Riverside Neighborhood","setting_snapshot":"Riverside is a working-class neighborhood near an industrial corridor with visible public drug use and increased police presence.","population_snapshot":"Residents include long-term older Black and White neighbors and newer young renters. Many face job loss, health issues, and limited transportation. A portion of residents use opioids, sometimes publicly.","core_problems":"Overdoses and deaths have risen sharply over 18 months. EMS does repeat runs to the same blocks. Community meetings are divided between calls for enforcement and support for harm reduction. A small harm reduction van operates with limited coverage.","stakeholder_glimpses":"People who use drugs (PWUD): Want to stay alive, avoid withdrawal, and be treated with respect.\nFamily members: Want loved ones safe and connected to care.\nNeighbors: Want safety and cleanliness.\nPolice: Face pressure to act; their buy-in on harm reduction varies.\nHealth department: Open to innovative strategies with evidence.","equity_signals":"Deindustrialization and economic instability; criminalization and surveillance; underfunded services; stigma influencing who is seen as deserving of care.","constraints_resources":"Limited funding. Available data from EMS and ED. An existing harm reduction group with peer workers. Community tensions must be navigated.","role":"Design an overdose response or harm reduction initiative and an evaluation plan for overdose risk, safety perceptions, and equity."},
+{"title":"Whose Plan Is It? IEP Conflict at Lincoln Elementary","setting_snapshot":"Lincoln Elementary is a neighborhood K–5 with a resource room, speech office, small sensory space, a part-time school psychologist, and a shared social worker.","population_snapshot":"Families are diverse. Many caregivers are hourly workers. There is a noticeable number of students receiving special education services.","core_problems":"IEP meetings have become contentious. Families describe feeling outnumbered and rushed. Staff say they feel attacked. Examples include pressure toward restrictive placements and English-only drafts shared minutes before meetings.","stakeholder_glimpses":"Families: Want partnership and understandable language.\nTeachers: Want support for behavior and differentiation.\nSpecial education staff: Seek compliance and services under constraints.\nAdministrators: Want to avoid due process and manage burnout.\nStudents: Need to belong in their classrooms.","equity_signals":"Racial and disability disparities; power imbalances in meetings; language access; paperwork compliance prioritized over relationships.","constraints_resources":"Limited time for long meetings or pre-meetings. Standard district trainings are in place. Some flexibility to pilot meeting formats and tools. A local parent advocacy org exists.","role":"Design a support or practice change to improve family–school collaboration and outline an evaluation for family/staff experience and IEP outcomes."},
+{"title":"Hard to Breathe: Asthma and Air Quality in Oakwood","setting_snapshot":"Oakwood is a low-income neighborhood near a highway and warehouses. A community clinic serves families alongside a small environmental justice (EJ) organization.","population_snapshot":"Predominantly Black and Latine families live in older rentals with mold, pests, and poor ventilation. Many parents work in service, warehouse, or gig jobs.","core_problems":"Children’s asthma rates, ER visits, and missed school days are higher than the city average. Families struggle with landlords and receive one-time medical education focused on medications. The EJ group collected air data but had limited follow-through to action.","stakeholder_glimpses":"Families: Want kids breathing easier, fewer ER trips, and leverage with landlords.\nClinic: Wants to reduce acute visits and improve chronic care under time limits.\nEJ group: Wants to turn data into action and power.\nSchools: Track absences tied to asthma.\nCity/public health: Aware of the issue but juggling multiple priorities.","equity_signals":"Environmental racism; landlord-tenant power dynamics; insurance and access barriers; school metrics that miss structural determinants of health.","constraints_resources":"Clinic visit time is limited. EJ group has volunteers and data skills. A small grant could support a clinic–community asthma initiative. Data sources include EHR and community assessments; school attendance records may be available.","role":"Design a clinic–community initiative (e.g., CHW visits, tenant support, school–clinic partnership, community action groups) and evaluate child health, family empowerment, and equity."},
+{"title":"We Only Come on Thursdays: Rural Mobile Health Clinic","setting_snapshot":"A mobile van rotates among rural communities, parking at churches, schools, and grocery lots, providing basic primary care and brief behavioral health screens.","population_snapshot":"Residents include older adults, farmworkers, and families with limited transportation. Many are uninsured/underinsured. Interpreter services are spotty. Broadband access is limited.","core_problems":"Irregular follow-up and short visits limit chronic disease and mental health support. Community members appreciate access but often miss the van due to work schedules and route timing. Staff want to support chronic disease and mental health but feel constrained.","stakeholder_glimpses":"Residents: Want respectful, local care without long drives.\nVan staff: Strive to balance reach and depth.\nLocal leaders: Want healthier communities and trusted health spaces.\nHealth system: Wants to show impact and justify costs.","equity_signals":"Rural health disparities; transportation barriers; digital divide; immigration concerns among farmworkers.","constraints_resources":"Fixed van capacity and limited route frequency. Some grant funding for chronic disease or behavioral health pilots. Basic EHR data exist for visits, diagnoses, and labs. Trusted local institutions can host programming.","role":"Design a practice modification (e.g., follow-up system, CHW role, group visits, reminders) and an evaluation for access, continuity, and experience."},
+{"title":"Safe or Watched? The City's Crime Prevention Initiative","setting_snapshot":"The city’s “Neighborhood Safety Zones” program brings increased patrols, cameras, and small grants for community programming to three areas including Brookside, a historically Black community.","population_snapshot":"Brookside has deep-rooted social networks alongside disinvestment, closures, and rising rents.","core_problems":"More visible patrols and cameras coincide with pop-up events run by external groups. Residents have mixed reactions; youth report more stops. Community leaders are frustrated by top-down decisions. The city wants data to show what works but offers little guidance.","stakeholder_glimpses":"Residents: Want safety without harassment and a real voice in decisions.\nYouth: Want spaces to gather and feel respected.\nPolice: Want to reduce crime stats; views on relationship-building vary.\nCity leadership: Wants measurable reductions and political optics.\nCommunity organizations: Interested in funding but skeptical of surveillance framing.","equity_signals":"History of racialized policing; disinvestment and instability; tension between crime stats and community-defined safety; risk of counting arrests as “success.”","constraints_resources":"Modest city funds can support community-led safety programs. Crime data and some survey data exist. No restriction on lead agency type. Grassroots groups are present but wary.","role":"Design a community-led program (e.g., youth peace fellows, restorative circles, tenant safety organizing) and outline an evaluation centering community-defined safety and equity along with required city metrics."}]
+  );
 
-  // ======= State & elements =======
+  // State & elements
   let current=null, locked=false;
-  let showIds=false; // hidden by default
+  let showIds=false;
   const F = {
     context:$('#fContext'), design:$('#fDesign'), purpose:$('#fPurpose'),
     outcomes:$('#fOutcomes'), measures:$('#fMeasures'),
@@ -381,7 +230,7 @@
     saveStatus:$('#saveStatus'), progress:$('#progress')
   };
 
-  // ======= Apply CONFIG =======
+  // Apply config
   (function applyConfig(){
     $('#siteTitle').textContent = CONFIG.siteTitle;
     document.title = CONFIG.siteTitle;
@@ -403,7 +252,7 @@
   function renderCase(){
     if(!current){ els.caseWrap.hidden=true; els.caseEmpty.hidden=false; return; }
     els.caseEmpty.hidden=false; els.caseWrap.hidden=false;
-    $('#caseId').textContent = current.id;
+    $('#caseId').textContent = current.id || '';
     $('#caseTitleChip').textContent = noDash(current.title);
     els.vTitle.textContent = noDash(current.title);
     els.vSetting.innerHTML = paragraphsHTML(current.setting_snapshot);
@@ -419,7 +268,8 @@
   function randomize(){
     const b=$('#btnRandom'); b.disabled=true; b.innerHTML='<span class="spin">🎲</span> Rolling...';
     setTimeout(()=>{
-      current = SCENARIOS[Math.floor(Math.random()*SCENARIOS.length)];
+      const idx=Math.floor(Math.random()*SCENARIOS.length);
+      current = SCENARIOS[idx];
       locked=false;
       clearAllFields(); renderCase();
       b.disabled=false; b.textContent='🎲 Randomize';
@@ -441,8 +291,8 @@
     els.progress.textContent = `${hits}/7 sections with 100+ words`;
   }
 
-  // ======= Autosave =======
-  const autoKey=()=> current ? `PE_NOTE_${current.id}` : 'PE_NOTE_UNSET';
+  // Autosave
+  const autoKey=()=> current ? `PE_NOTE_${noDash(current.title).slice(0,40)}` : 'PE_NOTE_UNSET';
   const autosave = debounce(()=>{
     if(!current || !locked) return;
     const data = {
@@ -475,7 +325,7 @@
     }catch{ els.saveStatus.textContent='load failed'; }
   }
 
-  // ======= Export / Copy / Print =======
+  // Export / Copy / Print
   function buildDocHtml(){
     if(!current) return '<!doctype html><html><head><meta charset="utf-8"><title>Program Evaluation</title></head><body><p>No scenario selected.</p></body></html>';
     const esc=(s)=>escapeHtml(noDash((s||'').toString()));
@@ -483,6 +333,7 @@
     h.push('<!doctype html><html><head><meta charset="utf-8"><title>Program Evaluation</title>');
     h.push('<style>body{font-family:Calibri,Arial,Helvetica,sans-serif;line-height:1.45;color:#111} h1,h2,h3{margin:0 0 6px} h1{font-size:22px} h2{font-size:18px;margin-top:16px} p{margin:0 0 10px 0} ul{margin:4px 0 8px 18px} .k{color:#374151} .small{color:#555;font-size:12px} @page{margin:1in}</style></head><body>');
     h.push(`<h1>${esc(CONFIG.siteTitle)}</h1>`);
+    h.push(`<p class="small">${esc(CONFIG.courseHeader)}</p>`);
     h.push('<h2>Scenario</h2><ul>');
     h.push('<li><span class="k">Title:</span> '+esc(current.title)+'</li>');
     h.push('</ul>');
@@ -500,7 +351,7 @@
     h.push('<h2>5) Operationalization & Data Sources</h2><p>'+esc($('#fMeasures').value).replace(/\n/g,'<br>')+'</p>');
     h.push('<h2>6) Evaluation Design Plan</h2><p>'+esc($('#fDesignPlan').value).replace(/\n/g,'<br>')+'</p>');
     h.push('<h2>7) Ethics, Power, Limitations & Communication</h2><p>'+esc($('#fEthics').value).replace(/\n/g,'<br>')+'</p>');
-    const ass = $('#fAssumptions').value;
+    const ass=$('#fAssumptions').value;
     if(ass){ h.push('<h2>Assumptions</h2><p>'+esc(ass).replace(/\n/g,'<br>')+'</p>'); }
     h.push('<p class="small">Generated '+new Date().toLocaleString()+'</p>');
     h.push('</body></html>');
@@ -509,7 +360,7 @@
   function buildPlainText(){
     if(!current) return 'No scenario selected.';
     const lines=[];
-    lines.push(CONFIG.siteTitle,'');
+    lines.push(CONFIG.siteTitle, CONFIG.courseHeader, '');
     lines.push('Scenario');
     lines.push(`- Title: ${noDash(current.title)}`,'');
     lines.push('Setting snapshot'); lines.push(noDash(current.setting_snapshot),'');
@@ -558,7 +409,7 @@
   }
   function printPage(){ window.print(); }
 
-  // ======= Case Import/Export =======
+  // Import/Export dataset
   $('#btnImport').addEventListener('click', ()=>$('#fileInput').click());
   $('#fileInput').addEventListener('change', async (e)=>{
     const file = e.target.files[0]; if(!file) return;
@@ -571,7 +422,7 @@
       });
       SCENARIOS = stripDashesDeep(data);
       toast(`Imported ${SCENARIOS.length} scenarios.`);
-      e.target.value=''; // reset
+      e.target.value='';
     }catch(err){
       toast('Import failed: '+(err.message||'Invalid JSON'));
     }
@@ -583,7 +434,7 @@
     toast('Scenarios JSON exported.');
   });
 
-  // ======= Toast =======
+  // Toast
   let toastTimer=null; const toastDiv=document.createElement('div');
   toastDiv.style.position='fixed'; toastDiv.style.bottom='16px'; toastDiv.style.left='50%'; toastDiv.style.transform='translateX(-50%)';
   toastDiv.style.background='#111827'; toastDiv.style.color='#fff'; toastDiv.style.padding='10px 14px';
@@ -591,7 +442,7 @@
   document.body.appendChild(toastDiv);
   function toast(msg){ clearTimeout(toastTimer); toastDiv.textContent=msg; toastDiv.style.display='block'; toastTimer=setTimeout(()=>toastDiv.style.display='none',1900); }
 
-  // ======= Events =======
+  // Events
   $('#btnRandom').addEventListener('click', randomize);
   $('#btnLock').addEventListener('click', toggleLock);
   $('#btnNew').addEventListener('click', ()=>{ if(confirm('Clear current note?')){ clearAllFields(); autosave(); }});
@@ -603,7 +454,7 @@
   $('#btnPrint').addEventListener('click', ()=>printPage());
   [F.context,F.design,F.purpose,F.outcomes,F.measures,F.designPlan,F.ethics,F.assumptions].forEach(el=>el.addEventListener('input', ()=>{ updateCounters(); autosave(); }));
 
-  // Keyboard shortcuts
+  // Shortcuts
   window.addEventListener('keydown',(e)=>{
     if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName) && (e.ctrlKey||e.metaKey)) return;
     if(e.key==='r'||e.key==='R'){ e.preventDefault(); randomize(); }
@@ -612,8 +463,8 @@
     if((e.key==='e'||e.key==='E') && locked){ e.preventDefault(); downloadWord(); }
   });
 
-  // ======= Init =======
-  function updateCounters(){ /* redefined for hoist-safe */ 
+  // Init
+  function updateCounters(){ 
     $('#cntContext').textContent = `${wordCount($('#fContext').value)} words`;
     $('#cntDesign').textContent = `${wordCount($('#fDesign').value)} words`;
     $('#cntPurpose').textContent = `${wordCount($('#fPurpose').value)} words`;
@@ -624,7 +475,7 @@
     const hits=[$('#fContext'),$('#fDesign'),$('#fPurpose'),$('#fOutcomes'),$('#fMeasures'),$('#fDesignPlan'),$('#fEthics')].filter(x=>wordCount(x.value)>=100).length;
     $('#progress').textContent = `${hits}/7 sections with 100+ words`;
   }
-  applyShowIds(); updateLockUi(); renderCase();
+  updateLockUi(); applyShowIds(); renderCase();
 </script>
 </body>
 </html>
