@@ -455,27 +455,38 @@
   [F.context,F.design,F.purpose,F.outcomes,F.measures,F.designPlan,F.ethics,F.assumptions].forEach(el=>el.addEventListener('input', ()=>{ updateCounters(); autosave(); }));
 
   // Shortcuts
-  window.addEventListener('keydown',(e)=>{
-    if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName) && (e.ctrlKey||e.metaKey)) return;
-    if(e.key==='r'||e.key==='R'){ e.preventDefault(); randomize(); }
-    if(e.key==='l'||e.key==='L'){ e.preventDefault(); toggleLock(); }
-    if(e.key==='p'||e.key==='P'){ e.preventDefault(); printPage(); }
-    if((e.key==='e'||e.key==='E') && locked){ e.preventDefault(); downloadWord(); }
+  <script>
+  // --- Replace your existing "Keyboard shortcuts" block with this one ---
+  function isTypingTarget(el) {
+    if (!el) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
+  }
+
+  window.addEventListener('keydown', (e) => {
+    // 1) Never trigger shortcuts while the user is typing anywhere editable.
+    if (isTypingTarget(document.activeElement) || isTypingTarget(e.target)) return;
+
+    // 2) Require Alt/Option to avoid accidental triggers during normal typing.
+    if (!e.altKey) return;
+
+    const k = e.key.toLowerCase();
+    if (k === 'r') { e.preventDefault(); typeof randomize === 'function' && randomize(); }
+    if (k === 'l') { e.preventDefault(); typeof toggleLock === 'function' && toggleLock(); }
+    if (k === 'p') { e.preventDefault(); typeof printPage === 'function' && printPage(); }
+    if (k === 'e') { 
+      e.preventDefault(); 
+      // For the EBP builder, this is downloadWord(); for Program Evaluation, same name in our build.
+      if (typeof downloadWord === 'function') downloadWord(); 
+    }
   });
 
-  // Init
-  function updateCounters(){ 
-    $('#cntContext').textContent = `${wordCount($('#fContext').value)} words`;
-    $('#cntDesign').textContent = `${wordCount($('#fDesign').value)} words`;
-    $('#cntPurpose').textContent = `${wordCount($('#fPurpose').value)} words`;
-    $('#cntOutcomes').textContent = `${wordCount($('#fOutcomes').value)} words`;
-    $('#cntMeasures').textContent = `${wordCount($('#fMeasures').value)} words`;
-    $('#cntDesignPlan').textContent = `${wordCount($('#fDesignPlan').value)} words`;
-    $('#cntEthics').textContent = `${wordCount($('#fEthics').value)} words`;
-    const hits=[$('#fContext'),$('#fDesign'),$('#fPurpose'),$('#fOutcomes'),$('#fMeasures'),$('#fDesignPlan'),$('#fEthics')].filter(x=>wordCount(x.value)>=100).length;
-    $('#progress').textContent = `${hits}/7 sections with 100+ words`;
-  }
-  updateLockUi(); applyShowIds(); renderCase();
+  // --- Update the on-page tip text to reflect Alt+ keys (optional but recommended) ---
+  const tipEl = document.getElementById('tip');
+  if (tipEl) tipEl.textContent = tipEl.textContent
+    .replace(/R\s*=\s*Randomize.*$/i, 'Alt+R = Randomize, Alt+L = Lock, Alt+E = Export Word.')
+    .replace(/R\s=\sRandomize.*$/i, 'Alt+R = Randomize, Alt+L = Lock, Alt+E = Export Word.')
+    .replace(/R = Randomize.*$/i, 'Alt+R = Randomize, Alt+L = Lock, Alt+E = Export Word.');
 </script>
 </body>
 </html>
