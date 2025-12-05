@@ -1,1 +1,309 @@
 
+<!-- /program-eval-index.html  (DROP-IN, CLEAN, SANITIZED, WITH EXPORT) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program Evaluation Vignette Index</title>
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --muted:#6b7280; --text:#111827; --line:#e5e7eb; --accent:#2563eb }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+  header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:5}
+  .wrap{max-width:1200px;margin:0 auto;padding:12px 16px}
+  h1{font-size:18px;margin:0 0 6px}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input[type=search]{width:360px;max-width:60vw;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fafafa}
+  button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  button:hover{border-color:#d1d5db}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{max-width:1200px;margin:12px auto 20px;padding:0 16px;display:grid;grid-template-columns:1fr 1.2fr;gap:14px}
+  @media (max-width:960px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .hd{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .bd{padding:10px 12px}
+  .muted{color:var(--muted)}
+  .list{max-height:70vh;overflow:auto}
+  .row{display:flex;gap:10px;align-items:flex-start;border-bottom:1px dashed var(--line);padding:10px 6px;cursor:pointer}
+  .row:last-child{border-bottom:0}
+  .row.active{background:#f3f4f6}
+  .title{font-weight:600;margin-bottom:2px}
+  .snippet{color:var(--muted);font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pill{display:inline-block;background:#eef2ff;color:#3730a3;border:1px solid #e0e7ff;border-radius:999px;padding:2px 8px;font-size:12px}
+  .grid{display:grid;grid-template-columns:220px 1fr;gap:8px}
+  .label{color:var(--muted)}
+  .narrative{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+  .empty{color:var(--muted);padding:8px;border:1px dashed var(--line);border-radius:10px;background:#fcfcfd}
+  details summary{cursor:pointer;user-select:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Program Evaluation Vignette Index</h1>
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="Search title, setting, population, problems, stakeholders…" aria-label="Search">
+      <button id="btnClear">Clear</button>
+      <span id="count" class="muted"></span>
+      <span style="margin-left:auto" class="muted">Shareable: use “Copy Link”.</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="hd"><strong>Vignettes</strong><div class="muted" id="pageMeta"></div></div>
+    <div class="bd">
+      <div id="list" class="list" role="listbox" aria-label="Vignette list"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button id="prev">Prev</button><button id="next">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="detailCard" aria-labelledby="detailHeading">
+    <div class="hd">
+      <h2 id="detailHeading" style="font-size:16px;margin:0">Details</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnOpen" class="primary">Open in Plan Builder</button>
+        <button id="btnExportCase">Export Case (.docx)</button>
+        <button id="btnCopyLink">Copy Link</button>
+        <button id="btnPrint">Print</button>
+      </div>
+    </div>
+    <div class="bd">
+      <div id="empty" class="empty">Select a vignette from the list.</div>
+      <div id="detail" style="display:none">
+        <div class="grid">
+          <div class="label">Title</div><div id="f_title"></div>
+          <div class="label">Setting snapshot</div><div id="f_setting_snapshot"></div>
+          <div class="label">Population</div><div id="f_population"></div>
+          <div class="label">Core problems</div><div id="f_core_problems"></div>
+          <div class="label">Stakeholders</div><div id="f_stakeholders"></div>
+          <div class="label">Equity signals</div><div id="f_equity_signals"></div>
+          <div class="label">Constraints & resources</div><div id="f_constraints_resources"></div>
+          <div class="label">Your role</div><div id="f_role"></div>
+        </div>
+        <div class="narrative">
+          <h3 style="margin:0 0 6px">Scenario summary</h3>
+          <div id="f_scenario_summary"></div>
+        </div>
+        <div class="narrative" id="extraWrap" style="display:none">
+          <details open>
+            <summary>Additional fields</summary>
+            <div id="extraFields" style="display:grid;grid-template-columns:220px 1fr;gap:6px;margin-top:6px"></div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- If you have a JS dataset, include it ABOVE this script:
+<script src="/data/program_eval_cases.js"></script>
+-->
+<script>
+/* ===== Config (edit path if you use JSON) ===== */
+const DATA_JSON_PATH = '/data/program_eval_cases.json';
+
+/* ===== Utilities (sanitize + render) ===== */
+const $ = s => document.querySelector(s);
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]))}
+function stripEmojis(s){return String(s||'').replace(/[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{2600}-\u{27BF}]/gu,'')}
+function stripOddNs(s){
+  // Kill lines that are just "n" or stray decimals/artifacts from DOCX
+  return String(s||'').replace(/^\s*n\s*$/gmi,'').replace(/[ \t]+\n/g,'\n')
+}
+function normalizeWs(s){return String(s||'').replace(/\r\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
+function clean(s){ return normalizeWs(stripOddNs(stripEmojis(s))) }
+function brize(s){ return esc(clean(s)).replace(/\n/g,'<br>') }
+function slugify(s){return clean(s).toLowerCase().replace(/['"]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)}
+
+/* ===== Data loading ===== */
+async function loadCases(){
+  if(Array.isArray(window.CASES) && window.CASES.length){
+    return window.CASES;
+  }
+  const r = await fetch(DATA_JSON_PATH, {cache:'no-store'});
+  if(!r.ok) throw new Error('Missing data at '+DATA_JSON_PATH);
+  return await r.json();
+}
+
+/* ===== State ===== */
+let ALL=[], FILTER=[], PAGE=1, PER=8, ACTIVE=-1;
+
+/* ===== Render ===== */
+function fields(){return ['title','setting_snapshot','population','core_problems','stakeholders','equity_signals','constraints_resources','role','scenario_summary']}
+function applyFilter(){
+  const q = clean($('#q').value||'').toLowerCase();
+  FILTER = !q ? [...ALL] : ALL.filter(c=>fields().some(f=>clean(c[f]||'').toLowerCase().includes(q)));
+  PAGE=1; renderList(); FILTER.length?selectByIndex(0):showEmpty(); $('#count').textContent=`${FILTER.length} result${FILTER.length===1?'':'s'}`;
+}
+function renderList(){
+  const start=(PAGE-1)*PER, slice=FILTER.slice(start,start+PER), list=$('#list'); list.innerHTML='';
+  slice.forEach(c=>{
+    const div=document.createElement('div'); div.className='row'+(c.__id===ACTIVE?' active':''); div.role='option'; div.tabIndex=0;
+    div.innerHTML=`<div style="flex:1">
+      <div class="title">${esc(clean(c.title))}</div>
+      <div class="snippet">${esc(clean((c.setting_snapshot||'')).replace(/\n/g,' '))}</div>
+    </div>
+    <div><span class="pill">${esc(clean((c.population||'')).split(/[.;]/)[0].slice(0,40)||'—')}</span></div>`;
+    div.onclick=()=>select(c.__id); div.onkeydown=e=>{ if(e.key==='Enter') select(c.__id) };
+    list.appendChild(div);
+  });
+  const pages=Math.max(1,Math.ceil(FILTER.length/PER)); $('#pageMeta').textContent=`Page ${PAGE}/${pages}`;
+  $('#prev').disabled=PAGE<=1; $('#next').disabled=PAGE>=pages;
+}
+function showEmpty(){ $('#empty').style.display=''; $('#detail').style.display='none'; $('#detailHeading').textContent='Details' }
+function selectByIndex(ix){ const id=(FILTER[ix]||{}).__id; if(typeof id==='number') select(id); }
+function select(id){
+  ACTIVE=id; renderList();
+  const c=ALL.find(x=>x.__id===id); if(!c) return showEmpty();
+  history.replaceState(null,'',`#case=${encodeURIComponent(c.__slug)}`);
+  fillDetail(c);
+}
+function fillDetail(c){
+  $('#empty').style.display='none'; $('#detail').style.display='';
+  $('#detailHeading').textContent=clean(c.title)||'Details';
+  const set=(id,val)=>document.getElementById(id).innerHTML = brize(val||'');
+  set('f_title',c.title); set('f_setting_snapshot',c.setting_snapshot); set('f_population',c.population); set('f_core_problems',c.core_problems);
+  set('f_stakeholders',c.stakeholders); set('f_equity_signals',c.equity_signals); set('f_constraints_resources',c.constraints_resources); set('f_role',c.role);
+  set('f_scenario_summary',c.scenario_summary);
+  const extras=c.extra||c.__extra__||{}; const keys=Object.keys(extras).filter(k=>clean(extras[k]).length);
+  const wrap=document.getElementById('extraWrap'), tgt=document.getElementById('extraFields');
+  if(keys.length){ wrap.style.display=''; tgt.innerHTML=''; keys.forEach(k=>{ const K=document.createElement('div'); K.textContent=k; K.style.color='#6b7280'; const V=document.createElement('div'); V.innerHTML=brize(Array.isArray(extras[k])?extras[k].join('\n'):extras[k]); tgt.appendChild(K); tgt.appendChild(V); }); }
+  else wrap.style.display='none';
+}
+
+/* ===== Actions ===== */
+$('#btnClear').onclick=()=>{ $('#q').value=''; applyFilter(); }
+$('#prev').onclick=()=>{ if(PAGE>1){ PAGE--; renderList(); } }
+$('#next').onclick=()=>{ const max=Math.ceil(FILTER.length/PER)||1; if(PAGE<max){ PAGE++; renderList(); } }
+$('#btnCopyLink').onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href) }catch(_){} }
+$('#btnPrint').onclick=()=>window.print();
+$('#btnOpen').onclick=()=>{ const c=ALL.find(x=>x.__id===ACTIVE); if(!c) return; try{ localStorage.setItem('PD_PRELOAD_TITLE', clean(c.title||'')) }catch(_){ } location.href='program-evaluation-generator.html' }
+
+/* ===== Export CASE ONLY (.docx) ===== */
+$('#btnExportCase').onclick=()=>{ const c=ALL.find(x=>x.__id===ACTIVE); if(!c) return; const html=buildCaseExportHTML(c); const blob=window.htmlDocx.asBlob(html);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(clean(c.title)||'Scenario').slice(0,40).replace(/[^\w\s-]/g,'')+'_Scenario_Only.docx'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+function buildCaseExportHTML(c){
+  const e=s=>esc(clean(s)); const br=s=>e(s).replace(/\n/g,'<br>'); const para=s=>(clean(s).split(/\n\s*\n/).map(x=>`<p>${br(x)}</p>`).join(''))||'<p></p>';
+  const h=(n,t)=>`<h${n}>${e(t)}</h${n}>`; const parts=[];
+  parts.push(h(1,'Program Evaluation — Scenario Packet'));
+  parts.push(h(2,c.title||'Untitled Scenario'));
+  parts.push(`<p><strong>Setting snapshot:</strong> ${br(c.setting_snapshot)}</p>`);
+  parts.push(`<p><strong>Population:</strong> ${br(c.population)}</p>`);
+  parts.push(`<p><strong>Core problems:</strong><br>${br(c.core_problems)}</p>`);
+  parts.push(`<p><strong>Stakeholders:</strong><br>${br(c.stakeholders)}</p>`);
+  parts.push(`<p><strong>Equity signals:</strong><br>${br(c.equity_signals)}</p>`);
+  parts.push(`<p><strong>Constraints & resources:</strong><br>${br(c.constraints_resources)}</p>`);
+  parts.push(`<p><strong>Your role:</strong> ${br(c.role)}</p>`);
+  if(c.scenario_summary){ parts.push(h(3,'Scenario summary')); parts.push(para(c.scenario_summary)); }
+  const ex=c.extra||c.__extra__||{}; const names=Object.keys(ex).filter(k=>clean(ex[k]).length);
+  if(names.length){ parts.push(h(2,'Additional fields')); names.forEach(k=>{ const v=Array.isArray(ex[k])?ex[k].join('\n'):ex[k]; parts.push(`<p><strong>${e(k)}:</strong><br>${br(v)}</p>`); }); }
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${e(c.title||'Scenario')}</title></head><body>${parts.join('\n')}</body></html>`;
+}
+
+/* ===== Minimal htmlDocx.asBlob (same structure as your OG) ===== */
+(function(){
+  const enc=new TextEncoder(), utf8=s=>enc.encode(String(s??""));
+  function xmlEscape(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+  const r=(t,pr='')=>`<w:r>${pr?`<w:rPr>${pr}</w:rPr>`:''}<w:t xml:space="preserve">${xmlEscape(t)}</w:t></w:r>`, br=()=>`<w:r><w:br/></w:r>`;
+  const p=(inner,pp='')=>`<w:p>${pp?`<w:pPr>${pp}</w:pPr>`:''}${inner||''}</w:p>`;
+  function nodeToParas(node){ const out=[]; const walk=(n,acc=[])=>{ if(n.nodeType===3){ if(n.nodeValue) acc.push(r(n.nodeValue)); }
+    else if(n.nodeType===1){ const tag=n.tagName.toLowerCase();
+      if(tag==='br'){ acc.push(br()); }
+      else if(['strong','b','em','i','u'].includes(tag)){ const inner=[]; n.childNodes.forEach(c=>walk(c,inner)); let pr=''; if(tag==='b'||tag==='strong') pr+='<w:b/>'; if(tag==='i'||tag==='em') pr+='<w:i/>'; if(tag==='u') pr+='<w:u w:val="single"/>';
+        const textOnly=inner.join('').replace(/^<w:r>|<\/w:r>$/g,''); acc.push(`<w:r><w:rPr>${pr}</w:rPr>${textOnly}</w:r>`); }
+      else if(tag==='span'){ n.childNodes.forEach(c=>walk(c,acc)); }
+      else if(['h1','h2','h3','p'].includes(tag)){ const inner=[]; n.childNodes.forEach(c=>walk(c,inner));
+        if(tag==='p'){ out.push(p(inner.join(''))); }
+        else{ const size=tag==='h1'?36:tag==='h2'?28:24; const first=inner.length?inner[0].replace('<w:r>','<w:r><w:rPr><w:b/><w:sz w:val="'+size+'"/><w:szCs w:val="'+size+'"/></w:rPr>'):r('',`<w:b/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/>`);
+          const rest=inner.length?inner.slice(1).join(''):''; out.push(p(first+rest,'<w:spacing w:after="160"/>')); } }
+      else if(tag==='ul'){ n.childNodes.forEach(li=>{ if(li.tagName && li.tagName.toLowerCase()==='li'){ const inner=[r('• ')]; li.childNodes.forEach(c=>walk(c,inner)); out.push(p(inner.join(''))); } }); }
+      else { n.childNodes.forEach(c=>walk(c,acc)); } } return acc; };
+    if(node.childNodes && node.childNodes.length){ node.childNodes.forEach(ch=>{ if(ch.nodeType===3){ out.push(p(r(ch.nodeValue))); }
+      else if(ch.nodeType===1 && ['h1','h2','h3','p','ul'].includes(ch.tagName.toLowerCase())){ walk(ch); }
+      else if(ch.nodeType===1){ const inner=[]; walk(ch,inner); if(inner.length) out.push(p(inner.join(''))); } }); }
+    return out.join(''); }
+  function buildDocXML(html){ const doc=new DOMParser().parseFromString(html,'text/html'); const body=doc.body; const content=nodeToParas(body)||p(r(''));
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.microsoft.com/office/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/2010/word/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>${content}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>`; }
+  function u8cat(ch){ let len=0; ch.forEach(c=>len+=c.length); const out=new Uint8Array(len); let o=0; ch.forEach(c=>{out.set(c,o);o+=c.length}); return out; }
+  const T=(()=>{ let c,t=new Uint32Array(256); for(let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1)); t[n]=c>>>0; } return t; })();
+  const crc32=buf=>{ let c=~0>>>0; for(let i=0;i<buf.length;i++){ c=(c>>>8)^T[(c^buf[i])&0xFF]; } return (~c)>>>0; };
+  function dateToDos(d=new Date()){ const time=(d.getHours()<<11)|(d.getMinutes()<<5)|((d.getSeconds()/2)|0), date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate(); return {time,date}; }
+  function zip(files){
+    const cd=[]; let offset=0; const chunks=[]; const now=dateToDos(new Date());
+    files.forEach(f=>{
+      const name=utf8(f.name), data=f.data, crc=crc32(data);
+      const lh=new Uint8Array(30+name.length), dv=new DataView(lh.buffer);
+      dv.setUint32(0,0x04034b50,true); dv.setUint16(4,20,true); dv.setUint16(6,0,true); dv.setUint16(8,0,true);
+      dv.setUint16(10,now.time,true); dv.setUint16(12,now.date,true); dv.setUint32(14,crc,true);
+      dv.setUint32(18,data.length,true); dv.setUint32(22,data.length,true); dv.setUint16(26,name.length,true); dv.setUint16(28,0,true);
+      lh.set(name,30); chunks.push(lh,data);
+      const cdH=new Uint8Array(46+name.length), cdv=new DataView(cdH.buffer);
+      cdv.setUint32(0,0x02014b50,true); cdv.setUint16(4,20,true); cdv.setUint16(6,20,true); cdv.setUint16(8,0,true); cdv.setUint16(10,0,true);
+      cdv.setUint16(12,now.time,true); cdv.setUint16(14,now.date,true); cdv.setUint32(16,crc,true); cdv.setUint32(20,data.length,true); cdv.setUint32(24,data.length,true);
+      cdv.setUint16(28,name.length,true); cdv.setUint16(30,0,true); cdv.setUint16(32,0,true); cdv.setUint16(34,0,true); cdv.setUint16(36,0,true);
+      cdv.setUint32(38,0,true); cdv.setUint32(42,offset,true); cdH.set(name,46); cd.push(cdH); offset += lh.length + data.length;
+    });
+    const central=u8cat(cd); const end=new Uint8Array(22), edv=new DataView(end.buffer);
+    edv.setUint32(0,0x06054b50,true); edv.setUint16(4,0,true); edv.setUint16(6,0,true); edv.setUint16(8,files.length,true); edv.setUint16(10,files.length,true);
+    edv.setUint32(12,central.length,true); edv.setUint32(16,offset,true); edv.setUint16(20,0,true);
+    return new Blob([u8cat([...chunks,central,end])],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  }
+  window.htmlDocx = { asBlob(html){
+    const doc=buildDocXML(html);
+    return zip([
+      { name:'[Content_Types].xml', data:utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`)},
+      { name:'_rels/.rels', data:utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`)},
+      { name:'word/document.xml', data:utf8(doc) }
+    ]);
+  }};
+})();
+</script>
+
+<script>
+/* ===== Boot ===== */
+(async function(){
+  try{
+    let data = await loadCases();
+    data = (data||[]).map((c,i)=>({__id:i,__slug:slugify(c.title||('case-'+(i+1))),...c}));
+    ALL = data; applyFilter();
+    const m=location.hash.match(/case=([^&]+)/); if(m){ const slug=decodeURIComponent(m[1]); const ix=ALL.findIndex(c=>c.__slug===slug); if(ix>=0){ PAGE=Math.floor(ix/PER)+1; renderList(); select(ALL[ix].__id); } }
+  }catch(e){
+    document.body.innerHTML = '<div class="wrap" style="margin-top:24px"><div class="empty">Error loading cases. Check /data/program_eval_cases.(js|json)</div></div>';
+  }
+})();
+</script>
+</body>
+</html>
+
+<!-- BUILDER HOOK (paste into BOTH builders near the bottom, after your scripts) -->
+<script>
+// Preload selection from index
+document.addEventListener('DOMContentLoaded', ()=>{
+  try{
+    const key = location.pathname.includes('program-evaluation') ? 'PD_PRELOAD_TITLE' : 'EBP_PRELOAD_TITLE';
+    const want = localStorage.getItem(key);
+    if(want && Array.isArray(window.CASES)){
+      const match = window.CASES.find(c=> (c.title||'').trim() === want.trim());
+      if(match){ window.current = match; window.locked = false; (window.clearForm||(()=>{}))(); (window.renderCase||(()=>{}))(); }
+    }
+    localStorage.removeItem('PD_PRELOAD_TITLE'); localStorage.removeItem('EBP_PRELOAD_TITLE');
+  }catch(_){}
+});
+
+// Gate Export → only when Locked (OG export already includes case + notes)
+(function(){
+  const exportBtn = document.getElementById('btnExport');
+  const lockBtn = document.getElementById('btnLock');
+  if(!exportBtn || !lockBtn) return;
+  const sync = ()=>{ exportBtn.disabled = !window.locked; };
+  sync();
+  lockBtn.addEventListener('click', ()=>setTimeout(sync,0));
+})();
+</script>
+
