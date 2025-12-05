@@ -31,9 +31,6 @@ Program Evaluation Generator — single-file, offline, no deps
   .hero{display:flex;flex-direction:column;gap:4px;min-width:220px}
   .eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
   .title{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
-  header .subtitle{display:none}
-  header .meta{display:none}
-  header .banner-row{display:none}
 
   /* Toolbar + buttons */
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;min-width:280px}
@@ -53,6 +50,11 @@ Program Evaluation Generator — single-file, offline, no deps
   header.compact .wrap{padding:10px 12px}
   header.compact .title{font-size:18px}
   header.compact .eyebrow{display:none}
+
+  /* ===== Drawer visibility guarantees ===== */
+  .info-drawer details{margin-top:6px}
+  .info-drawer .subtitle{display:block}
+  .info-drawer .banner-row{display:grid;gap:8px}
 
   /* ===== Layout/cards ===== */
   .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
@@ -97,13 +99,11 @@ Program Evaluation Generator — single-file, offline, no deps
     .layout{grid-template-columns:1fr}
   }
 
-  /* ===== Make ONLY the vignette body scroll, page handles the Builder ===== */
-  /* Why: keep notes short/natural; prevent long scroll to get past vignette. */
+  /* ===== Make ONLY the vignette body scroll ===== */
   #scenarioCard .body{
     overflow:auto;
-    max-height: calc(100dvh - var(--header-h) - 32px); /* viewport minus header + gap */
+    max-height: calc(100dvh - var(--header-h) - 32px);
   }
-  /* Small screens: slightly shorter to leave space */
   @media(max-width:1024px){
     #scenarioCard .body{ max-height: 60vh; }
   }
@@ -115,17 +115,7 @@ Program Evaluation Generator — single-file, offline, no deps
     <div class="hero">
       <div class="eyebrow">Program Evaluation Assignment</div>
       <div class="title">Program Evaluation Generator <span class="pill accent">Program Evaluation</span></div>
-      <p class="subtitle">Use this generator to craft your plan for the Program Evaluation assignment in SOW5404. If you need the Program Development assignment, open the companion site instead so the prompts match.</p>
-      <div class="meta">
-        <span class="pill soft">Course: <span id="courseTag">SOW5404 • Spring 2026</span></span>
-        <span class="pill outline">Single-file • Offline-ready</span>
-        <span class="pill outline">Built-in Word export</span>
-      </div>
-      <div class="banner-row">
-        <div class="banner primary">Editing is enabled only when <strong>Locked</strong>. While locked, a draft autosaves to your browser every few seconds. <em>Always</em> click <strong>Save</strong> before leaving the page.</div>
-        <div class="banner neutral">This page is dedicated to the <strong>PROGRAM EVALUATION</strong> assignment. Use the <em>Program Development Generator</em> for the separate development project.</div>
-        <div class="banner warn" role="status">Note: When opening an exported Word file you may see an "unreadable content" warning. Click <strong>Yes</strong> to recover and the document will load correctly.</div>
-      </div>
+      <!-- Removed subtitle/meta/banners from header to avoid duplication and hidden content -->
     </div>
     <div class="toolbar">
       <button id="btnRandom" title="Randomize scenario (Alt+R)">Randomize</button>
@@ -625,7 +615,7 @@ function stopAutosave(){ if(autosaveTimer){clearInterval(autosaveTimer); autosav
 /* =============== BUILDER =============== */
 function clearBuilder(){
   ['f_context','f_design','f_purpose','f_outcomes','f_operational','f_designplan','f_ethics','f_assumptions']
-    .forEach(id=>$(id).value='');
+    .forEach(id=>$(id).value='';
 }
 
 /* =============== SAVE / LOAD =============== */
