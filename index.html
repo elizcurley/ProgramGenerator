@@ -60,6 +60,7 @@ Program Evaluation Generator — single-file, offline, no deps
       <div style="font-size:20px;font-weight:800">Program Evaluation Generator</div>
       <div class="course" id="courseTag">SOW5404 • Spring 2026</div>
       <div class="banner">Editing is enabled only when <strong>Locked</strong>. While locked, a draft autosaves to your browser every few seconds. <em>Always</em> click <strong>Save</strong> before leaving the page.</div>
+      <div class="banner" role="status">Note: When opening an exported Word file you may see an "unreadable content" warning. Click <strong>Yes</strong> to recover and the document will load correctly.</div>
     </div>
     <div class="toolbar">
       <button id="btnRandom" title="Randomize scenario (Alt+R)">Randomize</button>
@@ -475,6 +476,10 @@ function onNew(){clearBuilder(); lastSavedHash=''; toast('Cleared')}
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
       <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
     </Relationships>`;
+    const docRels=`<?xml version="1.0" encoding="UTF-8"?>
+    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+      <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+    </Relationships>`;
     const documentXML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
       <w:body>${docBody}<w:sectPr/></w:body>
@@ -483,6 +488,7 @@ function onNew(){clearBuilder(); lastSavedHash=''; toast('Cleared')}
       {name:'[Content_Types].xml',data:utf8Bytes(contentTypes)},
       {name:'_rels/.rels',data:utf8Bytes(rootRels)},
       {name:'word/document.xml',data:utf8Bytes(documentXML)},
+      {name:'word/_rels/document.xml.rels',data:utf8Bytes(docRels)},
       {name:'word/styles.xml',data:utf8Bytes(styles)}
     ];
     return zipBlobSync(files,'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
