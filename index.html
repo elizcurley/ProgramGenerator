@@ -118,13 +118,32 @@ Program Evaluation Generator — single-file, offline, no dependencies
 
 <div id="toast2" class="toast" role="status" aria-live="polite"></div>
 
-<!-- Minimal html-docx-js (offline) -->
+<!-- html-docx-js (embedded, offline, minimal, MIT) -->
 <script>
-(function(a){function b(a){return new Blob([a],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})}
-function c(a){return a.replace(/[\u2013\u2014]/g,"-")}
-function d(a){var b='<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+a+"</body></html>";
-var c='Mime-Version: 1.0\nContent-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"\n\n--NEXT.ITEM-BOUNDARY\nContent-Location: file:///C:/document.html\nContent-Type: text/html; charset=utf-8\nContent-Transfer-Encoding: 8bit\n\n'+b+"\n\n--NEXT.ITEM-BOUNDARY--";
-return "data:message/rfc822;base64,"+btoa(unescape(encodeURIComponent(c)))} a.htmlDocx||(a.htmlDocx={asBlob:function(a){return b(atob(d(c(a)).split(",")[1]))}})})(window);
+/* Generates a Word-compatible MHTML package without base64/atob corruption */
+(function (win) {
+  var MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  function sanitizeDashes(str){ return String(str || '').replace(/[\u2013\u2014]/g, '-'); }
+  function buildMHTML(html) {
+    var boundary = "docx-boundary";
+    return 'Mime-Version: 1.0\n' +
+      'Content-Type: multipart/related; boundary="' + boundary + '"\n\n' +
+      '--' + boundary + '\n' +
+      'Content-Type: text/html; charset="utf-8"\n' +
+      'Content-Location: file:///index.html\n\n' +
+      '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' +
+      html +
+      '</body></html>\n\n' +
+      '--' + boundary + '--';
+  }
+  win.htmlDocx = {
+    asBlob: function (html) {
+      var safe = sanitizeDashes(html);
+      var mhtml = buildMHTML(safe);
+      return new Blob([mhtml], { type: MIME });
+    }
+  };
+})(window);
 </script>
 
 <script>
