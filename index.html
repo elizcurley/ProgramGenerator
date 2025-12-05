@@ -59,6 +59,10 @@ Program Evaluation Generator — single-file, offline, no deps
   .hr{height:1px;background:var(--line);margin:12px 0}
   .toast{position:fixed;bottom:12px;right:12px;background:#111;color:#fff;padding:10px 12px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}
   .toast.show{opacity:1;transform:translateY(0)}
+  @media(max-width:900px){
+    .titlebar{padding-right:16px}
+    .toolbar{position:static;justify-content:flex-start}
+  }
   @media print{
     header,.toast,.toolbar{display:none !important}
     body{background:#fff}
