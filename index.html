@@ -13,7 +13,8 @@ Program Evaluation Generator — single-file, offline, no deps
 <style>
   :root{
     --bg:#f5f7fb;--bg-2:#ebf2ff;--card:#ffffff;--ink:#0f172a;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;
-    --ok:#0a7f3f;--warn:#c2410c;--shadow:0 2px 8px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.12)
+    --ok:#0a7f3f;--warn:#c2410c;--shadow:0 2px 8px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.12);
+    --header-h: 140px; /* updated by JS */
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% 20%,#f1f5ff 0,#f5f7fb 35%,#f5f7fb 70%,#edf2ff 100%);line-height:1.6}
@@ -26,13 +27,13 @@ Program Evaluation Generator — single-file, offline, no deps
   .wrap{max-width:1200px;margin:0 auto;padding:18px 16px}
   .titlebar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 
-  /* CHANGES: smaller default header */
+  /* Compact header */
   .hero{display:flex;flex-direction:column;gap:4px;min-width:220px}
   .eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
   .title{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
-  .subtitle{display:none}            /* hide in header; same text is in details drawer */
-  .meta{display:none}                /* hide pills row in header for compactness */
-  .banner-row{display:none}          /* keep banners in details drawer only */
+  .subtitle{display:none}
+  .meta{display:none}
+  .banner-row{display:none}
 
   /* Toolbar + buttons */
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;min-width:280px}
@@ -45,19 +46,18 @@ Program Evaluation Generator — single-file, offline, no deps
   .status{font-size:12px;border:1px solid var(--line);padding:4px 10px;border-radius:999px;background:#fafafa;white-space:nowrap}
   .status.locked{border-color:#cce9d8;background:#f0fdf4;color:var(--ok)}
   .status.unlocked{border-color:#ffe2c7;background:#fff7ed;color:var(--warn)}
-
-  /* CHANGES: prevent overlap — chip drops to its own line on small widths */
   .toolbar .status{order:2;flex-basis:100%;text-align:right}
   @media(min-width:700px){ .toolbar .status{order:0;flex-basis:auto;margin-left:4px} }
 
-  /* CHANGES: header “compact on scroll” size */
+  /* Header “compact on scroll” */
   header.compact .wrap{padding:10px 12px}
   header.compact .title{font-size:18px}
   header.compact .eyebrow{display:none}
 
-  /* Layout/cards */
+  /* ===== Layout/cards ===== */
   .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
   @media(max-width:1024px){.layout{grid-template-columns:1fr}}
+
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .card h2{margin:0;padding:16px;border-bottom:1px solid var(--line);font-size:18px}
   .card .body{padding:16px}
@@ -96,6 +96,20 @@ Program Evaluation Generator — single-file, offline, no deps
     .card{box-shadow:none;border-color:#ddd}
     .layout{grid-template-columns:1fr}
   }
+
+  /* ===== Equal-height columns; only vignette scrolls (Option B) ===== */
+  @media(min-width:1024px){
+    .columns-viewport{
+      min-height: calc(100dvh - var(--header-h) - 16px);
+    }
+    .sidecol > .card{
+      display:flex;flex-direction:column;height:100%;
+    }
+    /* ONLY the Scenario Panel body scrolls */
+    #scenarioCard .body{overflow:auto;}
+    /* Builder body uses normal page flow (no internal scrolling) */
+    #builderCard .body{overflow:visible;}
+  }
 </style>
 </head>
 <body>
@@ -104,7 +118,6 @@ Program Evaluation Generator — single-file, offline, no deps
     <div class="hero">
       <div class="eyebrow">Program Evaluation Assignment</div>
       <div class="title">Program Evaluation Generator <span class="pill accent">Program Evaluation</span></div>
-      <!-- subtitle/meta hidden in header; they appear in the details drawer -->
       <p class="subtitle">Use this generator to craft your plan for the Program Evaluation assignment in SOW5404. If you need the Program Development assignment, open the companion site instead so the prompts match.</p>
       <div class="meta">
         <span class="pill soft">Course: <span id="courseTag">SOW5404 • Spring 2026</span></span>
@@ -132,7 +145,7 @@ Program Evaluation Generator — single-file, offline, no deps
   </div>
 </header>
 
-<!-- Keep all rich guidance in the drawer so header stays tiny -->
+<!-- Drawer keeps long guidance out of the header -->
 <div class="wrap info-drawer" id="assignmentNotes">
   <details>
     <summary>Assignment details &amp; warnings</summary>
@@ -146,10 +159,10 @@ Program Evaluation Generator — single-file, offline, no deps
 </div>
 
 <main class="wrap">
-  <div class="layout">
+  <div class="layout columns-viewport">
     <!-- LEFT: Scenario panel -->
     <div class="sidecol">
-      <div class="card">
+      <div class="card" id="scenarioCard">
         <h2>Scenario Panel</h2>
         <div class="body">
           <h3 id="scenarioTitle">No scenario selected</h3>
@@ -158,7 +171,7 @@ Program Evaluation Generator — single-file, offline, no deps
       </div>
     </div>
 
-    <!-- RIGHT: Evaluation Builder -->
+    <!-- RIGHT: Evaluation Builder (page scrolls, not internal) -->
     <div class="sidecol">
       <div class="card" id="builderCard">
         <h2>Evaluation Builder</h2>
@@ -176,7 +189,6 @@ Program Evaluation Generator — single-file, offline, no deps
         </div>
       </div>
     </div>
-    <!-- /RIGHT -->
   </div>
 </main>
 
@@ -187,17 +199,15 @@ Program Evaluation Generator — single-file, offline, no deps
 const CONFIG={ COURSE_TAG:'SOW5404 • Spring 2026', APPKEY_PREFIX:'PE_APP_APPKEY_', DEFAULT_EXPORT_NAME:'Program_Evaluation.docx' };
 
 /* ==================== DATA — SCENARIOS ================== */
+/* Full vignettes from your message */
 const SCENARIOS=[
   {
     title:"Jefferson Middle School: Discipline, Trust, and a System in Strain",
     setting_snapshot:`Jefferson Middle School serves approximately 700 students in a neighborhood undergoing rapid gentrification. Long-standing Black and Latine families are being priced out, while newer families move in with different expectations, communication styles, and relationships to the school. The building is old, with frequent HVAC failures, limited classroom space, and a rotating roster of substitute teachers. Staff shortages are common, and teacher turnover has increased each year for the last three years.
-
 The school leadership is under pressure from the district to “improve behavioral indicators” after a report showed rising suspension rates. Although the district has encouraged schools to explore alternatives to exclusionary practices, no additional staff or training has been provided. Teachers describe their classrooms as crowded and unpredictable, and the social worker has responsibility for crisis response, attendance concerns, and family outreach with very limited time for prevention or programming.
-
 Families often report feeling disconnected from the school. Some describe feeling unwelcome when raising concerns. Others say they do not understand the discipline process or why certain decisions are made. The school attempts family engagement events, but attendance is inconsistent.`,
     population_snapshot:`The school serves primarily Black and Latine students ages 11 through 14. Many families work multiple jobs, creating challenges for attending meetings or monitoring school communication systems. A significant number of students have recently experienced displacement due to rent increases. Approximately one in six students receives special education services, and many students report varying levels of mistrust toward adults in institutional settings.`,
     core_problems:`There are conflicting beliefs among staff about what the “real problem” is. Some teachers believe that students have become increasingly defiant and that inconsistent classroom management across staff leads to escalation. Others believe that the zero-tolerance disciplinary policies adopted several years ago are producing more harm than good. Families express confusion and frustration about discipline decisions, and some say they feel judged or misunderstood when they reach out for support.
-
 Administrators feel caught between community expectations, district pressure, and staff fatigue. Teachers feel unsupported and fear that loosening disciplinary responses will lead to loss of control in the classroom. Students say they are suspended for relatively small behaviors, and that adults interpret their communication styles as disrespectful. There is no agreement on what should change or who holds responsibility.`,
     stakeholder_glimpses:`Teachers: Want calmer classrooms, feel overwhelmed, and believe discipline must be consistent. Some feel blamed for outcomes they cannot control.
 Students: Report feeling targeted, misunderstood, and excluded from decisions affecting them. Fear that suspensions damage their academic futures.
@@ -213,7 +223,6 @@ School Social Worker: Overextended and unable to address root causes. Wishes for
 • Limited physical space for group meetings or restorative practices
 • Inconsistent definitions of “incidents” across staff
 • Strong district pressure to show improvement without providing resources
-
 Resources:
 • A committed core of teachers interested in collaboration
 • A bilingual family liaison who is well connected to the community
@@ -225,13 +234,10 @@ Resources:
   {
     title:"Harbor House Shelter: Burnout, Inconsistent Policies, and Community Pressure",
     setting_snapshot:`Harbor House is a year-round urban homelessness shelter that provides overnight beds, daytime services, meals, and case management. The shelter operates out of an aging building with inadequate ventilation, limited storage, and a mix of open sleeping areas and partitioned spaces. Demand for shelter beds has steadily increased over the last five years due to rising housing costs. The shelter is funded through city contracts, private donations, and seasonal grants, each with different reporting expectations.
-
 Staffing is unstable. Many frontline staff are new and receive only brief on-the-job training. Turnover has increased significantly, and remaining staff feel overwhelmed. Tensions arise between long-term employees who value consistency and newer staff who advocate for more flexible rules. Policies around guest conduct, storage of belongings, and incident documentation are inconsistently followed, leading to frustration among both guests and staff.
-
 Community relationships are strained. Neighborhood residents have complained about loitering and safety concerns. The shelter leadership has received pressure from city officials to demonstrate improved outcomes for guests, particularly in transitioning individuals into stable housing, even though the shelter itself does not control housing availability.`,
     population_snapshot:`The shelter primarily serves adults experiencing homelessness, including individuals with chronic health conditions, untreated mental health concerns, limited income, and histories of trauma. Many guests are Black or Latine community members who have faced long-term structural barriers related to employment, housing access, and discrimination. A significant number of guests rely on public transportation and have inconsistent access to phones or documentation.`,
     core_problems:`Staff report feeling exhausted and express confusion about when and how to enforce shelter rules. Some believe consistency is crucial for safety, while others argue rigid rules escalate tension. Guests describe feeling disrespected or punished unpredictably. Case managers note that documentation requirements pull them away from direct support and contribute to delays in connecting guests to housing programs.
-
 Leadership feels torn between satisfying city grant requirements and responding to staff burnout. Community members increasingly demand visible improvements, while guests report feeling surveilled or judged when outside the building. There is no shared agreement on which problems are most urgent.`,
     stakeholder_glimpses:`Frontline Staff: Want clearer policies, more support, and manageable workloads. Feel blamed for guest dissatisfaction.
 Guests: Want dignity, predictability, and fairness. Feel their concerns are ignored until they escalate.
@@ -247,7 +253,6 @@ Neighborhood Residents: Express concerns about safety and want better communicat
 • Documentation requirements tied to funding
 • Guest conduct policies that are inconsistently enforced
 • Limited housing availability regardless of staff effort
-
 Resources:
 • Strong volunteer support for meal services
 • A small core of experienced staff who value mentoring newer staff
@@ -259,13 +264,10 @@ Resources:
   {
     title:"Prairie County Mobile Health Van: Access, Weather, and Uneven Reach",
     setting_snapshot:`Prairie County covers a large rural area with scattered towns, long stretches of farmland, and limited public transportation. The county health department operates a mobile health van that travels to different locations on a rotating weekly schedule, offering basic screenings, chronic condition check-ins, immunizations, and referrals to regional hospitals. The van is staffed by a nurse, a part-time behavioral health consultant, and a driver who also handles scheduling and community outreach.
-
 The van’s route is affected by weather, unpaved roads, and seasonal agricultural demands that impact when community members are available. In winter, routes are frequently canceled due to icy roads. In the summer, many families rely on the van because work schedules and childcare make travel to clinics impossible. Staff describe feeling pulled between wanting to increase service reach and feeling limited by logistics. Equipment is aging, and the van’s generator has become unreliable.
-
 The health department faces public pressure after a local newspaper published a story showing wide gaps in who receives services. Some towns see the van every week, while others go three or more weeks without a visit. Leaders acknowledge these inequities but argue that staffing shortages and geographical barriers leave little flexibility.`,
     population_snapshot:`Residents include older adults with mobility limitations, agricultural workers experiencing seasonal injuries, families with low incomes, and Latine communities concentrated in the western part of the county. Many households lack consistent internet or phone service. Some families rely on neighbors to relay information about the van’s schedule. Trust in institutional providers varies, particularly among migrant farmworker communities who have experienced inconsistent care and language access barriers in the past.`,
     core_problems:`Staff disagree on how to prioritize route schedules. Some argue for consistency, while others believe the van should concentrate on areas with the greatest need, even if that means fewer towns receive weekly visits. Residents in remote areas feel overlooked and express frustration that the van visits more populated towns more often. The nurse reports feeling rushed, and the behavioral health consultant expresses concerns about providing meaningful follow-up when appointments are unpredictable.
-
 The health department leadership wants improved community satisfaction metrics but cannot add more vehicles or staff hours. Town councils have begun contacting the department directly to lobby for more frequent visits, creating political pressure that complicates scheduling. No one agrees on which services are most essential for the van to provide.`,
     stakeholder_glimpses:`Nurse: Wants safer work conditions and more predictable schedules. Worries about burnout.
 Behavioral Health Consultant: Struggles to build trust without regular visits. Wants time for relationship-based work.
@@ -281,7 +283,6 @@ Residents: Want access that does not require long travel or time off from work. 
 • Limited staff capacity
 • Strong political pressure from multiple towns
 • Poor cellular and internet coverage in many communities
-
 Resources:
 • Strong trust between staff and several community leaders
 • Local libraries willing to host services
@@ -292,11 +293,9 @@ Resources:
   {
     title:"Riverbend Aging Resource Center: Isolation, Technology, and Uneven Access",
     setting_snapshot:`The Riverbend Aging Resource Center is a county-supported hub that provides information, referrals, caregiver support groups, and social programming for older adults. In response to a new state mandate encouraging digital literacy and virtual engagement for older adults, Riverbend has been asked to expand technology-based services. These include virtual appointments, online caregiver workshops, tablet lending, and digital navigation sessions.
-
 However, the center is housed in an older municipal building with limited accessible space. Staff are already balancing a large volume of walk-in requests, crisis calls, and paperwork for state reporting. Many older adults arrive unscheduled, often seeking immediate help with housing issues, benefits applications, or transportation needs. Staff feel torn between responding to crises and launching the new digital initiatives.`,
     population_snapshot:`Riverbend serves a diverse group of older adults. Many live alone, rely on fixed incomes, and have mobility limitations. A significant number are Black and Latine elders with long histories in the neighborhood but limited access to high-speed internet. Some older adults rely on adult children or neighbors for transportation. Others are recent retirees with higher incomes who expect modern, personalized programming. There are also older adults with cognitive impairments who require additional support.`,
     core_problems:`Staff feel unprepared to provide digital navigation services and worry that technology-based programs will exclude the very people who need the most support. Leadership emphasizes that failure to implement the mandate may jeopardize funding. Some older adults say they feel embarrassed asking technology questions and prefer in-person support. Others are enthusiastic but frustrated by long wait times and confusing instructions.
-
 Caregivers report that virtual workshops would help them participate despite work schedules, but only if the center can reliably provide support and troubleshoot access issues. The center’s phone system cannot handle the volume of calls during peak hours, and staff express concern about increasing virtual services without improving communication tools.`,
     stakeholder_glimpses:`Front Desk Staff: Feel overwhelmed triaging walk-ins and calls. Worry that new programs will increase workload.
 Program Coordinators: Interested in innovation but uncertain how to measure success.
@@ -312,7 +311,6 @@ State Agencies: Require digital literacy rollout but offer only minimal training
 • Wide variation in digital literacy among older adults
 • Strict state expectations for reporting outcomes
 • Long-standing walk-in demand that cannot be reduced
-
 Resources:
 • Strong relationships with local libraries
 • A volunteer corps of retired adults with varied skills
@@ -323,13 +321,10 @@ Resources:
   {
     title:"Lakewood Lead Pipe Replacement: Timelines, Transparency, and Uneven Trust",
     setting_snapshot:`The City of Lakewood launched a multi-year initiative to replace lead service lines after state-level scrutiny revealed that several neighborhoods had elevated lead levels in tap water. Although the city committed to full replacement, the rollout has been uneven. More affluent neighborhoods were upgraded first because of easier pipe access and fewer infrastructure complications, while older, predominantly Black and Latine neighborhoods face delays attributed to “complexity,” “staffing shortages,” and “permitting challenges.”
-
 Information about the timeline has been inconsistent. Public meetings are held, but many residents work during those hours or do not learn about the meetings until after they occur. A city-run website publishes updates, but many households in older neighborhoods have limited internet access or rely on mobile devices with limited data. Construction crews appear without notice, leaving residents confused about when water will be shut off or when yards will be disturbed. In some areas, repairs have been left unfinished for weeks.
-
 Community frustration has grown. Several local organizations have demanded clearer communication, equitable prioritization, and accessible channels for reporting concerns. City leadership insists the process is fair and that “technical needs drive the schedule,” although internal emails (circulated publicly) show disagreements among departments.`,
     population_snapshot:`The affected neighborhoods include long-standing Black families, multigenerational Latine households, immigrant families with varying English proficiency, families with young children, and older adults living on fixed incomes. Many residents rely on bottled water, which strains budgets. Several homes have outdated plumbing that complicates replacement and increases anxiety about property damage. Some households rent from absentee landlords who are difficult to reach.`,
     core_problems:`Residents do not trust the explanations offered for delays. Neighborhood associations argue that resource scarcity is being used to justify inequitable timelines. City engineers claim older neighborhoods require specialized contractors. Communication staff express difficulty producing clear, multilingual updates when construction timelines change daily. Advocacy groups allege that the city’s public communication privileges residents with stable internet and free time to attend meetings.
-
 City workers report harassment from frustrated residents and feel caught between community anger and leadership expectations. Meanwhile, the mayor’s office pushes departments to demonstrate progress before the next election cycle, which adds political pressure that complicates transparency.`,
     stakeholder_glimpses:`Residents: Want predictable schedules, honest explanations, and assurance that their neighborhoods are not being deprioritized.
 Community Organizations: Push for equitable timelines and culturally responsive communication.
@@ -346,7 +341,6 @@ Environmental Health Advocates: Emphasize long-term health risks and accountabil
 • Water shutoffs must be minimized to remain compliant with state guidelines
 • Construction timelines frequently shift due to permitting or weather
 • High levels of public distrust
-
 Resources:
 • Neighborhood ambassadors who already distribute information for other city programs
 • Community centers willing to host meetings at flexible times
@@ -357,13 +351,10 @@ Resources:
   {
     title:"Turning Point House: Reentry, Safety, and Autonomy in Tension",
     setting_snapshot:`Turning Point House is a transitional housing program for adults returning from incarceration. The facility houses up to twenty residents in shared rooms and provides case management, employment workshops, and limited mental health support. The building is located in a mixed residential neighborhood that has historically pushed back against programs supporting people with criminal records. Several neighbors have recently complained about noise, unfamiliar visitors, and “safety concerns,” prompting a formal meeting with the city council.
-
 Inside the program, staff are divided over how to maintain safety without replicating the restrictive conditions residents just left. Some staff prefer structured schedules and curfews, while others want a more autonomy-supportive environment. Residents express frustration that rules feel unpredictable or unevenly enforced. For example, some report that staff confront them for minor infractions while ignoring more serious concerns raised by residents.
-
 The program operates under a contract requiring regular reporting to the local criminal justice oversight board. Leadership is under pressure to demonstrate positive outcomes, especially reductions in rearrest rates. Staff note that meaningful reentry progress is often slow, relational, and nonlinear, which conflicts with the reporting expectations.`,
     population_snapshot:`Residents are adults recently released from incarceration, primarily Black and Latine men with histories of unstable housing, employment barriers, trauma exposure, chronic health conditions, and strained family connections. Some struggle with substance use or untreated mental health challenges. Many hold legitimate fear of returning to the prison system and feel that missteps may jeopardize their freedom.`,
     core_problems:`Residents want independence, respect, and a chance to rebuild their lives without constant scrutiny. Staff want predictability and safety but disagree about the right balance. Leadership wants data that satisfies funders, while neighbors want reassurance that the program will not disrupt the community. Case managers say they have too many administrative tasks to provide meaningful support. Residents say they feel unheard and fear retaliation for speaking up.
-
 Conflicts arise around room checks, curfew enforcement, visitation rules, and expectations for job search documentation. When tensions escalate, staff feel unsupported, and residents feel punished. No shared philosophy of reentry is guiding daily practices.`,
     stakeholder_glimpses:`Residents: Want autonomy, consistent rules, and support in finding housing and jobs.
 Frontline Staff: Divided on structure versus flexibility. Feel pressure to maintain order.
@@ -380,7 +371,6 @@ Local Employers: Sometimes willing to hire residents but inconsistent in follow 
 • Curfew rules mandated by the oversight board
 • Neighborhood tensions affecting program operations
 • Residents sharing rooms with little privacy
-
 Resources:
 • Partnerships with a few willing employers
 • A community volunteer group offering mentorship
@@ -392,13 +382,10 @@ Resources:
   {
     title:"Maple Lane Visitation Center: Quality, Consistency, and Family Dissatisfaction",
     setting_snapshot:`The Maple Lane Visitation Center is a child welfare–contracted site where parents participate in supervised or semi-supervised visits with their children who are placed in foster care. The center consists of four small visitation rooms, a shared playroom, and an administrative space that also functions as the staff kitchen. Toys and supplies are frequently mismatched, outdated, or missing pieces. Staffing varies from day to day, with a combination of full-time supervisors, part-time aides, and rotating interns.
-
 Caseworkers from the county agency schedule visits, but the center itself is responsible for carrying them out and documenting interactions. Scheduling is chaotic, with last-minute cancellations and inconsistent communication between the county and the center. Some visits overlap in ways that strain the facility’s limited space. The center director is under pressure to reduce complaints and improve family satisfaction scores after a recent audit highlighted concerns about inconsistent supervision, unclear expectations, and uneven quality in visit documentation.
-
 Families often arrive stressed, having traveled long distances using unreliable transportation. Some experience long waits due to miscommunication or staff turnover. Staff describe feeling overwhelmed by the emotional intensity of the visits and the need to enforce rules that they sometimes feel are unclear or unfair.`,
     population_snapshot:`Families come from diverse racial and socioeconomic backgrounds, with many parents facing housing instability, employment challenges, and limited access to transportation. A significant number of families are Black or Latine and report prior negative experiences with child welfare agencies. Many children placed in foster care are adjusting to new environments, and some have trauma histories that affect their behavior during visits. Parents may be coping with grief, shame, or fear, while also navigating complex court requirements.`,
     core_problems:`Staff disagree about what high-quality supervision should look like. Some believe supervisors should intervene frequently to ensure safety and compliance with case plans. Others argue that constant intervention undermines parent-child bonding and creates an atmosphere of surveillance. Parents report feeling judged and say they often do not know what is expected of them during visits. Some children become distressed by the structured nature of the setting.
-
 County caseworkers express frustration with inconsistent documentation from the center, which complicates court reporting. Staff at the center feel unsupported by the county, which they describe as unresponsive and unclear in expectations. The small physical layout limits privacy and makes emotionally charged moments difficult to manage. There is no shared understanding of how to balance safety, family autonomy, emotional support, and reporting requirements.`,
     stakeholder_glimpses:`Parents: Want clear expectations, dignity, and consistent supervision. Many feel scrutinized or misunderstood.
 Children: Want time with parents in a calm, predictable environment; may struggle with transitions.
@@ -415,7 +402,6 @@ Foster Parents: Want clearer communication about visit timing, transitions, and 
 • Mandatory documentation expectations set by the court
 • High emotional intensity affecting both staff and families
 • Outdated or insufficient play materials
-
 Resources:
 • A committed core of long-term supervisors familiar with families
 • A flexible playroom that can be reorganized
@@ -427,13 +413,10 @@ Resources:
   {
     title:"SafeLine Shelter Hotline: Surging Calls, Limited Staff, and Ethical Triage",
     setting_snapshot:`SafeLine is a domestic violence shelter that operates a twenty-four-hour hotline for crisis support, safety planning, and intake into emergency shelter beds. The hotline is staffed by a mix of paid advocates and trained volunteers. Calls have increased steadily over the past two years, particularly in the evenings when staffing is lowest. Shelter beds fill quickly, leading to long waitlists and difficult conversations with callers seeking immediate safety.
-
 Advocates report receiving calls that range from brief information requests to complex, high-risk situations requiring extended time on the phone. Phone lines sometimes ring unanswered when staff are already handling multiple calls. Volunteers want to support callers but feel uncertain when situations escalate. The shelter director recently received feedback from community partners that some clients experience long wait times or abrupt call endings, raising concerns about quality and consistency.
-
 The shelter has strict confidentiality guidelines, and advocates cannot request identifying details unless the caller chooses to disclose them. This can make safety assessment challenging. The director is under pressure to demonstrate responsiveness to funders while also protecting staff well-being in an emotionally demanding environment.`,
     population_snapshot:`Callers include survivors of intimate partner violence, friends or family members seeking support, survivors who have left but remain unsafe, individuals who are unsure if their situation qualifies as abuse, and sometimes people in acute crisis who may also be navigating mental health concerns, substance use, or homelessness. Many callers are women, but a significant number are men, gender-diverse adults, and teens. Some callers speak languages not represented among available staff or volunteers.`,
     core_problems:`Advocates feel torn between spending enough time with each caller and ensuring that others do not wait too long. Some believe the hotline should prioritize crisis calls only, while others argue that emotional support is also essential and can prevent escalation. Volunteers feel unprepared for high-risk cases and want clearer boundaries. Staff burnout is high, and some advocates describe feeling emotionally numb at the end of their shift.
-
 Callers have different needs and expectations. Some need immediate shelter placement. Others need safety planning, validation, or guidance about legal options. The shelter’s limited bed capacity means that many callers must be referred elsewhere, which can feel devastating for survivors who built the courage to reach out. Language access gaps result in delayed or incomplete support for multilingual callers.`,
     stakeholder_glimpses:`Hotline Advocates: Want manageable workloads, clearer protocols, and emotional support.
 Volunteers: Want additional training and clearer guidance for crisis situations.
@@ -449,7 +432,6 @@ Funders: Focused on quantifiable outcomes such as call volume, wait times, and s
 • Mandatory adherence to confidentiality guidelines
 • Surging call volume with peak hours understaffed
 • Inconsistent language access
-
 Resources:
 • A strong training curriculum for new volunteers
 • Advocates committed to survivor-centered support
@@ -461,15 +443,11 @@ Resources:
   {
     title:"Harborview Community Violence Prevention Network: Funding Shifts, Community Trust, and Conflicting Visions",
     setting_snapshot:`Harborview is a midsized city that has experienced a rise in youth-involved shootings over the past three years. In response, the city council renewed a grant for the Harborview Community Violence Prevention Network, a coalition of grassroots groups, youth mentors, street outreach workers, and a small administrative team housed within a neighborhood nonprofit. The network provides conflict mediation, mentorship, community events, and supports youth who have experienced violence or are at heightened risk.
-
 The city recently changed its funding priorities, requiring programs to demonstrate short-term, quantifiable reductions in violent incidents. This shift has unsettled the coalition. Some groups rely on longer-term relationship-building methods that do not produce quick returns. Others welcome the emphasis on metrics but disagree about what should be measured and how. The coalition has no unified approach to data collection, and member organizations interpret “success” differently.
-
 Neighborhood trust varies. Some residents view the network as a critical lifeline, while others distrust any program associated with the city. Leaders of the coalition report that some youth fear retaliation for participating openly in programming, while others attend inconsistently due to school suspensions, family responsibilities, or unstable housing.`,
     population_snapshot:`The network serves youth and young adults ages 14 through 25, many of whom are Black or Latine, have experienced school exclusion, are unstably housed, or have lost friends or family members to violence. Some youth have ongoing involvement with probation or diversion programs. Families often navigate financial strain, community trauma, and limited access to mental health care. Grassroots organizations in the coalition represent different cultural, linguistic, and neighborhood identities.`,
     core_problems:`Coalition members disagree on how to adapt to the city’s revised expectations. Longer-standing grassroots organizations believe the shift toward short-term metrics ignores the realities of violence prevention, which depends on trust, consistent presence, and long-term relational work. Newer groups are more open to data collection but want support and clarity.
-
 Youth participants report mixed experiences. Some feel deeply supported by outreach workers, while others say programs are inconsistent, disorganized, or disconnected from their actual needs. Street outreach workers feel pressure to be constantly available, but burnout and safety concerns limit their capacity.
-
 The city wants “evidence of impact” but has not provided guidance on what counts as an outcome. Coalition leadership feels squeezed between funder expectations, youth realities, and internal conflicts about program identity.`,
     stakeholder_glimpses:`Youth Participants: Want consistent mentors, safe spaces, and opportunities that feel relevant to their lives. Feel frustrated when programming changes without explanation.
 Street Outreach Workers: Carry emotional burdens, work unpredictable hours, and fear that increased policing damages trust with youth.
@@ -486,7 +464,6 @@ Local Schools: Hope the coalition can reduce conflict spillover onto campuses, b
 • Safety concerns for outreach workers
 • Inconsistent youth attendance
 • No shared data collection framework
-
 Resources:
 • Deep trust between some outreach workers and youth
 • Strong cultural roots in member organizations
@@ -498,13 +475,10 @@ Resources:
   {
     title:"Prism Youth Collective: Safety, Identity, and Community Backlash",
     setting_snapshot:`The Prism Youth Collective is an after-school program serving LGBTQ youth ages 12 through 18. It operates out of a community center that also hosts sports programs, senior activities, and public meetings. The program offers drop-in hours, peer support groups, creative arts workshops, and occasional family engagement events. Staff consist of two youth workers, a part-time coordinator, and volunteers who assist with activities.
-
 During the past year, the program experienced heightened community scrutiny following a series of heated school board meetings and public commentary questioning the legitimacy of LGBTQ-focused youth services. Some volunteers withdrew due to fear of backlash. The community center director received complaints from residents claiming the program was “divisive,” while others expressed concerns about youth privacy and safety. As a result, the center now requires additional documentation for room reservations and approval for public-facing events.
-
 Increased scrutiny has affected youth as well. Some young people feel anxious entering the building, worried about who might see them. Others express frustration that programs they love are being scaled back or delayed due to new administrative hurdles. Staff want to maintain a safe, affirming space but feel uncertain how to balance youth visibility with protection from harassment.`,
     population_snapshot:`Youth participants are diverse in racial, cultural, and socioeconomic backgrounds. Many face family rejection, bullying at school, or mental health challenges such as anxiety and depression. Some youth are exploring their identities privately and rely on the program as their only affirming environment. Others are fully out and active in local advocacy efforts. Several youth experience unstable housing or do not have reliable transportation to the center.`,
     core_problems:`Staff feel overwhelmed by increased administrative requirements that limit flexibility and reduce spontaneity in programming. Some youth want the program to be more visible and activist-oriented, while others prefer privacy and low-profile gatherings. Parents who support the program are divided about whether the center should push back against restrictions or focus on safety and sustainability.
-
 Community center leadership wants to avoid controversy and preserve funding for all programs, but this stance can feel dismissive to staff and youth who are directly targeted by backlash. Local elected officials have offered conflicting statements, further complicating communication. Volunteers feel hesitant to host events without clearer guidance on safety protocols.`,
     stakeholder_glimpses:`Youth Participants: Seek safety, affirmation, and control over visibility. Have varying comfort levels with public events.
 Program Staff: Want clarity, emotional support, and tools to protect youth safety without shutting down programming.
@@ -521,7 +495,6 @@ Volunteers: Passionate but unsure how to navigate the current climate.`,
 • Heightened community scrutiny
 • Youth needing variable levels of privacy
 • Limited transportation options for some participants
-
 Resources:
 • Strong relationships between youth and staff
 • A supportive network of local LGBTQ adults who want to mentor
@@ -583,14 +556,22 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(e.altKey&&/p/i.test(e.key)){e.preventDefault();window.print();}
   });
 
-  /* CHANGES: shrink header on scroll */
+  /* Compact header on scroll */
   const hdr=document.getElementById('siteHeader');
   const onScroll=()=>{ if(window.scrollY>8){hdr.classList.add('compact')} else {hdr.classList.remove('compact')} };
   onScroll();
   window.addEventListener('scroll', onScroll, {passive:true});
+
+  /* Compute actual header height for viewport fit */
+  function updateHeaderHeightVar(){
+    const h = hdr?.offsetHeight || 140;
+    document.documentElement.style.setProperty('--header-h', `${h}px`);
+  }
+  updateHeaderHeightVar();
+  window.addEventListener('resize', updateHeaderHeightVar);
 });
 
-/* Optional: make header non-sticky entirely (uncomment to disable sticky) */
+/* Optional: make header non-sticky entirely */
 // document.getElementById('siteHeader').style.position = 'static';
 
 function bind(id,fn){const el=$(id); if(el) el.addEventListener('click',fn)}
@@ -613,7 +594,7 @@ function renderScenario(s){
     'Population Snapshot':s.population_snapshot,
     'Core Problems or Tensions':s.core_problems,
     'Stakeholder Glimpses':s.stakeholder_glimpses,
-    'Equity Signals':s.equity_signals,
+    'Structural and Equity Signals':s.equity_signals,
     'Known Constraints and Resources':s.constraints_resources,
     'Your Role':s.role
   };
@@ -693,7 +674,7 @@ function plainScenarioText(){
   const kv=[
     ['Title',s.title],['Setting Snapshot',s.setting_snapshot],['Population Snapshot',s.population_snapshot],
     ['Core Problems or Tensions',s.core_problems],['Stakeholder Glimpses',s.stakeholder_glimpses],
-    ['Equity Signals',s.equity_signals],['Known Constraints and Resources',s.constraints_resources],['Your Role',s.role]
+    ['Structural and Equity Signals',s.equity_signals],['Known Constraints and Resources',s.constraints_resources],['Your Role',s.role]
   ];
   return kv.map(([k,v])=>`${k}:\n${normalizeDashes(stripEmojis(v||''))}`).join('\n\n')
 }
@@ -745,7 +726,7 @@ function onExport(){
       'Population Snapshot':s.population_snapshot,
       'Core Problems or Tensions':s.core_problems,
       'Stakeholder Glimpses':s.stakeholder_glimpses,
-      'Equity Signals':s.equity_signals,
+      'Structural and Equity Signals':s.equity_signals,
       'Known Constraints and Resources':s.constraints_resources,
       'Your Role':s.role
     }).map(([k,v])=>`<tr><td style="width:260px;font-weight:bold;background:#f5f5f5">${escapeHTML(k)}</td><td>${paragraphsHTML(v||'')}</td></tr>`).join('')}
@@ -780,99 +761,23 @@ function onNew(){clearBuilder(); lastSavedHash=''; toast('Cleared')}
 
 <!-- ===== DOCX exporter shim (unchanged) ===== -->
 <script>
-/* all internals wrapped to avoid leaking globals like CRC_TABLE */
-(() => {
-  function utf8Bytes(str){str=String(str);const b=[];for(let i=0;i<str.length;i++){let c=str.charCodeAt(i);if(c>=0xD800&&c<=0xDBFF&&i+1<str.length){const c2=str.charCodeAt(++i);if((c2&0xFC00)===0xDC00){c=0x10000+((c-0xD800)<<10)+(c2-0xDC00)}else{i--}}if(c<=0x7F)b.push(c);else if(c<=0x7FF)b.push(0xC0|(c>>6),0x80|(c&0x3F));else if(c<=0xFFFF)b.push(0xE0|(c>>12),0x80|((c>>6)&0x3F),0x80|(c&0x3F));else b.push(0xF0|(c>>18),0x80|((c>>12)&0x3F),0x80|((c>>6)&0x3F),0x80|(c&0x3F))}return new Uint8Array(b)}
-  const CRC_TABLE=(()=>{let c,t=[];for(let n=0;n<256;n++){c=n;for(let k=0;k<8;k++){c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1))}t[n]=c>>>0}return t})();
-  function crc32(u8){let c=0^(-1);for(let i=0;i<u8.length;i++){c=(c>>>8)^CRC_TABLE[(c^u8[i])&255]}return (c^(-1))>>>0}
-  function le16(n){return new Uint8Array([n&255,(n>>8)&255])}
-  function le32(n){return new Uint8Array([n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255])}
-  function cat(chunks){const L=chunks.reduce((a,b)=>a+b.length,0);const out=new Uint8Array(L);let o=0;for(const c of chunks){out.set(c,o);o+=c.length}return out}
-  function zipBlobSync(files,mime){const LFH=0x04034b50,CDH=0x02014b50,EOCD=0x06054b50,ver=20,gpbf=0x0800,method=0;const now=new Date();const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(Math.floor(now.getSeconds()/2)));const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate());const lfhChunks=[];const centrals=[];let offset=0;const headers=[];for(const f of files){const name=utf8Bytes(f.name);const data=f.data;const sum=crc32(data);const lfh=cat([le32(LFH),le16(ver),le16(gpbf),le16(method),le16(dosTime),le16(dosDate),le32(sum),le32(data.length),le32(data.length),le16(name.length),le16(0),name,data]);lfhChunks.push(lfh);headers.push({name,sum,size:data.length,offset,dosTime,dosDate});offset+=lfh.length}const startCD=offset;for(const h of headers){const cdh=cat([le32(CDH),le16(0x033F),le16(0x003F),le16(gpbf),le16(method),le16(h.dosTime),le16(h.dosDate),le32(h.sum),le32(h.size),le32(h.size),le16(h.name.length),le16(0),le16(0),le16(0),le16(0),le32(0),le32(h.offset),h.name]);centrals.push(cdh);offset+=cdh.length}const centralDir=cat(centrals);const end=cat([le32(EOCD),le16(0),le16(0),le16(headers.length),le16(headers.length),le32(centralDir.length),le32(startCD),le16(0)]);const zip=cat([...lfhChunks,centralDir,end]);return new Blob([zip],{type:mime||'application/zip'})}
-  function sanitize(text){return String(text||"").replace(/[\u2013\u2014]/g,"-").replace(/[\p{Extended_Pictographic}\uFE0F]/gu,"")}
-  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-  function runText(t){return `<w:r><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`}
-  function p(children,style){return `<w:p>${style?`<w:pPr><w:pStyle w:val="${style}"/></w:pPr>`:""}${children||""}</w:p>`}
-  function heading(text,level){const map={1:"Heading1",2:"Heading2",3:"Heading3"};return p(runText(text),map[level]||"Heading2")}
-  function paragraphFromHTML(node){
-    let out = "";
-    node.childNodes.forEach(ch => {
-      if (ch.nodeType === 3) { out += runText(ch.nodeValue || ""); }
-      else if (ch.nodeName === "BR") { out += '<w:r><w:br/></w:r>'; }
-      else if (ch.nodeType === 1) { out += paragraphFromHTML(ch); }
-    });
-    return out;
-  }
-  function para(text){return p(runText(text),null)}
-  function parseHTMLtoDoc(xmlString){
-    const dom=new DOMParser().parseFromString(`<div>${xmlString}</div>`,'text/html');
-    const root=dom.body.firstChild||dom.body;
-    const blocks=root.querySelectorAll('h1,h2,h3,p,table');
-    let bodyParts=[];
-    if(blocks.length===0){ bodyParts=[para(sanitize(root.textContent||''))] }
-    else {
-      blocks.forEach(el=>{
-        const tag=el.tagName.toLowerCase();
-        if(tag==='h1'){bodyParts.push(heading(el.textContent||'',1))}
-        else if(tag==='h2'){bodyParts.push(heading(el.textContent||'',2))}
-        else if(tag==='h3'){bodyParts.push(heading(el.textContent||'',3))}
-        else if(tag==='p'){bodyParts.push(p(paragraphFromHTML(el),null))}
-        else if(tag==='table'){
-          const rows=[...el.querySelectorAll('tr')].map(tr=>{
-            const cells=[...tr.children].map(td=>{
-              const txt=td.textContent||'';
-              return `<w:tc><w:tcPr/><w:p><w:r><w:t xml:space="preserve">${esc(txt)}</w:t></w:r></w:p></w:tc>`;
-            }).join('');
-            return `<w:tr>${cells}</w:tr>`;
-          }).join('');
-          bodyParts.push(`<w:tbl><w:tblPr/><w:tblGrid/>${rows}</w:tbl>`);
-        }
-      });
-    }
-    return bodyParts.join('');
-  }
-  function buildDocxFromHTML(htmlInput){
-    const safe = sanitize(htmlInput);
-    const docBody = parseHTMLtoDoc(safe);
-    const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-      <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>
-      <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="28"/></w:rPr></w:style>
-      <w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>
-    </w:styles>`;
-    const contentTypes=`<?xml version="1.0" encoding="UTF-8"?>
-    <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-      <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-      <Default Extension="xml" ContentType="application/xml"/>
-      <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-      <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-    </Types>`;
-    const rootRels=`<?xml version="1.0" encoding="UTF-8"?>
-    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-      <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-    </Relationships>`;
-    const docRels=`<?xml version="1.0" encoding="UTF-8"?>
-    <Relationships xmlns="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-      <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-    </Relationships>`;
-    const documentXML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-      <w:body>${docBody}<w:sectPr/></w:body>
-    </w:document>`;
-    const files=[
-      {name:'[Content_Types].xml',data:utf8Bytes(contentTypes)},
-      {name:'_rels/.rels',data:utf8Bytes(rootRels)},
-      {name:'word/document.xml',data:utf8Bytes(documentXML)},
-      {name:'word/_rels/document.xml.rels',data:utf8Bytes(docRels)},
-      {name:'word/styles.xml',data:utf8Bytes(styles)}
-    ];
-    return zipBlobSync(files,'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-  }
-  const api=window.htmlDocx||{};
-  api.asBlob=function(html){ return buildDocxFromHTML(html); };
-  api.asBlobAsync=function(html){ return Promise.resolve(buildDocxFromHTML(html)); };
-  window.htmlDocx=api;
-})();
+(()=>{function utf8Bytes(str){str=String(str);const b=[];for(let i=0;i<str.length;i++){let c=str.charCodeAt(i);if(c>=0xD800&&c<=0xDBFF&&i+1<str.length){const c2=str.charCodeAt(++i);if((c2&0xFC00)===0xDC00){c=0x10000+((c-0xD800)<<10)+(c2-0xDC00)}else{i--}}if(c<=0x7F)b.push(c);else if(c<=0x7FF)b.push(0xC0|(c>>6),0x80|(c&0x3F));else if(c<=0xFFFF)b.push(0xE0|(c>>12),0x80|((c>>6)&0x3F),0x80|(c&0x3F));else b.push(0xF0|(c>>18),0x80|((c>>12)&0x3F),0x80|((c>>6)&0x3F),0x80|(c&0x3F))}return new Uint8Array(b)}
+const CRC_TABLE=(()=>{let c,t=[];for(let n=0;n<256;n++){c=n;for(let k=0;k<8;k++){c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1))}t[n]=c>>>0}return t})();
+function crc32(u8){let c=0^(-1);for(let i=0;i<u8.length;i++){c=(c>>>8)^CRC_TABLE[(c^u8[i])&255]}return (c^(-1))>>>0}
+function le16(n){return new Uint8Array([n&255,(n>>8)&255])}
+function le32(n){return new Uint8Array([n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255])}
+function cat(chunks){const L=chunks.reduce((a,b)=>a+b.length,0);const out=new Uint8Array(L);let o=0;for(const c of chunks){out.set(c,o);o+=c.length}return out}
+function zipBlobSync(files,mime){const LFH=0x04034b50,CDH=0x02014b50,EOCD=0x06054b50,ver=20,gpbf=0x0800,method=0;const now=new Date();const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(Math.floor(now.getSeconds()/2)));const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate());const lfhChunks=[];const centrals=[];let offset=0;const headers=[];for(const f of files){const name=utf8Bytes(f.name);const data=f.data;const sum=crc32(data);const lfh=cat([le32(LFH),le16(ver),le16(gpbf),le16(method),le16(dosTime),le16(dosDate),le32(sum),le32(data.length),le32(data.length),le16(name.length),le16(0),name,data]);lfhChunks.push(lfh);headers.push({name,sum,size:data.length,offset,dosTime,dosDate});offset+=lfh.length}const startCD=offset;for(const h of headers){const cdh=cat([le32(CDH),le16(0x033F),le16(0x003F),le16(gpbf),le16(method),le16(h.dosTime),le16(h.dosDate),le32(h.sum),le32(h.size),le32(h.size),le16(h.name.length),le16(0),le16(0),le16(0),le16(0),le32(0),le32(h.offset),h.name]);centrals.push(cdh);offset+=cdh.length}const centralDir=cat(centrals);const end=cat([le32(EOCD),le16(0),le16(0),le16(headers.length),le16(headers.length),le32(centralDir.length),le32(startCD),le16(0)]);const zip=cat([...lfhChunks,centralDir,end]);return new Blob([zip],{type:mime||'application/zip'})}
+function sanitize(text){return String(text||"").replace(/[\u2013\u2014]/g,"-").replace(/[\p{Extended_Pictographic}\uFE0F]/gu,"")}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function runText(t){return `<w:r><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`}
+function p(children,style){return `<w:p>${style?`<w:pPr><w:pStyle w:val="${style}"/></w:pPr>`:""}${children||""}</w:p>`}
+function heading(text,level){const map={1:"Heading1",2:"Heading2",3:"Heading3"};return p(runText(text),map[level]||"Heading2")}
+function paragraphFromHTML(node){let out="";node.childNodes.forEach(ch=>{if(ch.nodeType===3){out+=runText(ch.nodeValue||"");}else if(ch.nodeName==="BR"){out+='<w:r><w:br/></w:r>';}else if(ch.nodeType===1){out+=paragraphFromHTML(ch);}});return out;}
+function para(text){return p(runText(text),null)}
+function parseHTMLtoDoc(xmlString){const dom=new DOMParser().parseFromString(`<div>${xmlString}</div>`,'text/html');const root=dom.body.firstChild||dom.body;const blocks=root.querySelectorAll('h1,h2,h3,p,table');let bodyParts=[];if(blocks.length===0){bodyParts=[para(sanitize(root.textContent||''))]}else{blocks.forEach(el=>{const tag=el.tagName.toLowerCase();if(tag==='h1'){bodyParts.push(heading(el.textContent||'',1))}else if(tag==='h2'){bodyParts.push(heading(el.textContent||'',2))}else if(tag==='h3'){bodyParts.push(heading(el.textContent||'',3))}else if(tag==='p'){bodyParts.push(p(paragraphFromHTML(el),null))}else if(tag==='table'){const rows=[...el.querySelectorAll('tr')].map(tr=>{const cells=[...tr.children].map(td=>{const txt=td.textContent||'';return `<w:tc><w:tcPr/><w:p><w:r><w:t xml:space="preserve">${esc(txt)}</w:t></w:r></w:p></w:tc>`;}).join('');return `<w:tr>${cells}</w:tr>`;}).join('');bodyParts.push(`<w:tbl><w:tblPr/><w:tblGrid/>${rows}</w:tbl>`);}});}return bodyParts.join('');}
+function buildDocxFromHTML(htmlInput){const safe=sanitize(htmlInput);const docBody=parseHTMLtoDoc(safe);const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="28"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style></w:styles>`;const contentTypes=`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;const rootRels=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;const docRels=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;const documentXML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${docBody}<w:sectPr/></w:body></w:document>`;const files=[{name:'[Content_Types].xml',data:utf8Bytes(contentTypes)},{name:'_rels/.rels',data:utf8Bytes(rootRels)},{name:'word/document.xml',data:utf8Bytes(documentXML)},{name:'word/_rels/document.xml.rels',data:utf8Bytes(docRels)},{name:'word/styles.xml',data:utf8Bytes(styles)}];return zipBlobSync(files,'application/vnd.openxmlformats-officedocument.wordprocessingml.document');}
+const api=window.htmlDocx||{};api.asBlob=function(html){return buildDocxFromHTML(html);};api.asBlobAsync=function(html){return Promise.resolve(buildDocxFromHTML(html));};window.htmlDocx=api;})();
 </script>
 
 </body>
