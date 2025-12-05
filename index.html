@@ -1,8 +1,9 @@
 <!doctype html>
-<!-- ======================================================================
-File: program-evaluation-generator.html
-Program Evaluation Generator — side-by-side layout, offline, no deps
-====================================================================== -->
+<!-- =========================================================
+Repo: elizcurley/ProgramGenerator
+File: /index.html
+Program Evaluation Generator — single-file, offline, no deps
+========================================================= -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -10,45 +11,42 @@ Program Evaluation Generator — side-by-side layout, offline, no deps
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
-    --bg:#f7f7f8;--card:#fff;--ink:#111;--muted:#555;--line:#e6e6e9;--accent:#0b6cff;
-    --ok:#0a7f3f;--warn:#c45a00;--shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.06)
+    --bg:#f6f7fb;--card:#ffffff;--ink:#13151a;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;
+    --ok:#0a7f3f;--warn:#c2410c;--shadow:0 2px 8px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.06)
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
   header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
   .titlebar{display:flex;gap:12px;align-items:center;justify-content:space-between}
   .course{font-size:14px;color:var(--muted)}
-  .status{font-size:12px;border:1px solid var(--line);padding:4px 8px;border-radius:999px;background:#fafafa}
-  .status.locked{border-color:#cce9d8;background:#f3fbf7;color:var(--ok)}
-  .status.unlocked{border-color:#ffe2c7;background:#fff8f1;color:var(--warn)}
   .toolbar{display:flex;flex-wrap:wrap;gap:8px}
-  button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font:inherit;cursor:pointer}
-  button:hover{border-color:#cbd0d6}
+  button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  button:hover{border-color:#cbd5e1}
   button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  button.ghost{background:#fafafa}
+  button.ghost{background:#f8fafc}
+  .status{font-size:12px;border:1px solid var(--line);padding:4px 10px;border-radius:999px;background:#fafafa}
+  .status.locked{border-color:#cce9d8;background:#f0fdf4;color:var(--ok)}
+  .status.unlocked{border-color:#ffe2c7;background:#fff7ed;color:var(--warn)}
   .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-  @media(max-width:1000px){.layout{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  @media(max-width:1024px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
   .card h2{margin:0;padding:16px;border-bottom:1px solid var(--line);font-size:18px}
   .card .body{padding:16px}
-  .grid{display:grid;grid-template-columns:240px 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .banner{margin-top:8px;background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:10px;padding:8px 12px;color:#334155;font-size:13px}
+  .grid{display:grid;grid-template-columns:240px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}
   .row{display:contents}
-  .key{padding:10px 12px;background:#fafafa;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-weight:600}
+  .key{padding:10px 12px;background:#f8fafc;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-weight:600}
   .val{padding:10px 12px;border-bottom:1px solid var(--line);white-space:pre-wrap}
   .val p{margin:0 0 10px}
-  h3{margin:12px 0 8px}
-  input[type="text"],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fff;font:inherit}
-  textarea{min-height:120px;resize:vertical}
-  .counter{font-size:12px;color:var(--muted)}
-  .pill{font-size:11px;border:1px solid var(--line);padding:2px 6px;border-radius:999px}
-  .list{display:grid;gap:10px}
-  .hr{height:1px;background:var(--line);margin:10px 0}
+  h3{margin:16px 0 8px}
+  textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;font:inherit;min-height:120px;resize:vertical}
+  .sidecol{display:flex;flex-direction:column;gap:16px}
+  .hr{height:1px;background:var(--line);margin:12px 0}
   .toast{position:fixed;bottom:12px;right:12px;background:#111;color:#fff;padding:10px 12px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}
   .toast.show{opacity:1;transform:translateY(0)}
-  .sidecol{display:flex;flex-direction:column;gap:16px}
   @media print{
-    header,.toolbar,.toast{display:none !important}
+    header,.toast,.toolbar{display:none !important}
     body{background:#fff}
     .card{box-shadow:none;border-color:#ddd}
     .layout{grid-template-columns:1fr}
@@ -61,11 +59,12 @@ Program Evaluation Generator — side-by-side layout, offline, no deps
     <div>
       <div style="font-size:20px;font-weight:800">Program Evaluation Generator</div>
       <div class="course" id="courseTag">SOW5404 • Spring 2026</div>
+      <div class="banner">Editing is enabled only when <strong>Locked</strong>. While locked, a draft autosaves to your browser every few seconds. <em>Always</em> click <strong>Save</strong> before leaving the page.</div>
     </div>
     <div class="toolbar">
       <button id="btnRandom" title="Randomize scenario (Alt+R)">Randomize</button>
       <button id="btnLock" class="primary" title="Lock or Unlock for writing (Alt+L)">Lock</button>
-      <button id="btnNew" class="ghost" title="Clear note fields">New</button>
+      <button id="btnNew" class="ghost" title="Clear plan fields">New</button>
       <button id="btnSave" title="Save draft (Ctrl+S / Cmd+S)">Save</button>
       <button id="btnLoad" title="Load saved draft">Load</button>
       <button id="btnCopyScenario" title="Copy scenario details as plain text">Copy Scenario</button>
@@ -95,53 +94,16 @@ Program Evaluation Generator — side-by-side layout, offline, no deps
       <div class="card" id="builderCard">
         <h2>Evaluation Builder</h2>
         <div class="body">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <div class="pill"><span id="progressDone">0</span>/7 sections ≥ 100 words</div>
+          <div style="display:grid;gap:12px">
+            <div><label>Scenario Context & Stakeholders</label><textarea id="f_context" disabled></textarea></div>
+            <div><label>Your Program or Practice Design</label><textarea id="f_design" disabled></textarea></div>
+            <div><label>Evaluation Purpose & Questions</label><textarea id="f_purpose" disabled></textarea></div>
+            <div><label>Outcomes (Conceptualization)</label><textarea id="f_outcomes" disabled></textarea></div>
+            <div><label>Operationalization & Data Sources</label><textarea id="f_operational" disabled></textarea></div>
+            <div><label>Evaluation Design Plan</label><textarea id="f_designplan" disabled></textarea></div>
+            <div><label>Ethics, Power, Limitations & Communication</label><textarea id="f_ethics" disabled></textarea></div>
+            <div><label>Assumptions (optional)</label><textarea id="f_assumptions" disabled></textarea></div>
           </div>
-
-          <div class="list">
-            <div>
-              <label>Scenario Context & Stakeholders</label>
-              <textarea id="f_context" disabled></textarea>
-              <div class="counter" id="count_context">0 words</div>
-            </div>
-            <div>
-              <label>Your Program or Practice Design</label>
-              <textarea id="f_design" disabled></textarea>
-              <div class="counter" id="count_design">0 words</div>
-            </div>
-            <div>
-              <label>Evaluation Purpose & Questions</label>
-              <textarea id="f_purpose" disabled></textarea>
-              <div class="counter" id="count_purpose">0 words</div>
-            </div>
-            <div>
-              <label>Outcomes (Conceptualization)</label>
-              <textarea id="f_outcomes" disabled></textarea>
-              <div class="counter" id="count_outcomes">0 words</div>
-            </div>
-            <div>
-              <label>Operationalization & Data Sources</label>
-              <textarea id="f_operational" disabled></textarea>
-              <div class="counter" id="count_operational">0 words</div>
-            </div>
-            <div>
-              <label>Evaluation Design Plan</label>
-              <textarea id="f_designplan" disabled></textarea>
-              <div class="counter" id="count_designplan">0 words</div>
-            </div>
-            <div>
-              <label>Ethics, Power, Limitations & Communication</label>
-              <textarea id="f_ethics" disabled></textarea>
-              <div class="counter" id="count_ethics">0 words</div>
-            </div>
-            <div>
-              <label>Assumptions (optional)</label>
-              <textarea id="f_assumptions" disabled></textarea>
-              <div class="counter" id="count_assumptions">0 words</div>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
@@ -151,9 +113,7 @@ Program Evaluation Generator — side-by-side layout, offline, no deps
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<!-- =========================================================
-Minimal DOCX exporter (real .docx via OOXML altChunk), no dependencies
-========================================================== -->
+<!-- ===== DOCX exporter (true .docx via OOXML altChunk) — no deps ===== -->
 <script>
 /* UTF-8 encoder */
 function utf8Bytes(str){
@@ -174,127 +134,94 @@ function utf8Bytes(str){
   }
   return new Uint8Array(bytes);
 }
-/* CRC32 */
+/* CRC32 + ZIP (store) */
 const CRC_TABLE = (()=>{let c,t=[];for(let n=0;n<256;n++){c=n;for(let k=0;k<8;k++){c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1))}t[n]=c>>>0}return t})();
 function crc32(u8){let c=0^(-1);for(let i=0;i<u8.length;i++){c=(c>>>8)^CRC_TABLE[(c^u8[i])&0xFF]}return (c^(-1))>>>0}
-/* Write little-endian numbers */
 function le16(n){return new Uint8Array([n&255,(n>>8)&255])}
 function le32(n){return new Uint8Array([n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255])}
-/* Concat Uint8Arrays */
 function concatBytes(arrs){const len=arrs.reduce((a,b)=>a+b.length,0);const out=new Uint8Array(len);let off=0;for(const a of arrs){out.set(a,off);off+=a.length}return out}
-
-/* Minimal ZIP writer (store method only) */
 async function zipBlob(files, mime){
-  // files: [{name: 'path', data: Uint8Array}]
-  const LFH = 0x04034b50, CDH=0x02014b50, EOCD=0x06054b50;
-  const ver=20, gpbf=0x0800, method=0; // UTF-8 names
+  const LFH=0x04034b50,CDH=0x02014b50,EOCD=0x06054b50;
+  const ver=20,gpbf=0x0800,method=0;
   const now=new Date();
   const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(Math.floor(now.getSeconds()/2)));
   const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate());
-
   const fileHeaders=[]; const central=[]; let offset=0; const chunks=[];
   for(const f of files){
-    const nameBytes = utf8Bytes(f.name);
-    const data = f.data;
-    const csum = crc32(data);
-    const lfh = concatBytes([
-      le32(LFH), le16(ver), le16(gpbf), le16(method), le16(dosTime), le16(dosDate),
-      le32(csum), le32(data.length), le32(data.length), le16(nameBytes.length), le16(0),
-      nameBytes, data
-    ]);
+    const nameBytes=utf8Bytes(f.name); const data=f.data; const csum=crc32(data);
+    const lfh=concatBytes([ le32(LFH), le16(ver), le16(gpbf), le16(method), le16(dosTime), le16(dosDate),
+      le32(csum), le32(data.length), le32(data.length), le16(nameBytes.length), le16(0), nameBytes, data ]);
     chunks.push(lfh);
-    fileHeaders.push({nameBytes, csum, size:data.length, offset, dosTime, dosDate});
-    offset += lfh.length;
+    fileHeaders.push({nameBytes,csum:csum,size:data.length,offset,dosTime,dosDate});
+    offset+=lfh.length;
   }
-  const startCD = offset;
+  const startCD=offset;
   for(const fh of fileHeaders){
-    const cdh = concatBytes([
-      le32(CDH), le16(0x033F), le16(0x003F), le16(gpbf), le16(method),
+    const cdh=concatBytes([ le32(CDH), le16(0x033F), le16(0x003F), le16(gpbf), le16(method),
       le16(fh.dosTime), le16(fh.dosDate), le32(fh.csum), le32(fh.size), le32(fh.size),
-      le16(fh.nameBytes.length), le16(0), le16(0), le16(0), le16(0), le32(0),
-      le32(fh.offset), fh.nameBytes
-    ]);
-    central.push(cdh);
-    offset += cdh.length;
+      le16(fh.nameBytes.length), le16(0), le16(0), le16(0), le16(0), le32(0), le32(fh.offset), fh.nameBytes ]);
+    central.push(cdh); offset+=cdh.length;
   }
-  const centralDir = concatBytes(central);
-  const end = concatBytes([
-    le32(EOCD), le16(0), le16(0), le16(fileHeaders.length), le16(fileHeaders.length),
-    le32(centralDir.length), le32(startCD), le16(0)
-  ]);
-  const zipBytes = concatBytes([...chunks, centralDir, end]);
-  return new Blob([zipBytes], {type: mime || 'application/zip'});
+  const centralDir=concatBytes(central);
+  const end=concatBytes([ le32(EOCD), le16(0), le16(0), le16(fileHeaders.length), le16(fileHeaders.length),
+    le32(centralDir.length), le32(startCD), le16(0) ]);
+  const zipBytes=concatBytes([...chunks,centralDir,end]);
+  return new Blob([zipBytes],{type: mime||'application/zip'});
 }
-
-/* Build a true .docx with OOXML altChunk */
+/* Build true .docx (altChunk) */
 function sanitize(text){
-  return String(text||"")
-    .replace(/[\u2013\u2014]/g, "-")
-    .replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "");
+  return String(text||"").replace(/[\u2013\u2014]/g,"-").replace(/[\p{Extended_Pictographic}\uFE0F]/gu,"");
 }
 async function docxFromHTML(htmlString){
-  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' +
-               sanitize(htmlString) + '</body></html>';
-
-  const contentTypes =
-    '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
-    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
-    '<Default Extension="xml" ContentType="application/xml"/>' +
-    '<Default Extension="html" ContentType="text/html"/>' +
-    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
-    '</Types>';
-
-  const rootRels =
-    '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
-    '</Relationships>';
-
-  const documentXML =
-    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ' +
-    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
-    '<w:body><w:altChunk r:id="rId1"/><w:sectPr/></w:body></w:document>';
-
-  const docRels =
-    '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/aFChunk" Target="afchunk.html"/>' +
-    '</Relationships>';
-
-  const files = [
-    {name:'[Content_Types].xml', data:utf8Bytes(contentTypes)},
-    {name:'_rels/.rels', data:utf8Bytes(rootRels)},
-    {name:'word/document.xml', data:utf8Bytes(documentXML)},
-    {name:'word/_rels/document.xml.rels', data:utf8Bytes(docRels)},
-    {name:'word/afchunk.html', data:utf8Bytes(html)}
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+sanitize(htmlString)+'</body></html>';
+  const contentTypes='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    +'<Default Extension="xml" ContentType="application/xml"/>'
+    +'<Default Extension="html" ContentType="text/html"/>'
+    +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+    +'</Types>';
+  const rootRels='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+    +'</Relationships>';
+  const documentXML='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+    +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    +'<w:body><w:altChunk r:id="rId1"/><w:sectPr/></w:body></w:document>';
+  const docRels='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/aFChunk" Target="afchunk.html"/>'
+    +'</Relationships>';
+  const files=[
+    {name:'[Content_Types].xml',data:utf8Bytes(contentTypes)},
+    {name:'_rels/.rels',data:utf8Bytes(rootRels)},
+    {name:'word/document.xml',data:utf8Bytes(documentXML)},
+    {name:'word/_rels/document.xml.rels',data:utf8Bytes(docRels)},
+    {name:'word/afchunk.html',data:utf8Bytes(html)}
   ];
-  return zipBlob(files, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  return zipBlob(files,'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
 }
-
-/* Public API */
-window.htmlDocx = { asBlobAsync: docxFromHTML };
+window.htmlDocx={ asBlobAsync:docxFromHTML };
 </script>
 
 <script>
 /* ======================== CONFIG ======================== */
-const CONFIG = { COURSE_TAG:'SOW5404 • Spring 2026', APPKEY_PREFIX:'PE_APP_APPKEY_', DEFAULT_EXPORT_NAME:'Program_Evaluation.docx' };
+const CONFIG={ COURSE_TAG:'SOW5404 • Spring 2026', APPKEY_PREFIX:'PE_APP_APPKEY_', DEFAULT_EXPORT_NAME:'Program_Evaluation.docx' };
 
 /* ==================== DATA — SCENARIOS ================== */
-const SCENARIOS = [
-  {
-    title:"Jefferson Middle School: Discipline, Trust, and a System in Strain",
-    setting_snapshot:`Jefferson Middle School serves approximately 700 students in a neighborhood undergoing rapid gentrification. Long-standing Black and Latine families are being priced out, while newer families move in with different expectations, communication styles, and relationships to the school. The building is old, with frequent HVAC failures, limited classroom space, and a rotating roster of substitute teachers. Staff shortages are common, and teacher turnover has increased each year for the last three years.
+const SCENARIOS=[
+{title:"Jefferson Middle School: Discipline, Trust, and a System in Strain",
+setting_snapshot:`Jefferson Middle School serves approximately 700 students in a neighborhood undergoing rapid gentrification. Long-standing Black and Latine families are being priced out, while newer families move in with different expectations, communication styles, and relationships to the school. The building is old, with frequent HVAC failures, limited classroom space, and a rotating roster of substitute teachers. Staff shortages are common, and teacher turnover has increased each year for the last three years.
 
 The school leadership is under pressure from the district to "improve behavioral indicators" after a report showed rising suspension rates. Although the district has encouraged schools to explore alternatives to exclusionary practices, no additional staff or training has been provided. Teachers describe their classrooms as crowded and unpredictable, and the social worker has responsibility for crisis response, attendance concerns, and family outreach with very limited time for prevention or programming.
 
 Families often report feeling disconnected from the school. Some describe feeling unwelcome when raising concerns. Others say they do not understand the discipline process or why certain decisions are made. The school attempts family engagement events, but attendance is inconsistent.`,
-    population_snapshot:`The school serves primarily Black and Latine students ages 11 through 14. Many families work multiple jobs, creating challenges for attending meetings or monitoring school communication systems. A significant number of students have recently experienced displacement due to rent increases. Approximately one in six students receives special education services, and many students report varying levels of mistrust toward adults in institutional settings.`,
-    core_problems:`There are conflicting beliefs among staff about what the "real problem" is. Some teachers believe that students have become increasingly defiant and that inconsistent classroom management across staff leads to escalation. Others believe that the zero-tolerance disciplinary policies adopted several years ago are producing more harm than good. Families express confusion and frustration about discipline decisions, and some say they feel judged or misunderstood when they reach out for support.
+population_snapshot:`The school serves primarily Black and Latine students ages 11 through 14. Many families work multiple jobs, creating challenges for attending meetings or monitoring school communication systems. A significant number of students have recently experienced displacement due to rent increases. Approximately one in six students receives special education services, and many students report varying levels of mistrust toward adults in institutional settings.`,
+core_problems:`There are conflicting beliefs among staff about what the "real problem" is. Some teachers believe that students have become increasingly defiant and that inconsistent classroom management across staff leads to escalation. Others believe that the zero-tolerance disciplinary policies adopted several years ago are producing more harm than good. Families express confusion and frustration about discipline decisions, and some say they feel judged or misunderstood when they reach out for support.
 
 Administrators feel caught between community expectations, district pressure, and staff fatigue. Teachers feel unsupported and fear that loosening disciplinary responses will lead to loss of control in the classroom. Students say they are suspended for relatively small behaviors, and that adults interpret their communication styles as disrespectful. There is no agreement on what should change or who holds responsibility.`,
-    stakeholder_glimpses:`Teachers: Want calmer classrooms, feel overwhelmed, and believe discipline must be consistent. Some feel blamed for outcomes they cannot control.
+stakeholder_glimpses:`Teachers: Want calmer classrooms, feel overwhelmed, and believe discipline must be consistent. Some feel blamed for outcomes they cannot control.
 
 Students: Report feeling targeted, misunderstood, and excluded from decisions affecting them. Fear that suspensions damage their academic futures.
 
@@ -305,8 +232,8 @@ Administrators: Worried about district scrutiny, family complaints, and public p
 District Representatives: Emphasize behavioral metrics tied to school performance. Offer limited guidance or support.
 
 School Social Worker: Overextended and unable to address root causes. Wishes for more collaborative systems but lacks authority to change workflows.`,
-    equity_signals:`Racialized discipline patterns, gentrification pressures, inconsistent access to special education services, and limited language-inclusive communication shape the environment. Families with fewer resources often experience greater barriers to advocacy. Tensions between policing in the neighborhood and student safety perceptions affect trust in school authority.`,
-    constraints_resources:`Constraints:
+equity_signals:`Racialized discipline patterns, gentrification pressures, inconsistent access to special education services, and limited language-inclusive communication shape the environment. Families with fewer resources often experience greater barriers to advocacy. Tensions between policing in the neighborhood and student safety perceptions affect trust in school authority.`,
+constraints_resources:`Constraints:
 • No new full-time positions available
 • Limited time from the social worker for non-crisis programming
 • Monthly reporting cycles delay data availability
@@ -320,20 +247,19 @@ Resources:
 • After-school time with some flexible space
 • Student leadership groups willing to provide feedback
 • Existing climate surveys conducted annually`,
-    role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative, along with an evaluation plan, that fits within these constraints and addresses the tensions described. You must consider the perspectives and needs of all stakeholder groups.`
-  },
-  {
-    title:"Harbor House Shelter: Burnout, Inconsistent Policies, and Community Pressure",
-    setting_snapshot:`Harbor House is a year-round urban homelessness shelter that provides overnight beds, daytime services, meals, and case management. The shelter operates out of an aging building with inadequate ventilation, limited storage, and a mix of open sleeping areas and partitioned spaces. Demand for shelter beds has steadily increased over the last five years due to rising housing costs. The shelter is funded through city contracts, private donations, and seasonal grants, each with different reporting expectations.
+role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative, along with an evaluation plan, that fits within these constraints and addresses the tensions described. You must consider the perspectives and needs of all stakeholder groups.`},
+
+{title:"Harbor House Shelter: Burnout, Inconsistent Policies, and Community Pressure",
+setting_snapshot:`Harbor House is a year-round urban homelessness shelter that provides overnight beds, daytime services, meals, and case management. The shelter operates out of an aging building with inadequate ventilation, limited storage, and a mix of open sleeping areas and partitioned spaces. Demand for shelter beds has steadily increased over the last five years due to rising housing costs. The shelter is funded through city contracts, private donations, and seasonal grants, each with different reporting expectations.
 
 Staffing is unstable. Many frontline staff are new and receive only brief on-the-job training. Turnover has increased significantly, and remaining staff feel overwhelmed. Tensions arise between long-term employees who value consistency and newer staff who advocate for more flexible rules. Policies around guest conduct, storage of belongings, and incident documentation are inconsistently followed, leading to frustration among both guests and staff.
 
 Community relationships are strained. Neighborhood residents have complained about loitering and safety concerns. The shelter leadership has received pressure from city officials to demonstrate improved outcomes for guests, particularly in transitioning individuals into stable housing, even though the shelter itself does not control housing availability.`,
-    population_snapshot:`The shelter primarily serves adults experiencing homelessness, including individuals with chronic health conditions, untreated mental health concerns, limited income, and histories of trauma. Many guests are Black or Latine community members who have faced long-term structural barriers related to employment, housing access, and discrimination. A significant number of guests rely on public transportation and have inconsistent access to phones or documentation.`,
-    core_problems:`Staff report feeling exhausted and express confusion about when and how to enforce shelter rules. Some believe consistency is crucial for safety, while others argue rigid rules escalate tension. Guests describe feeling disrespected or punished unpredictably. Case managers note that documentation requirements pull them away from direct support and contribute to delays in connecting guests to housing programs.
+population_snapshot:`The shelter primarily serves adults experiencing homelessness, including individuals with chronic health conditions, untreated mental health concerns, limited income, and histories of trauma. Many guests are Black or Latine community members who have faced long-term structural barriers related to employment, housing access, and discrimination. A significant number of guests rely on public transportation and have inconsistent access to phones or documentation.`,
+core_problems:`Staff report feeling exhausted and express confusion about when and how to enforce shelter rules. Some believe consistency is crucial for safety, while others argue rigid rules escalate tension. Guests describe feeling disrespected or punished unpredictably. Case managers note that documentation requirements pull them away from direct support and contribute to delays in connecting guests to housing programs.
 
 Leadership feels torn between satisfying city grant requirements and responding to staff burnout. Community members increasingly demand visible improvements, while guests report feeling surveilled or judged when outside the building. There is no shared agreement on which problems are most urgent.`,
-    stakeholder_glimpses:`Frontline Staff: Want clearer policies, more support, and manageable workloads. Feel blamed for guest dissatisfaction.
+stakeholder_glimpses:`Frontline Staff: Want clearer policies, more support, and manageable workloads. Feel blamed for guest dissatisfaction.
 
 Guests: Want dignity, predictability, and fairness. Feel their concerns are ignored until they escalate.
 
@@ -344,8 +270,8 @@ Shelter Leadership: Facing pressure from funders and neighbors, worried about tu
 City Officials: Focused on public perception and shelter performance indicators, with limited understanding of day-to-day operations.
 
 Neighborhood Residents: Express concerns about safety and want better communication from the shelter.`,
-    equity_signals:`Housing scarcity, racialized patterns of homelessness, barriers to medical and mental health care, policing patterns in the neighborhood, and inequitable access to supportive services all shape the environment. Guests with limited documentation or inconsistent income face additional obstacles.`,
-    constraints_resources:`Constraints:
+equity_signals:`Housing scarcity, racialized patterns of homelessness, barriers to medical and mental health care, policing patterns in the neighborhood, and inequitable access to supportive services all shape the environment. Guests with limited documentation or inconsistent income face additional obstacles.`,
+constraints_resources:`Constraints:
 • No additional funding for new full-time staff
 • Limited private space for meetings or groups
 • High turnover and inconsistent training
@@ -359,20 +285,19 @@ Resources:
 • Partnerships with local clinics and food banks
 • A multipurpose room available during daytime hours
 • Some flexibility from private donors for pilot projects`,
-    role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative, along with an evaluation plan, that fits within the constraints and addresses the tensions described. You must assess stakeholder priorities and propose a plan that considers the realities of shelter operations and community relationships.`
-  },
-  {
-    title:"Prairie County Mobile Health Van: Access, Weather, and Uneven Reach",
-    setting_snapshot:`Prairie County covers a large rural area with scattered towns, long stretches of farmland, and limited public transportation. The county health department operates a mobile health van that travels to different locations on a rotating weekly schedule, offering basic screenings, chronic condition check-ins, immunizations, and referrals to regional hospitals. The van is staffed by a nurse, a part-time behavioral health consultant, and a driver who also handles scheduling and community outreach.
+role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative, along with an evaluation plan, that fits within the constraints and addresses the tensions described. You must assess stakeholder priorities and propose a plan that considers the realities of shelter operations and community relationships.`},
+
+{title:"Prairie County Mobile Health Van: Access, Weather, and Uneven Reach",
+setting_snapshot:`Prairie County covers a large rural area with scattered towns, long stretches of farmland, and limited public transportation. The county health department operates a mobile health van that travels to different locations on a rotating weekly schedule, offering basic screenings, chronic condition check-ins, immunizations, and referrals to regional hospitals. The van is staffed by a nurse, a part-time behavioral health consultant, and a driver who also handles scheduling and community outreach.
 
 The van’s route is affected by weather, unpaved roads, and seasonal agricultural demands that impact when community members are available. In winter, routes are frequently canceled due to icy roads. In the summer, many families rely on the van because work schedules and childcare make travel to clinics impossible. Staff describe feeling pulled between wanting to increase service reach and feeling limited by logistics. Equipment is aging, and the van’s generator has become unreliable.
 
 The health department faces public pressure after a local newspaper published a story showing wide gaps in who receives services. Some towns see the van every week, while others go three or more weeks without a visit. Leaders acknowledge these inequities but argue that staffing shortages and geographical barriers leave little flexibility.`,
-    population_snapshot:`Residents include older adults with mobility limitations, agricultural workers experiencing seasonal injuries, families with low incomes, and Latine communities concentrated in the western part of the county. Many households lack consistent internet or phone service. Some families rely on neighbors to relay information about the van’s schedule. Trust in institutional providers varies, particularly among migrant farmworker communities who have experienced inconsistent care and language access barriers in the past.`,
-    core_problems:`Staff disagree on how to prioritize route schedules. Some argue for consistency, while others believe the van should concentrate on areas with the greatest need, even if that means fewer towns receive weekly visits. Residents in remote areas feel overlooked and express frustration that the van visits more populated towns more often. The nurse reports feeling rushed, and the behavioral health consultant expresses concerns about providing meaningful follow-up when appointments are unpredictable.
+population_snapshot:`Residents include older adults with mobility limitations, agricultural workers experiencing seasonal injuries, families with low incomes, and Latine communities concentrated in the western part of the county. Many households lack consistent internet or phone service. Some families rely on neighbors to relay information about the van’s schedule. Trust in institutional providers varies, particularly among migrant farmworker communities who have experienced inconsistent care and language access barriers in the past.`,
+core_problems:`Staff disagree on how to prioritize route schedules. Some argue for consistency, while others believe the van should concentrate on areas with the greatest need, even if that means fewer towns receive weekly visits. Residents in remote areas feel overlooked and express frustration that the van visits more populated towns more often. The nurse reports feeling rushed, and the behavioral health consultant expresses concerns about providing meaningful follow-up when appointments are unpredictable.
 
 The health department leadership wants improved community satisfaction metrics but cannot add more vehicles or staff hours. Town councils have begun contacting the department directly to lobby for more frequent visits, creating political pressure that complicates scheduling. No one agrees on which services are most essential for the van to provide.`,
-    stakeholder_glimpses:`Nurse: Wants safer work conditions and more predictable schedules. Worries about burnout.
+stakeholder_glimpses:`Nurse: Wants safer work conditions and more predictable schedules. Worries about burnout.
 
 Behavioral Health Consultant: Struggles to build trust without regular visits. Wants time for relationship-based work.
 
@@ -383,8 +308,8 @@ Health Department Leadership: Wants to show equitable service delivery but lacks
 Town Councils: Advocate for their own communities, sometimes at odds with one another.
 
 Residents: Want access that does not require long travel or time off from work. Some feel they are always last on the list.`,
-    equity_signals:`Limited transportation infrastructure, geographic isolation, agricultural labor schedules, historic underinvestment in rural health systems, and language access barriers create inequities in care. Weather patterns disproportionately affect remote areas, amplifying disparities in service availability.`,
-    constraints_resources:`Constraints:
+equity_signals:`Limited transportation infrastructure, geographic isolation, agricultural labor schedules, historic underinvestment in rural health systems, and language access barriers create inequities in care. Weather patterns disproportionately affect remote areas, amplifying disparities in service availability.`,
+constraints_resources:`Constraints:
 • Only one van and no budget for a second
 • Unreliable generator
 • Seasonal weather disruptions
@@ -397,18 +322,17 @@ Resources:
 • Local libraries willing to host services
 • Volunteer drivers occasionally available during busy seasons
 • A county-wide health needs assessment completed last year`,
-    role:`You are the MSW evaluator and program designer asked to create one feasible program or practice initiative and an evaluation plan that addresses the tensions described. Your design must work within current staffing levels and account for geographic, seasonal, and political barriers.`
-  },
-  {
-    title:"Riverbend Aging Resource Center: Isolation, Technology, and Uneven Access",
-    setting_snapshot:`The Riverbend Aging Resource Center is a county-supported hub that provides information, referrals, caregiver support groups, and social programming for older adults. In response to a new state mandate encouraging digital literacy and virtual engagement for older adults, Riverbend has been asked to expand technology-based services. These include virtual appointments, online caregiver workshops, tablet lending, and digital navigation sessions.
+role:`You are the MSW evaluator and program designer asked to create one feasible program or practice initiative and an evaluation plan that addresses the tensions described. Your design must work within current staffing levels and account for geographic, seasonal, and political barriers.`},
+
+{title:"Riverbend Aging Resource Center: Isolation, Technology, and Uneven Access",
+setting_snapshot:`The Riverbend Aging Resource Center is a county-supported hub that provides information, referrals, caregiver support groups, and social programming for older adults. In response to a new state mandate encouraging digital literacy and virtual engagement for older adults, Riverbend has been asked to expand technology-based services. These include virtual appointments, online caregiver workshops, tablet lending, and digital navigation sessions.
 
 However, the center is housed in an older municipal building with limited accessible space. Staff are already balancing a large volume of walk-in requests, crisis calls, and paperwork for state reporting. Many older adults arrive unscheduled, often seeking immediate help with housing issues, benefits applications, or transportation needs. Staff feel torn between responding to crises and launching the new digital initiatives.`,
-    population_snapshot:`Riverbend serves a diverse group of older adults. Many live alone, rely on fixed incomes, and have mobility limitations. A significant number are Black and Latine elders with long histories in the neighborhood but limited access to high-speed internet. Some older adults rely on adult children or neighbors for transportation. Others are recent retirees with higher incomes who expect modern, personalized programming. There are also older adults with cognitive impairments who require additional support.`,
-    core_problems:`Staff feel unprepared to provide digital navigation services and worry that technology-based programs will exclude the very people who need the most support. Leadership emphasizes that failure to implement the mandate may jeopardize funding. Some older adults say they feel embarrassed asking technology questions and prefer in-person support. Others are enthusiastic but frustrated by long wait times and confusing instructions.
+population_snapshot:`Riverbend serves a diverse group of older adults. Many live alone, rely on fixed incomes, and have mobility limitations. A significant number are Black and Latine elders with long histories in the neighborhood but limited access to high-speed internet. Some older adults rely on adult children or neighbors for transportation. Others are recent retirees with higher incomes who expect modern, personalized programming. There are also older adults with cognitive impairments who require additional support.`,
+core_problems:`Staff feel unprepared to provide digital navigation services and worry that technology-based programs will exclude the very people who need the most support. Leadership emphasizes that failure to implement the mandate may jeopardize funding. Some older adults say they feel embarrassed asking technology questions and prefer in-person support. Others are enthusiastic but frustrated by long wait times and confusing instructions.
 
 Caregivers report that virtual workshops would help them participate despite work schedules, but only if the center can reliably provide support and troubleshoot access issues. The center’s phone system cannot handle the volume of calls during peak hours, and staff express concern about increasing virtual services without improving communication tools.`,
-    stakeholder_glimpses:`Front Desk Staff: Feel overwhelmed triaging walk-ins and calls. Worry that new programs will increase workload.
+stakeholder_glimpses:`Front Desk Staff: Feel overwhelmed triaging walk-ins and calls. Worry that new programs will increase workload.
 
 Program Coordinators: Interested in innovation but uncertain how to measure success.
 
@@ -419,8 +343,8 @@ Caregivers: Want reliable virtual options to reduce burden.
 County Leadership: Focused on compliance with the state mandate and funding preservation.
 
 State Agencies: Require digital literacy rollout but offer only minimal training or funding.`,
-    equity_signals:`Digital divides based on income, race, geography, and disability shape access. Older adults with limited English proficiency face additional barriers. Structural ageism influences how quickly systems invest in or deprioritize elder services. Transportation barriers and housing instability further isolate older adults.`,
-    constraints_resources:`Constraints:
+equity_signals:`Digital divides based on income, race, geography, and disability shape access. Older adults with limited English proficiency face additional barriers. Structural ageism influences how quickly systems invest in or deprioritize elder services. Transportation barriers and housing instability further isolate older adults.`,
+constraints_resources:`Constraints:
 • No additional staff positions
 • Outdated phone system
 • Limited accessible space for in-person workshops
@@ -433,20 +357,19 @@ Resources:
 • A volunteer corps of retired adults with varied skills
 • A small technology training grant available for short-term pilots
 • Caregiver support networks eager to participate in virtual offerings`,
-    role:`You are the MSW evaluator and program designer assigned to develop one feasible program or practice initiative, along with an evaluation plan, that responds to the tensions described. You must propose an approach that respects the diversity of older adults’ needs while working within the center’s constraints.`
-  },
-  {
-    title:"Lakewood Lead Pipe Replacement: Timelines, Transparency, and Uneven Trust",
-    setting_snapshot:`The City of Lakewood launched a multi-year initiative to replace lead service lines after state-level scrutiny revealed that several neighborhoods had elevated lead levels in tap water. Although the city committed to full replacement, the rollout has been uneven. More affluent neighborhoods were upgraded first because of easier pipe access and fewer infrastructure complications, while older, predominantly Black and Latine neighborhoods face delays attributed to "complexity", "staffing shortages", and "permitting challenges".
+role:`You are the MSW evaluator and program designer assigned to develop one feasible program or practice initiative, along with an evaluation plan, that responds to the tensions described. You must propose an approach that respects the diversity of older adults’ needs while working within the center’s constraints.`},
+
+{title:"Lakewood Lead Pipe Replacement: Timelines, Transparency, and Uneven Trust",
+setting_snapshot:`The City of Lakewood launched a multi-year initiative to replace lead service lines after state-level scrutiny revealed that several neighborhoods had elevated lead levels in tap water. Although the city committed to full replacement, the rollout has been uneven. More affluent neighborhoods were upgraded first because of easier pipe access and fewer infrastructure complications, while older, predominantly Black and Latine neighborhoods face delays attributed to "complexity", "staffing shortages", and "permitting challenges".
 
 Information about the timeline has been inconsistent. Public meetings are held, but many residents work during those hours or do not learn about the meetings until after they occur. A city-run website publishes updates, but many households in older neighborhoods have limited internet access or rely on mobile devices with limited data. Construction crews appear without notice, leaving residents confused about when water will be shut off or when yards will be disturbed. In some areas, repairs have been left unfinished for weeks.
 
 Community frustration has grown. Several local organizations have demanded clearer communication, equitable prioritization, and accessible channels for reporting concerns. City leadership insists the process is fair and that "technical needs drive the schedule", although internal emails (circulated publicly) show disagreements among departments.`,
-    population_snapshot:`The affected neighborhoods include long-standing Black families, multigenerational Latine households, immigrant families with varying English proficiency, families with young children, and older adults living on fixed incomes. Many residents rely on bottled water, which strains budgets. Several homes have outdated plumbing that complicates replacement and increases anxiety about property damage. Some households rent from absentee landlords who are difficult to reach.`,
-    core_problems:`Residents do not trust the explanations offered for delays. Neighborhood associations argue that resource scarcity is being used to justify inequitable timelines. City engineers claim older neighborhoods require specialized contractors. Communication staff express difficulty producing clear, multilingual updates when construction timelines change daily. Advocacy groups allege that the city’s public communication privileges residents with stable internet and free time to attend meetings.
+population_snapshot:`The affected neighborhoods include long-standing Black families, multigenerational Latine households, immigrant families with varying English proficiency, families with young children, and older adults living on fixed incomes. Many residents rely on bottled water, which strains budgets. Several homes have outdated plumbing that complicates replacement and increases anxiety about property damage. Some households rent from absentee landlords who are difficult to reach.`,
+core_problems:`Residents do not trust the explanations offered for delays. Neighborhood associations argue that resource scarcity is being used to justify inequitable timelines. City engineers claim older neighborhoods require specialized contractors. Communication staff express difficulty producing clear, multilingual updates when construction timelines change daily. Advocacy groups allege that the city’s public communication privileges residents with stable internet and free time to attend meetings.
 
 City workers report harassment from frustrated residents and feel caught between community anger and leadership expectations. Meanwhile, the mayor’s office pushes departments to demonstrate progress before the next election cycle, which adds political pressure that complicates transparency.`,
-    stakeholder_glimpses:`Residents: Want predictable schedules, honest explanations, and assurance that their neighborhoods are not being deprioritized.
+stakeholder_glimpses:`Residents: Want predictable schedules, honest explanations, and assurance that their neighborhoods are not being deprioritized.
 
 Community Organizations: Push for equitable timelines and culturally responsive communication.
 
@@ -459,8 +382,8 @@ Mayor’s Office: Focused on public perception, equity narratives, and election 
 Landlords: Often unresponsive to outreach, complicating permissions needed for pipe access.
 
 Environmental Health Advocates: Emphasize long-term health risks and accountability.`,
-    equity_signals:`The neighborhoods experiencing the longest delays have historically faced disinvestment, discriminatory housing practices, and environmental burdens. Language barriers limit access to public information. Renters lack control over household infrastructure. Digital access disparities prevent many from engaging with online updates. The burden of bottled water falls disproportionately on low-income households.`,
-    constraints_resources:`Constraints:
+equity_signals:`The neighborhoods experiencing the longest delays have historically faced disinvestment, discriminatory housing practices, and environmental burdens. Language barriers limit access to public information. Renters lack control over household infrastructure. Digital access disparities prevent many from engaging with online updates. The burden of bottled water falls disproportionately on low-income households.`,
+constraints_resources:`Constraints:
 • No possibility of adding new contractors within the current budget
 • Complex underground infrastructure in older neighborhoods
 • City’s communication staff already overstretched
@@ -473,20 +396,19 @@ Resources:
 • Community centers willing to host meetings at flexible times
 • Existing water testing data collected by the health department
 • Strong advocacy groups capable of mobilizing residents for feedback sessions`,
-    role:`You are the MSW evaluator and program designer tasked with creating one small, feasible program or practice initiative and an evaluation plan that helps improve equity, transparency, or communication in the lead pipe replacement process. You must design within the city’s financial and staffing constraints and address the needs of multiple stakeholder groups.`
-  },
-  {
-    title:"Turning Point House: Reentry, Safety, and Autonomy in Tension",
-    setting_snapshot:`Turning Point House is a transitional housing program for adults returning from incarceration. The facility houses up to twenty residents in shared rooms and provides case management, employment workshops, and limited mental health support. The building is located in a mixed residential neighborhood that has historically pushed back against programs supporting people with criminal records. Several neighbors have recently complained about noise, unfamiliar visitors, and "safety concerns", prompting a formal meeting with the city council.
+role:`You are the MSW evaluator and program designer tasked with creating one small, feasible program or practice initiative and an evaluation plan that helps improve equity, transparency, or communication in the lead pipe replacement process. You must design within the city’s financial and staffing constraints and address the needs of multiple stakeholder groups.`},
+
+{title:"Turning Point House: Reentry, Safety, and Autonomy in Tension",
+setting_snapshot:`Turning Point House is a transitional housing program for adults returning from incarceration. The facility houses up to twenty residents in shared rooms and provides case management, employment workshops, and limited mental health support. The building is located in a mixed residential neighborhood that has historically pushed back against programs supporting people with criminal records. Several neighbors have recently complained about noise, unfamiliar visitors, and "safety concerns", prompting a formal meeting with the city council.
 
 Inside the program, staff are divided over how to maintain safety without replicating the restrictive conditions residents just left. Some staff prefer structured schedules and curfews, while others want a more autonomy-supportive environment. Residents express frustration that rules feel unpredictable or unevenly enforced. For example, some report that staff confront them for minor infractions while ignoring more serious concerns raised by residents.
 
 The program operates under a contract requiring regular reporting to the local criminal justice oversight board. Leadership is under pressure to demonstrate positive outcomes, especially reductions in rearrest rates. Staff note that meaningful reentry progress is often slow, relational, and nonlinear, which conflicts with the reporting expectations.`,
-    population_snapshot:`Residents are adults recently released from incarceration, primarily Black and Latine men with histories of unstable housing, employment barriers, trauma exposure, chronic health conditions, and strained family connections. Some struggle with substance use or untreated mental health challenges. Many hold legitimate fear of returning to the prison system and feel that missteps may jeopardize their freedom.`,
-    core_problems:`Residents want independence, respect, and a chance to rebuild their lives without constant scrutiny. Staff want predictability and safety but disagree about the right balance. Leadership wants data that satisfies funders, while neighbors want reassurance that the program will not disrupt the community. Case managers say they have too many administrative tasks to provide meaningful support. Residents say they feel unheard and fear retaliation for speaking up.
+population_snapshot:`Residents are adults recently released from incarceration, primarily Black and Latine men with histories of unstable housing, employment barriers, trauma exposure, chronic health conditions, and strained family connections. Some struggle with substance use or untreated mental health challenges. Many hold legitimate fear of returning to the prison system and feel that missteps may jeopardize their freedom.`,
+core_problems:`Residents want independence, respect, and a chance to rebuild their lives without constant scrutiny. Staff want predictability and safety but disagree about the right balance. Leadership wants data that satisfies funders, while neighbors want reassurance that the program will not disrupt the community. Case managers say they have too many administrative tasks to provide meaningful support. Residents say they feel unheard and fear retaliation for speaking up.
 
 Conflicts arise around room checks, curfew enforcement, visitation rules, and expectations for job search documentation. When tensions escalate, staff feel unsupported, and residents feel punished. No shared philosophy of reentry is guiding daily practices.`,
-    stakeholder_glimpses:`Residents: Want autonomy, consistent rules, and support in finding housing and jobs.
+stakeholder_glimpses:`Residents: Want autonomy, consistent rules, and support in finding housing and jobs.
 
 Frontline Staff: Divided on structure versus flexibility. Feel pressure to maintain order.
 
@@ -499,8 +421,8 @@ Oversight Board: Wants measurable outcomes but provides little guidance.
 Neighbors: Concerned about safety and community image.
 
 Local Employers: Sometimes willing to hire residents but inconsistent in follow through.`,
-    equity_signals:`Residents face the compounded disadvantages of racialized incarceration patterns, housing discrimination, and employment barriers. Surveillance extends into community settings under reentry supervision. Neighborhood stigma reinforces exclusion. Lack of affordable housing limits residents’ ability to exit the program.`,
-    constraints_resources:`Constraints:
+equity_signals:`Residents face the compounded disadvantages of racialized incarceration patterns, housing discrimination, and employment barriers. Surveillance extends into community settings under reentry supervision. Neighborhood stigma reinforces exclusion. Lack of affordable housing limits residents’ ability to exit the program.`,
+constraints_resources:`Constraints:
 • No additional staff positions
 • Contractually required data reporting
 • Limited physical space for private meetings
@@ -514,20 +436,19 @@ Resources:
 • A faith-based organization willing to host workshops
 • Resident council meetings already happening monthly
 • Staff who are passionate about reentry but need guidance`,
-    role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative and an evaluation plan that addresses the tensions described. Your design must balance autonomy, safety, community relationships, and resident voice within existing staffing and contractual constraints.`
-  },
-  {
-    title:"Maple Lane Visitation Center: Quality, Consistency, and Family Dissatisfaction",
-    setting_snapshot:`The Maple Lane Visitation Center is a child welfare–contracted site where parents participate in supervised or semi-supervised visits with their children who are placed in foster care. The center consists of four small visitation rooms, a shared playroom, and an administrative space that also functions as the staff kitchen. Toys and supplies are frequently mismatched, outdated, or missing pieces. Staffing varies from day to day, with a combination of full-time supervisors, part-time aides, and rotating interns.
+role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative and an evaluation plan that addresses the tensions described. Your design must balance autonomy, safety, community relationships, and resident voice within existing staffing and contractual constraints.`},
+
+{title:"Maple Lane Visitation Center: Quality, Consistency, and Family Dissatisfaction",
+setting_snapshot:`The Maple Lane Visitation Center is a child welfare–contracted site where parents participate in supervised or semi-supervised visits with their children who are placed in foster care. The center consists of four small visitation rooms, a shared playroom, and an administrative space that also functions as the staff kitchen. Toys and supplies are frequently mismatched, outdated, or missing pieces. Staffing varies from day to day, with a combination of full-time supervisors, part-time aides, and rotating interns.
 
 Caseworkers from the county agency schedule visits, but the center itself is responsible for carrying them out and documenting interactions. Scheduling is chaotic, with last-minute cancellations and inconsistent communication between the county and the center. Some visits overlap in ways that strain the facility’s limited space. The center director is under pressure to reduce complaints and improve family satisfaction scores after a recent audit highlighted concerns about inconsistent supervision, unclear expectations, and uneven quality in visit documentation.
 
 Families often arrive stressed, having traveled long distances using unreliable transportation. Some experience long waits due to miscommunication or staff turnover. Staff describe feeling overwhelmed by the emotional intensity of the visits and the need to enforce rules that they sometimes feel are unclear or unfair.`,
-    population_snapshot:`Families come from diverse racial and socioeconomic backgrounds, with many parents facing housing instability, employment challenges, and limited access to transportation. A significant number of families are Black or Latine and report prior negative experiences with child welfare agencies. Many children placed in foster care are adjusting to new environments, and some have trauma histories that affect their behavior during visits. Parents may be coping with grief, shame, or fear, while also navigating complex court requirements.`,
-    core_problems:`Staff disagree about what high-quality supervision should look like. Some believe supervisors should intervene frequently to ensure safety and compliance with case plans. Others argue that constant intervention undermines parent-child bonding and creates an atmosphere of surveillance. Parents report feeling judged and say they often do not know what is expected of them during visits. Some children become distressed by the structured nature of the setting.
+population_snapshot:`Families come from diverse racial and socioeconomic backgrounds, with many parents facing housing instability, employment challenges, and limited access to transportation. A significant number of families are Black or Latine and report prior negative experiences with child welfare agencies. Many children placed in foster care are adjusting to new environments, and some have trauma histories that affect their behavior during visits. Parents may be coping with grief, shame, or fear, while also navigating complex court requirements.`,
+core_problems:`Staff disagree about what high-quality supervision should look like. Some believe supervisors should intervene frequently to ensure safety and compliance with case plans. Others argue that constant intervention undermines parent-child bonding and creates an atmosphere of surveillance. Parents report feeling judged and say they often do not know what is expected of them during visits. Some children become distressed by the structured nature of the setting.
 
 County caseworkers express frustration with inconsistent documentation from the center, which complicates court reporting. Staff at the center feel unsupported by the county, which they describe as unresponsive and unclear in expectations. The small physical layout limits privacy and makes emotionally charged moments difficult to manage. There is no shared understanding of how to balance safety, family autonomy, emotional support, and reporting requirements.`,
-    stakeholder_glimpses:`Parents: Want clear expectations, dignity, and consistent supervision. Many feel scrutinized or misunderstood.
+stakeholder_glimpses:`Parents: Want clear expectations, dignity, and consistent supervision. Many feel scrutinized or misunderstood.
 
 Children: Want time with parents in a calm, predictable environment; may struggle with transitions.
 
@@ -540,8 +461,8 @@ County Caseworkers: Want reliable documentation and fewer disruptions in schedul
 Center Leadership: Pressured to reduce complaints and improve documentation quality without additional resources.
 
 Foster Parents: Want clearer communication about visit timing, transitions, and behavioral support needs.`,
-    equity_signals:`Families from historically marginalized communities experience disproportionate child welfare involvement. Transportation barriers make attendance difficult. Cultural misunderstandings shape perceptions of communication and parenting styles. Limited financial resources contribute to instability that is interpreted through a deficit-oriented lens. System power dynamics influence how parents feel judged or supported.`,
-    constraints_resources:`Constraints:
+equity_signals:`Families from historically marginalized communities experience disproportionate child welfare involvement. Transportation barriers make attendance difficult. Cultural misunderstandings shape perceptions of communication and parenting styles. Limited financial resources contribute to instability that is interpreted through a deficit-oriented lens. System power dynamics influence how parents feel judged or supported.`,
+constraints_resources:`Constraints:
 • No capacity to hire additional supervisors
 • Limited physical space and inconsistent room availability
 • Unpredictable communication from the county
@@ -555,20 +476,19 @@ Resources:
 • Community volunteers available for cleaning and toy repairs
 • A strong new center director open to program adjustments
 • Access to some county-level data on visit frequency and attendance`,
-    role:`You are the MSW evaluator and program designer assigned to create one small, feasible program or practice initiative, along with an evaluation plan, that supports improved consistency, quality, or family engagement in visitation services. Your design must respect family dignity and work within the center’s staffing and structural constraints.`
-  },
-  {
-    title:"SafeLine Shelter Hotline: Surging Calls, Limited Staff, and Ethical Triage",
-    setting_snapshot:`SafeLine is a domestic violence shelter that operates a twenty-four-hour hotline for crisis support, safety planning, and intake into emergency shelter beds. The hotline is staffed by a mix of paid advocates and trained volunteers. Calls have increased steadily over the past two years, particularly in the evenings when staffing is lowest. Shelter beds fill quickly, leading to long waitlists and difficult conversations with callers seeking immediate safety.
+role:`You are the MSW evaluator and program designer assigned to create one small, feasible program or practice initiative, along with an evaluation plan, that supports improved consistency, quality, or family engagement in visitation services. Your design must respect family dignity and work within the center’s staffing and structural constraints.`},
+
+{title:"SafeLine Shelter Hotline: Surging Calls, Limited Staff, and Ethical Triage",
+setting_snapshot:`SafeLine is a domestic violence shelter that operates a twenty-four-hour hotline for crisis support, safety planning, and intake into emergency shelter beds. The hotline is staffed by a mix of paid advocates and trained volunteers. Calls have increased steadily over the past two years, particularly in the evenings when staffing is lowest. Shelter beds fill quickly, leading to long waitlists and difficult conversations with callers seeking immediate safety.
 
 Advocates report receiving calls that range from brief information requests to complex, high-risk situations requiring extended time on the phone. Phone lines sometimes ring unanswered when staff are already handling multiple calls. Volunteers want to support callers but feel uncertain when situations escalate. The shelter director recently received feedback from community partners that some clients experience long wait times or abrupt call endings, raising concerns about quality and consistency.
 
 The shelter has strict confidentiality guidelines, and advocates cannot request identifying details unless the caller chooses to disclose them. This can make safety assessment challenging. The director is under pressure to demonstrate responsiveness to funders while also protecting staff well-being in an emotionally demanding environment.`,
-    population_snapshot:`Callers include survivors of intimate partner violence, friends or family members seeking support, survivors who have left but remain unsafe, individuals who are unsure if their situation qualifies as abuse, and sometimes people in acute crisis who may also be navigating mental health concerns, substance use, or homelessness. Many callers are women, but a significant number are men, gender-diverse adults, and teens. Some callers speak languages not represented among available staff or volunteers.`,
-    core_problems:`Advocates feel torn between spending enough time with each caller and ensuring that others do not wait too long. Some believe the hotline should prioritize crisis calls only, while others argue that emotional support is also essential and can prevent escalation. Volunteers feel unprepared for high-risk cases and want clearer boundaries. Staff burnout is high, and some advocates describe feeling emotionally numb at the end of their shift.
+population_snapshot:`Callers include survivors of intimate partner violence, friends or family members seeking support, survivors who have left but remain unsafe, individuals who are unsure if their situation qualifies as abuse, and sometimes people in acute crisis who may also be navigating mental health concerns, substance use, or homelessness. Many callers are women, but a significant number are men, gender-diverse adults, and teens. Some callers speak languages not represented among available staff or volunteers.`,
+core_problems:`Advocates feel torn between spending enough time with each caller and ensuring that others do not wait too long. Some believe the hotline should prioritize crisis calls only, while others argue that emotional support is also essential and can prevent escalation. Volunteers feel unprepared for high-risk cases and want clearer boundaries. Staff burnout is high, and some advocates describe feeling emotionally numb at the end of their shift.
 
 Callers have different needs and expectations. Some need immediate shelter placement. Others need safety planning, validation, or guidance about legal options. The shelter’s limited bed capacity means that many callers must be referred elsewhere, which can feel devastating for survivors who built the courage to reach out. Language access gaps result in delayed or incomplete support for multilingual callers.`,
-    stakeholder_glimpses:`Hotline Advocates: Want manageable workloads, clearer protocols, and emotional support.
+stakeholder_glimpses:`Hotline Advocates: Want manageable workloads, clearer protocols, and emotional support.
 
 Volunteers: Want additional training and clearer guidance for crisis situations.
 
@@ -579,8 +499,8 @@ Survivors/Callers: Need safety, validation, and predictable support. Many fear c
 Community Partners: Want reliable referrals and consistent communication.
 
 Funders: Focused on quantifiable outcomes such as call volume, wait times, and shelter placements.`,
-    equity_signals:`Survivors face systemic barriers including housing scarcity, financial dependence, policing responses shaped by racial bias, language access inequities, and limited disability-accessible shelter options. Hotline support is influenced by structural inequities that shape who has privacy to call, who feels safe reaching out, and who is understood by staff.`,
-    constraints_resources:`Constraints:
+equity_signals:`Survivors face systemic barriers including housing scarcity, financial dependence, policing responses shaped by racial bias, language access inequities, and limited disability-accessible shelter options. Hotline support is influenced by structural inequities that shape who has privacy to call, who feels safe reaching out, and who is understood by staff.`,
+constraints_resources:`Constraints:
 • No additional full-time staff capacity
 • Limited shelter beds and unpredictable turnover
 • Volunteers with varying skill levels
@@ -594,22 +514,21 @@ Resources:
 • Partnerships with neighboring shelters
 • A small discretionary fund for short-term safety needs
 • Previous internal reports on call patterns and peak hours`,
-    role:`You are the MSW evaluator and program designer assigned to develop a small, feasible program or practice initiative, along with an evaluation plan, that strengthens hotline accessibility, safety, or consistency. You must design within existing staffing and bed capacity constraints.`
-  },
-  {
-    title:"Harborview Community Violence Prevention Network: Funding Shifts, Community Trust, and Conflicting Visions",
-    setting_snapshot:`Harborview is a midsized city that has experienced a rise in youth-involved shootings over the past three years. In response, the city council renewed a grant for the Harborview Community Violence Prevention Network, a coalition of grassroots groups, youth mentors, street outreach workers, and a small administrative team housed within a neighborhood nonprofit. The network provides conflict mediation, mentorship, community events, and supports youth who have experienced violence or are at heightened risk.
+role:`You are the MSW evaluator and program designer assigned to develop a small, feasible program or practice initiative, along with an evaluation plan, that strengthens hotline accessibility, safety, or consistency. You must design within existing staffing and bed capacity constraints.`},
+
+{title:"Harborview Community Violence Prevention Network: Funding Shifts, Community Trust, and Conflicting Visions",
+setting_snapshot:`Harborview is a midsized city that has experienced a rise in youth-involved shootings over the past three years. In response, the city council renewed a grant for the Harborview Community Violence Prevention Network, a coalition of grassroots groups, youth mentors, street outreach workers, and a small administrative team housed within a neighborhood nonprofit. The network provides conflict mediation, mentorship, community events, and supports youth who have experienced violence or are at heightened risk.
 
 The city recently changed its funding priorities, requiring programs to demonstrate short-term, quantifiable reductions in violent incidents. This shift has unsettled the coalition. Some groups rely on longer-term relationship-building methods that do not produce quick returns. Others welcome the emphasis on metrics but disagree about what should be measured and how. The coalition has no unified approach to data collection, and member organizations interpret "success" differently.
 
 Neighborhood trust varies. Some residents view the network as a critical lifeline, while others distrust any program associated with the city. Leaders of the coalition report that some youth fear retaliation for participating openly in programming, while others attend inconsistently due to school suspensions, family responsibilities, or unstable housing.`,
-    population_snapshot:`The network serves youth and young adults ages 14 through 25, many of whom are Black or Latine, have experienced school exclusion, are unstably housed, or have lost friends or family members to violence. Some youth have ongoing involvement with probation or diversion programs. Families often navigate financial strain, community trauma, and limited access to mental health care. Grassroots organizations in the coalition represent different cultural, linguistic, and neighborhood identities.`,
-    core_problems:`Coalition members disagree on how to adapt to the city’s revised expectations. Longer-standing grassroots organizations believe the shift toward short-term metrics ignores the realities of violence prevention, which depends on trust, consistent presence, and long-term relational work. Newer groups are more open to data collection but want support and clarity.
+population_snapshot:`The network serves youth and young adults ages 14 through 25, many of whom are Black or Latine, have experienced school exclusion, are unstably housed, or have lost friends or family members to violence. Some youth have ongoing involvement with probation or diversion programs. Families often navigate financial strain, community trauma, and limited access to mental health care. Grassroots organizations in the coalition represent different cultural, linguistic, and neighborhood identities.`,
+core_problems:`Coalition members disagree on how to adapt to the city’s revised expectations. Longer-standing grassroots organizations believe the shift toward short-term metrics ignores the realities of violence prevention, which depends on trust, consistent presence, and long-term relational work. Newer groups are more open to data collection but want support and clarity.
 
 Youth participants report mixed experiences. Some feel deeply supported by outreach workers, while others say programs are inconsistent, disorganized, or disconnected from their actual needs. Street outreach workers feel pressure to be constantly available, but burnout and safety concerns limit their capacity.
 
 The city wants "evidence of impact" but has not provided guidance on what counts as an outcome. Coalition leadership feels squeezed between funder expectations, youth realities, and internal conflicts about program identity.`,
-    stakeholder_glimpses:`Youth Participants: Want consistent mentors, safe spaces, and opportunities that feel relevant to their lives. Feel frustrated when programming changes without explanation.
+stakeholder_glimpses:`Youth Participants: Want consistent mentors, safe spaces, and opportunities that feel relevant to their lives. Feel frustrated when programming changes without explanation.
 
 Street Outreach Workers: Carry emotional burdens, work unpredictable hours, and fear that increased policing damages trust with youth.
 
@@ -622,8 +541,8 @@ City Officials: Focused on measurable reductions in violence and accountability 
 Residents: Desire safety but worry about program transparency and sustainability.
 
 Local Schools: Hope the coalition can reduce conflict spillover onto campuses, but communication is inconsistent.`,
-    equity_signals:`Racialized policing, neighborhood disinvestment, trauma exposure, school exclusion, limited mental health access, and economic inequality shape youth pathways into and out of violence. Long histories of broken institutional promises fuel community mistrust. Funding tied to specific metrics may amplify inequities by prioritizing easily countable outcomes over relational, culturally grounded work.`,
-    constraints_resources:`Constraints:
+equity_signals:`Racialized policing, neighborhood disinvestment, trauma exposure, school exclusion, limited mental health access, and economic inequality shape youth pathways into and out of violence. Long histories of broken institutional promises fuel community mistrust. Funding tied to specific metrics may amplify inequities by prioritizing easily countable outcomes over relational, culturally grounded work.`,
+constraints_resources:`Constraints:
 • Funding tied to short-term metrics
 • Coalition conflict over program direction
 • Limited staff capacity and burnout
@@ -637,20 +556,19 @@ Resources:
 • Community spaces available for programming
 • A dedicated coalition coordinator willing to experiment
 • Youth leaders eager to contribute ideas`,
-    role:`You are the MSW evaluator and program designer asked to create one feasible program or practice initiative and an evaluation plan that can strengthen cohesion, clarify outcomes, or improve the usefulness and equity of data collection. You must account for the conflicting philosophies of prevention, varied stakeholder expectations, and structural realities youth face.`
-  },
-  {
-    title:"Prism Youth Collective: Safety, Identity, and Community Backlash",
-    setting_snapshot:`The Prism Youth Collective is an after-school program serving LGBTQ youth ages 12 through 18. It operates out of a community center that also hosts sports programs, senior activities, and public meetings. The program offers drop-in hours, peer support groups, creative arts workshops, and occasional family engagement events. Staff consist of two youth workers, a part-time coordinator, and volunteers who assist with activities.
+role:`You are the MSW evaluator and program designer asked to create one feasible program or practice initiative and an evaluation plan that can strengthen cohesion, clarify outcomes, or improve the usefulness and equity of data collection. You must account for the conflicting philosophies of prevention, varied stakeholder expectations, and structural realities youth face.`},
 
-During the past year, the program experienced heightened community scrutiny following a series of heated school board meetings and public commentary questioning the legitimacy of LGBTQ-focused youth services. Some volunteers withdrew due to fear of backlash. The community center director received complaints from residents claiming the program was "divisive", while others expressed concerns about youth privacy and safety. As a result, the center now requires additional documentation for room reservations and approval for public-facing events.
+{title:"Prism Youth Collective: Safety, Identity, and Community Backlash",
+setting_snapshot:`The Prism Youth Collective is an after-school program serving LGBTQ youth ages 12 through 18. It operates out of a community center that also hosts sports programs, senior activities, and public meetings. The program offers drop-in hours, peer support groups, creative arts workshops, and occasional family engagement events. Staff consist of two youth workers, a part-time coordinator, and volunteers who assist with activities.
+
+During the past year, the program experienced heightened community scrutiny following a series of heated school board meetings and public commentary questioning the legitimacy of LGBTQ-focused youth services. Some volunteers withdrew due to fear of backlash. The community center director received complaints from residents claiming the program was "divisive," while others expressed concerns about youth privacy and safety. As a result, the center now requires additional documentation for room reservations and approval for public-facing events.
 
 Increased scrutiny has affected youth as well. Some young people feel anxious entering the building, worried about who might see them. Others express frustration that programs they love are being scaled back or delayed due to new administrative hurdles. Staff want to maintain a safe, affirming space but feel uncertain how to balance youth visibility with protection from harassment.`,
-    population_snapshot:`Youth participants are diverse in racial, cultural, and socioeconomic backgrounds. Many face family rejection, bullying at school, or mental health challenges such as anxiety and depression. Some youth are exploring their identities privately and rely on the program as their only affirming environment. Others are fully out and active in local advocacy efforts. Several youth experience unstable housing or do not have reliable transportation to the center.`,
-    core_problems:`Staff feel overwhelmed by increased administrative requirements that limit flexibility and reduce spontaneity in programming. Some youth want the program to be more visible and activist-oriented, while others prefer privacy and low-profile gatherings. Parents who support the program are divided about whether the center should push back against restrictions or focus on safety and sustainability.
+population_snapshot:`Youth participants are diverse in racial, cultural, and socioeconomic backgrounds. Many face family rejection, bullying at school, or mental health challenges such as anxiety and depression. Some youth are exploring their identities privately and rely on the program as their only affirming environment. Others are fully out and active in local advocacy efforts. Several youth experience unstable housing or do not have reliable transportation to the center.`,
+core_problems:`Staff feel overwhelmed by increased administrative requirements that limit flexibility and reduce spontaneity in programming. Some youth want the program to be more visible and activist-oriented, while others prefer privacy and low-profile gatherings. Parents who support the program are divided about whether the center should push back against restrictions or focus on safety and sustainability.
 
 Community center leadership wants to avoid controversy and preserve funding for all programs, but this stance can feel dismissive to staff and youth who are directly targeted by backlash. Local elected officials have offered conflicting statements, further complicating communication. Volunteers feel hesitant to host events without clearer guidance on safety protocols.`,
-    stakeholder_glimpses:`Youth Participants: Seek safety, affirmation, and control over visibility. Have varying comfort levels with public events.
+stakeholder_glimpses:`Youth Participants: Seek safety, affirmation, and control over visibility. Have varying comfort levels with public events.
 
 Program Staff: Want clarity, emotional support, and tools to protect youth safety without shutting down programming.
 
@@ -663,8 +581,8 @@ Residents: Some supportive; others skeptical or hostile toward LGBTQ youth progr
 Local Advocates: Want to defend the program publicly but risk intensifying backlash.
 
 Volunteers: Passionate but unsure how to navigate the current climate.`,
-    equity_signals:`Youth face discrimination, bullying, and mental health disparities rooted in systemic homophobia and transphobia. Public institutions struggle to support LGBTQ youth equitably within contentious political climates. Safety concerns intersect with race, class, and visibility. Transportation barriers and unstable housing reduce access to affirming spaces.`,
-    constraints_resources:`Constraints:
+equity_signals:`Youth face discrimination, bullying, and mental health disparities rooted in systemic homophobia and transphobia. Public institutions struggle to support LGBTQ youth equitably within contentious political climates. Safety concerns intersect with race, class, and visibility. Transportation barriers and unstable housing reduce access to affirming spaces.`,
+constraints_resources:`Constraints:
 • Additional administrative approvals for events
 • Limited staff capacity
 • Volunteer uncertainty about safety
@@ -678,8 +596,7 @@ Resources:
 • Access to multipurpose rooms after regular hours
 • Partnerships with mental health providers who can consult
 • Youth leadership council eager to help shape programming`,
-    role:`You are the MSW evaluator and program designer tasked with creating one feasible program or practice initiative and an evaluation plan that enhances safety, accessibility, or youth empowerment while navigating constraints related to backlash, visibility, and administrative requirements.`
-  }
+role:`You are the MSW evaluator and program designer tasked with creating one feasible program or practice initiative and an evaluation plan that enhances safety, accessibility, or youth empowerment while navigating constraints related to backlash, visibility, and administrative requirements.`}
 ];
 
 /* =============== HELPERS =============== */
@@ -694,7 +611,6 @@ function paragraphsHTML(text=''){
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1200)}
 function nowISO(){return new Date().toISOString()}
 function activeIsTyping(){const ae=document.activeElement; if(!ae) return false; const tag=ae.tagName.toLowerCase(); return tag==='textarea'||tag==='input'||ae.isContentEditable}
-function wordCount(s=''){return (s.trim().match(/\b[\w'-]+\b/g)||[]).length}
 
 /* =============== STATE =============== */
 let locked=false, currentScenario=null, autosaveTimer=null;
@@ -706,9 +622,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   bind('btnSave', onSave); bind('btnLoad', onLoad);
   bind('btnCopyScenario', onCopyScenario); bind('btnCopyAll', onCopyAll);
   bind('btnExport', onExport); bind('btnPrint', ()=>window.print());
-
-  ['f_context','f_design','f_purpose','f_outcomes','f_operational','f_designplan','f_ethics','f_assumptions']
-    .forEach(id=>$(id).addEventListener('input',()=>{updateCounters();}));
 
   document.addEventListener('keydown', e=>{
     const modS=(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'; if(modS){e.preventDefault();onSave();return;}
@@ -729,8 +642,8 @@ function onRandomize(){
   const idx=Math.floor(Math.random()*SCENARIOS.length);
   currentScenario=SCENARIOS[idx];
   renderScenario(currentScenario);
-  toast('Scenario selected');
   clearBuilder();
+  toast('Scenario selected');
 }
 function renderScenario(s){
   $('scenarioTitle').textContent=s?.title||'Untitled';
@@ -740,7 +653,7 @@ function renderScenario(s){
     'Population Snapshot':s.population_snapshot,
     'Core Problems or Tensions':s.core_problems,
     'Stakeholder Glimpses':s.stakeholder_glimpses,
-    'Structural and Equity Signals':s.equity_signals,
+    'Equity Signals':s.equity_signals,
     'Known Constraints and Resources':s.constraints_resources,
     'Your Role':s.role
   };
@@ -768,41 +681,39 @@ function stopAutosave(){ if(autosaveTimer){clearInterval(autosaveTimer); autosav
 function clearBuilder(){
   ['f_context','f_design','f_purpose','f_outcomes','f_operational','f_designplan','f_ethics','f_assumptions']
     .forEach(id=>$(id).value='');
-  updateCounters(); $('progressDone').textContent='0';
-}
-function updateCounters(){
-  const ids=['context','design','purpose','outcomes','operational','designplan','ethics','assumptions'];
-  ids.forEach(name=>{
-    const el=$('f_'+name); const counter=$('count_'+name);
-    counter.textContent=`${wordCount(el.value)} words`;
-  });
-  const core=['f_context','f_design','f_purpose','f_outcomes','f_operational','f_designplan','f_ethics'];
-  const done=core.reduce((a,id)=>a+(wordCount($(id).value)>=100?1:0),0);
-  $('progressDone').textContent=String(done);
 }
 
 /* =============== SAVE / LOAD =============== */
 function storageKey(){const title=(currentScenario?.title||'UNTITLED').slice(0,50); return CONFIG.APPKEY_PREFIX+title}
 function collectData(){
   const fields={
-    context:$('f_context').value, design:$('f_design').value, purpose:$('f_purpose').value,
-    outcomes:$('f_outcomes').value, operational:$('f_operational').value,
-    designplan:$('f_designplan').value, ethics:$('f_ethics').value,
+    context:$('f_context').value,
+    design:$('f_design').value,
+    purpose:$('f_purpose').value,
+    outcomes:$('f_outcomes').value,
+    operational:$('f_operational').value,
+    designplan:$('f_designplan').value,
+    ethics:$('f_ethics').value,
     assumptions:$('f_assumptions').value
   };
-  return {scenarioTitle:currentScenario?.title||'',fields,timestamp:nowISO()}
+  return {caseTitle:currentScenario?.title||'', fields, timestamp:nowISO()}
 }
 function onSave(){ if(!currentScenario){toast('Nothing to save');return;}
   try{localStorage.setItem(storageKey(),JSON.stringify(collectData()));toast('Saved')}catch(e){console.error(e);toast('Save failed')}
 }
-function onLoad(){ if(!currentScenario){toast('Randomize a scenario first');return;} const raw=localStorage.getItem(storageKey()); if(!raw){toast('No saved draft');return;}
+function onLoad(){ if(!currentScenario){toast('Randomize a scenario first');return;}
+  const raw=localStorage.getItem(storageKey()); if(!raw){toast('No saved draft');return;}
   try{
     const d=JSON.parse(raw);
-    $('f_context').value=d.fields?.context||''; $('f_design').value=d.fields?.design||'';
-    $('f_purpose').value=d.fields?.purpose||''; $('f_outcomes').value=d.fields?.outcomes||'';
-    $('f_operational').value=d.fields?.operational||''; $('f_designplan').value=d.fields?.designplan||'';
-    $('f_ethics').value=d.fields?.ethics||''; $('f_assumptions').value=d.fields?.assumptions||'';
-    updateCounters(); toast('Loaded');
+    $('f_context').value=d.fields?.context||'';
+    $('f_design').value=d.fields?.design||'';
+    $('f_purpose').value=d.fields?.purpose||'';
+    $('f_outcomes').value=d.fields?.outcomes||'';
+    $('f_operational').value=d.fields?.operational||'';
+    $('f_designplan').value=d.fields?.designplan||'';
+    $('f_ethics').value=d.fields?.ethics||'';
+    $('f_assumptions').value=d.fields?.assumptions||'';
+    toast('Loaded');
   }catch(e){console.error(e);toast('Load failed')}
 }
 
@@ -813,8 +724,7 @@ function plainScenarioText(){
   const kv=[
     ['Title',s.title],['Setting Snapshot',s.setting_snapshot],['Population Snapshot',s.population_snapshot],
     ['Core Problems or Tensions',s.core_problems],['Stakeholder Glimpses',s.stakeholder_glimpses],
-    ['Structural and Equity Signals',s.equity_signals],['Known Constraints and Resources',s.constraints_resources],
-    ['Your Role',s.role]
+    ['Equity Signals',s.equity_signals],['Known Constraints and Resources',s.constraints_resources],['Your Role',s.role]
   ];
   return kv.map(([k,v])=>`${k}:\n${normalizeDashes(stripEmojis(v||''))}`).join('\n\n')
 }
@@ -850,22 +760,21 @@ Saved: ${d.timestamp}`
 }
 function onCopyScenario(){navigator.clipboard.writeText(plainScenarioText()).then(()=>toast('Scenario copied'))}
 function onCopyAll(){navigator.clipboard.writeText(plainAllText()).then(()=>toast('All copied'))}
+
 function onExport(){
   if(!currentScenario){toast('Randomize a scenario first');return;}
   const d=collectData(), s=currentScenario;
-
   const gridHTML=`<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%">
     ${Object.entries({
       'Setting Snapshot':s.setting_snapshot,
       'Population Snapshot':s.population_snapshot,
       'Core Problems or Tensions':s.core_problems,
       'Stakeholder Glimpses':s.stakeholder_glimpses,
-      'Structural and Equity Signals':s.equity_signals,
+      'Equity Signals':s.equity_signals,
       'Known Constraints and Resources':s.constraints_resources,
       'Your Role':s.role
     }).map(([k,v])=>`<tr><td style="width:260px;font-weight:bold;background:#f5f5f5">${escapeHTML(k)}</td><td>${paragraphsHTML(v||'')}</td></tr>`).join('')}
   </table>`;
-
   const html=`<h1>${escapeHTML(s.title||'Untitled')}</h1>
     <p><strong>${escapeHTML(CONFIG.COURSE_TAG)}</strong></p>
     <h2>Scenario Details</h2>${gridHTML}
@@ -878,7 +787,6 @@ function onExport(){
     <h2>Ethics, Power, Limitations & Communication</h2><p>${escapeHTML(d.fields.ethics).replace(/\n/g,'<br>')}</p>
     ${d.fields.assumptions?.trim()?`<h2>Assumptions</h2><p>${escapeHTML(d.fields.assumptions).replace(/\n/g,'<br>')}</p>`:''}
     <p><em>Exported: ${escapeHTML(d.timestamp)}</em></p>`;
-
   window.htmlDocx.asBlobAsync(html).then(function(blob){
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
