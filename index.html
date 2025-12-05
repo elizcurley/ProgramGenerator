@@ -803,101 +803,97 @@ function onExport(){
 function onNew(){clearBuilder(); toast('Cleared')}
 </script>
   <!-- ===== Reliable DOCX exporter shim (altChunk OOXML) — drop-in, no other edits ===== -->
+<!-- ===== DOCX exporter shim (pure WordprocessingML, no warnings) ===== -->
 <script>
 /* --- tiny UTF-8 + ZIP (store) builder --- */
-function utf8Bytes(str){
-  str = String(str);
-  const bytes = [];
-  for(let i=0;i<str.length;i++){
-    let c=str.charCodeAt(i);
-    if(c>=0xD800&&c<=0xDBFF&&i+1<str.length){
-      const c2=str.charCodeAt(++i);
-      if((c2&0xFC00)===0xDC00){ c=0x10000+((c-0xD800)<<10)+(c2-0xDC00); } else { i--; }
-    }
-    if(c<=0x7F) bytes.push(c);
-    else if(c<=0x7FF) bytes.push(0xC0|(c>>6),0x80|(c&0x3F));
-    else if(c<=0xFFFF) bytes.push(0xE0|(c>>12),0x80|((c>>6)&0x3F),0x80|(c&0x3F));
-    else bytes.push(0xF0|(c>>18),0x80|((c>>12)&0x3F),0x80|((c>>6)&0x3F),0x80|(c&0x3F));
-  }
-  return new Uint8Array(bytes);
-}
-const CRC_TABLE=(()=>{let c,t=[];for(let n=0;n<256;n++){c=n;for(let k=0;k<8;k++){c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1))}t[n]=c>>>0}return t})();
-function crc32(u8){let c=0^(-1);for(let i=0;i<u8.length;i++){c=(c>>>8)^CRC_TABLE[(c^u8[i])&255]}return (c^(-1))>>>0}
-function le16(n){return new Uint8Array([n&255,(n>>8)&255])}
-function le32(n){return new Uint8Array([n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255])}
+function utf8Bytes(str){str=String(str);const b=[];for(let i=0;i<str.length;i++){let c=str.charCodeAt(i);if(c>=0xD800&&c<=0xDBFF&&i+1<str.length){const c2=str.charCodeAt(++i);if((c2&0xFC00)===0xDC00){c=0x10000+((c-0xD800)<<10)+(c2-0xDC00)}else{i--}}if(c<=0x7F)b.push(c);else if(c<=0x7FF)b.push(0xC0|(c>>6),0x80|(c&0x3F));else if(c<=0xFFFF)b.push(0xE0|(c>>12),0x80|((c>>6)&0x3F),0x80|(c&0x3F));else b.push(0xF0|(c>>18),0x80|((c>>12)&0x3F),0x80|((c>>6)&0x3F),0x80|(c&0x3F));}return new Uint8Array(b)}
+const CRC_TABLE=(()=>{let c,t=[];for(let n=0;n<256;n++){c=n;for(let k=0;k<8;k++){c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1))}t[n]=c>>>0}return t})();function crc32(u8){let c=0^(-1);for(let i=0;i<u8.length;i++){c=(c>>>8)^CRC_TABLE[(c^u8[i])&255]}return (c^(-1))>>>0}
+function le16(n){return new Uint8Array([n&255,(n>>8)&255])}function le32(n){return new Uint8Array([n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255])}
 function cat(chunks){const L=chunks.reduce((a,b)=>a+b.length,0);const out=new Uint8Array(L);let o=0;for(const c of chunks){out.set(c,o);o+=c.length}return out}
+function zipBlobSync(files,mime){const LFH=0x04034b50,CDH=0x02014b50,EOCD=0x06054b50,ver=20,gpbf=0x0800,method=0;const now=new Date();const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(Math.floor(now.getSeconds()/2)));const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate());const lfhChunks=[];const centrals=[];let offset=0;const headers=[];for(const f of files){const name=utf8Bytes(f.name);const data=f.data;const sum=crc32(data);const lfh=cat([le32(LFH),le16(ver),le16(gpbf),le16(method),le16(dosTime),le16(dosDate),le32(sum),le32(data.length),le32(data.length),le16(name.length),le16(0),name,data]);lfhChunks.push(lfh);headers.push({name,sum,size:data.length,offset,dosTime,dosDate});offset+=lfh.length}const startCD=offset;for(const h of headers){const cdh=cat([le32(CDH),le16(0x033F),le16(0x003F),le16(gpbf),le16(method),le16(h.dosTime),le16(h.dosDate),le32(h.sum),le32(h.size),le32(h.size),le16(h.name.length),le16(0),le16(0),le16(0),le16(0),le32(0),le32(h.offset),h.name]);centrals.push(cdh);offset+=cdh.length}const centralDir=cat(centrals);const end=cat([le32(EOCD),le16(0),le16(0),le16(headers.length),le16(headers.length),le32(centralDir.length),le32(startCD),le16(0)]);const zip=cat([...lfhChunks,centralDir,end]);return new Blob([zip],{type:mime||'application/zip'})}
 
-/* Sync ZIP (store) */
-function zipBlobSync(files, mime){
-  const LFH=0x04034b50,CDH=0x02014b50,EOCD=0x06054b50,ver=20,gpbf=0x0800,method=0;
-  const now=new Date();
-  const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(Math.floor(now.getSeconds()/2)));
-  const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate());
-  const lfhChunks=[]; const centrals=[]; let offset=0; const headers=[];
-  for(const f of files){
-    const name=utf8Bytes(f.name); const data=f.data; const sum=crc32(data);
-    const lfh=cat([le32(LFH),le16(ver),le16(gpbf),le16(method),le16(dosTime),le16(dosDate),
-      le32(sum),le32(data.length),le32(data.length),le16(name.length),le16(0),name,data]);
-    lfhChunks.push(lfh);
-    headers.push({name,sum,size:data.length,offset,dosTime,dosDate}); offset+=lfh.length;
-  }
-  const startCD=offset;
-  for(const h of headers){
-    const cdh=cat([le32(CDH),le16(0x033F),le16(0x003F),le16(gpbf),le16(method),
-      le16(h.dosTime),le16(h.dosDate),le32(h.sum),le32(h.size),le32(h.size),
-      le16(h.name.length),le16(0),le16(0),le16(0),le16(0),le32(0),le32(h.offset),h.name]);
-    centrals.push(cdh); offset+=cdh.length;
-  }
-  const centralDir=cat(centrals);
-  const end=cat([le32(EOCD),le16(0),le16(0),le16(headers.length),le16(headers.length),
-    le32(centralDir.length),le32(startCD),le16(0)]);
-  const zip=cat([...lfhChunks,centralDir,end]);
-  return new Blob([zip],{type:mime||'application/zip'});
+/* ---- Minimal HTML -> WordprocessingML mapper (headings, paragraphs, line breaks, simple tables) ---- */
+function sanitize(text){return String(text||"").replace(/[\u2013\u2014]/g,"-").replace(/[\p{Extended_Pictographic}\uFE0F]/gu,"")}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function runText(t){return `<w:r><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`}
+function p(children,style){return `<w:p>${style?`<w:pPr><w:pStyle w:val="${style}"/></w:pPr>`:""}${children}</w:p>`}
+function heading(text,level){const map={1:"Heading1",2:"Heading2",3:"Heading3"};return p(runText(text),map[level]||"Heading2")}
+function paragraphFromHTML(node){
+  // Convert a block’s text with <br> into separate runs.
+  let out=""; node.childNodes.forEach(ch=>{
+    if(ch.nodeType===3){out+=runText(ch.nodeValue||"")}
+    else if(ch.nodeName==="BR"){out+=`</w:p>${p("",null)}<w:p>`} // split at <br>
+    else{ out+=paragraphFromHTML(ch) }
+  });
+  return out;
 }
-
-/* True .docx via altChunk. Keeps your HTML exactly, strips emojis and normalizes dashes. */
-function sanitize(text){
-  return String(text||"").replace(/[\u2013\u2014]/g,"-").replace(/[\p{Extended_Pictographic}\uFE0F]/gu,"");
+function para(text){return p(runText(text),null)}
+function parseHTMLtoDoc(xmlString){
+  const dom=new DOMParser().parseFromString(`<div>${xmlString}</div>`,'text/html');
+  const root=dom.body.firstChild||dom.body;
+  let bodyParts=[];
+  root.querySelectorAll('h1,h2,h3,p,table').forEach(el=>{
+    const tag=el.tagName.toLowerCase();
+    if(tag==='h1'){bodyParts.push(heading(el.textContent||'',1))}
+    else if(tag==='h2'){bodyParts.push(heading(el.textContent||'',2))}
+    else if(tag==='h3'){bodyParts.push(heading(el.textContent||'',3))}
+    else if(tag==='p'){bodyParts.push(p(paragraphFromHTML(el),null))}
+    else if(tag==='table'){
+      const rows=[...el.querySelectorAll('tr')].map(tr=>{
+        const cells=[...tr.children].map(td=>{
+          const txt=td.textContent||'';
+          return `<w:tc><w:tcPr/><w:p><w:r><w:t xml:space="preserve">${esc(txt)}</w:t></w:r></w:p></w:tc>`
+        }).join('');
+        return `<w:tr>${cells}</w:tr>`;
+      }).join('');
+      bodyParts.push(`<w:tbl><w:tblPr/><w:tblGrid/>${rows}</w:tbl>`);
+    }
+  });
+  if(bodyParts.length===0){ bodyParts=[para(sanitize(root.textContent||''))] }
+  return bodyParts.join('');
 }
-function docxFromHTMLSync(htmlString){
-  const html='<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+sanitize(htmlString)+'</body></html>';
-  const contentTypes='<?xml version="1.0" encoding="UTF-8"?>'
-   +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-   +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-   +'<Default Extension="xml" ContentType="application/xml"/>'
-   +'<Default Extension="html" ContentType="text/html"/>'
-   +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
-   +'</Types>';
-  const rootRels='<?xml version="1.0" encoding="UTF-8"?>'
-   +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-   +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
-   +'</Relationships>';
-  const documentXML='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-   +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
-   +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-   +'<w:body><w:altChunk r:id="rId1"/><w:sectPr/></w:body></w:document>';
-  const docRels='<?xml version="1.0" encoding="UTF-8"?>'
-   +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-   +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/aFChunk" Target="afchunk.html"/>'
-   +'</Relationships>';
+function buildDocxFromHTML(htmlInput){
+  const safe = sanitize(htmlInput);
+  const docBody = parseHTMLtoDoc(safe);
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>
+    <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="28"/></w:rPr></w:style>
+    <w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>
+  </w:styles>`;
+  const contentTypes=`<?xml version="1.0" encoding="UTF-8"?>
+  <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+    <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+  </Types>`;
+  const rootRels=`<?xml version="1.0" encoding="UTF-8"?>
+  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+  </Relationships>`;
+  const documentXML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:body>${docBody}<w:sectPr/></w:body>
+  </w:document>`;
   const files=[
     {name:'[Content_Types].xml',data:utf8Bytes(contentTypes)},
     {name:'_rels/.rels',data:utf8Bytes(rootRels)},
     {name:'word/document.xml',data:utf8Bytes(documentXML)},
-    {name:'word/_rels/document.xml.rels',data:utf8Bytes(docRels)},
-    {name:'word/afchunk.html',data:utf8Bytes(html)}
+    {name:'word/styles.xml',data:utf8Bytes(styles)}
   ];
   return zipBlobSync(files,'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
 }
 
-/* Shim: keep your old calls working. If htmlDocx exists, override its asBlob to the reliable builder. */
+/* Shim: keep your existing calls (htmlDocx.asBlob/htmlDocx.asBlobAsync) working */
 (function(){
-  const api = window.htmlDocx || {};
-  api.asBlob = function(html){ return docxFromHTMLSync(html); };        // sync, matches older libs
-  api.asBlobAsync = function(html){ return Promise.resolve(docxFromHTMLSync(html)); }; // optional
-  window.htmlDocx = api;
+  const api=window.htmlDocx||{};
+  api.asBlob=function(html){ return buildDocxFromHTML(html); };
+  api.asBlobAsync=function(html){ return Promise.resolve(buildDocxFromHTML(html)); };
+  window.htmlDocx=api;
 })();
 </script>
+
 
 </body>
 </html>
