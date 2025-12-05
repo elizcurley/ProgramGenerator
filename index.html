@@ -1,357 +1,462 @@
-<!-- =========================
-DROP-IN: Program Evaluation Index (student-facing)
-File: /program-eval-index.html
-Why: Full page with search, details, Open-in-Builder, and Export Case (.docx)
-========================= -->
-<!DOCTYPE html>
+<!-- ======================================================================
+File: program-evaluation-generator.html
+Program Evaluation Generator — single-file, offline, no dependencies
+====================================================================== -->
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Program Evaluation Vignette Index</title>
+<meta charset="utf-8">
+<title>Program Evaluation Generator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  :root{ --bg:#f6f7f9; --card:#fff; --muted:#6b7280; --text:#111827; --line:#e5e7eb; --accent:#2563eb }
-  *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
-  header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:5}
-  .wrap{max-width:1200px;margin:0 auto;padding:12px 16px}
-  h1{font-size:18px;margin:0 0 6px}
-  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  input[type=search]{width:360px;max-width:60vw;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fafafa}
-  button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-  button:hover{border-color:#d1d5db} button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  main{max-width:1200px;margin:12px auto 20px;padding:0 16px;display:grid;grid-template-columns:1fr 1.2fr;gap:14px}
-  @media (max-width:960px){main{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-  .hd{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
-  .bd{padding:10px 12px} .muted{color:var(--muted)}
-  .list{max-height:70vh;overflow:auto}
-  .row{display:flex;gap:10px;align-items:flex-start;border-bottom:1px dashed var(--line);padding:10px 6px;cursor:pointer}
-  .row:last-child{border-bottom:0} .row.active{background:#f3f4f6}
-  .title{font-weight:600;margin-bottom:2px}
-  .snippet{color:var(--muted);font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .pill{display:inline-block;background:#eef2ff;color:#3730a3;border:1px solid #e0e7ff;border-radius:999px;padding:2px 8px;font-size:12px}
-  .grid{display:grid;grid-template-columns:220px 1fr;gap:8px}
-  .label{color:var(--muted)}
-  .narrative{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
-  .empty{color:var(--muted);padding:8px;border:1px dashed var(--line);border-radius:10px;background:#fcfcfd}
-  details summary{cursor:pointer;user-select:none}
+  :root{--bg:#f7f7f8;--card:#fff;--ink:#111;--muted:#555;--line:#e6e6e9;--accent:#0b6cff;--ok:#0a7f3f;--warn:#c45a00;--shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.06)}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
+  header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  .titlebar{display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .course{font-size:14px;color:var(--muted)} .status{font-size:12px;border:1px solid var(--line);padding:4px 8px;border-radius:999px;background:#fafafa}
+  .status.locked{border-color:#cce9d8;background:#f3fbf7;color:var(--ok)} .status.unlocked{border-color:#ffe2c7;background:#fff8f1;color:var(--warn)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin:16px 0}
+  .card h2{margin:0;padding:16px;border-bottom:1px solid var(--line);font-size:18px} .card .body{padding:16px}
+  .grid{display:grid;grid-template-columns:220px 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .row{display:contents} .key{padding:10px 12px;background:#fafafa;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-weight:600}
+  .val{padding:10px 12px;border-bottom:1px solid var(--line);white-space:pre-wrap}.val p{margin:0 0 10px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+  button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font:inherit;cursor:pointer}
+  button:hover{border-color:#cbd0d6} button.primary{background:var(--accent);border-color:var(--accent);color:#fff} button.ghost{background:#fafafa}
+  label{font-weight:600;font-size:14px} textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fff;font:inherit;min-height:120px;resize:vertical}
+  .counter{font-size:12px;color:var(--muted)} .pill{font-size:11px;border:1px solid var(--line);padding:2px 6px;border-radius:999px}
+  .note{border:1px dashed #cbd0d6;padding:10px;border-radius:8px;background:#fcfcfd}
+  .toast{position:fixed;bottom:12px;right:12px;background:#111;color:#fff;padding:10px 12px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+  @media print{header,.toolbar,.toast{display:none !important} body{background:#fff} .card{box-shadow:none;border-color:#ddd}}
 </style>
 </head>
 <body>
 <header>
-  <div class="wrap">
-    <h1>Program Evaluation Vignette Index</h1>
-    <div class="toolbar">
-      <input id="q" type="search" placeholder="Search title, setting, population, problems, stakeholders…" aria-label="Search">
-      <button id="btnClear">Clear</button>
-      <span id="count" class="muted"></span>
-      <span style="margin-left:auto" class="muted">Tip: shareable links copy from “Copy Link”.</span>
+  <div class="wrap titlebar">
+    <div>
+      <div style="font-size:20px;font-weight:800">Program Evaluation Generator</div>
+      <div class="course" id="courseTag2">SOW5404 • Spring 2026</div>
     </div>
+    <div class="flex"><span id="statusChip2" class="status unlocked">Unlocked</span></div>
   </div>
 </header>
 
-<main>
-  <section class="card">
-    <div class="hd"><strong>Vignettes</strong><div class="muted" id="pageMeta"></div></div>
-    <div class="bd">
-      <div id="list" class="list" role="listbox" aria-label="Vignette list"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button id="prev">Prev</button><button id="next">Next</button>
+<main class="wrap">
+  <div class="card">
+    <h2>Scenario Panel</h2>
+    <div class="body">
+      <div class="toolbar" style="margin-bottom:12px">
+        <button id="btnRandom2" title="Randomize scenario (Alt+R)">Randomize</button>
+        <button id="btnLock2" class="primary" title="Lock or Unlock for writing (Alt+L)">Lock</button>
+        <button id="btnNew2" class="ghost" title="Clear fields">New</button>
+        <button id="btnSave2" title="Save draft (Ctrl+S / Cmd+S)">Save</button>
+        <button id="btnLoad2" title="Load saved draft">Load</button>
+        <button id="btnCopyScenario2" title="Copy scenario as plain text">Copy Scenario</button>
+        <button id="btnCopyAll2" title="Copy scenario + plan as plain text">Copy All</button>
+        <button id="btnExport2" title="Export to Word (.docx) (Alt+E)">Export Word</button>
+        <button id="btnPrint2" title="Print (Alt+P)">Print</button>
       </div>
-    </div>
-  </section>
 
-  <section class="card" id="detailCard" aria-labelledby="detailHeading">
-    <div class="hd">
-      <h2 id="detailHeading" style="font-size:16px;margin:0">Details</h2>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnOpen" class="primary">Open in Plan Builder</button>
-        <button id="btnExportCase">Export Case (.docx)</button>
-        <button id="btnCopyLink">Copy Link</button>
-        <button id="btnPrint">Print</button>
+      <h3 id="scTitle">No scenario selected</h3>
+      <div id="scGrid" class="grid" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Evaluation Plan Builder</h2>
+    <div class="body">
+      <div class="flex" style="justify-content:space-between">
+        <div class="note">Lock to enable editing and autosave.</div>
+        <div class="pill"><span id="progress2">0</span>/7 sections ≥ 100 words</div>
+      </div>
+
+      <div>
+        <label>Scenario Context & Stakeholders</label>
+        <textarea id="pe_ctx" disabled></textarea>
+        <div class="counter" id="co_pe_ctx">0 words</div>
+      </div>
+      <div>
+        <label>Your Program or Practice Design</label>
+        <textarea id="pe_design" disabled></textarea>
+        <div class="counter" id="co_pe_design">0 words</div>
+      </div>
+      <div>
+        <label>Evaluation Purpose & Questions</label>
+        <textarea id="pe_purpose" disabled></textarea>
+        <div class="counter" id="co_pe_purpose">0 words</div>
+      </div>
+      <div>
+        <label>Outcomes (Conceptualization)</label>
+        <textarea id="pe_outcomes" disabled></textarea>
+        <div class="counter" id="co_pe_outcomes">0 words</div>
+      </div>
+      <div>
+        <label>Operationalization & Data Sources</label>
+        <textarea id="pe_ops" disabled></textarea>
+        <div class="counter" id="co_pe_ops">0 words</div>
+      </div>
+      <div>
+        <label>Evaluation Design Plan</label>
+        <textarea id="pe_designplan" disabled></textarea>
+        <div class="counter" id="co_pe_designplan">0 words</div>
+      </div>
+      <div>
+        <label>Ethics, Power, Limitations & Communication</label>
+        <textarea id="pe_ethics" disabled></textarea>
+        <div class="counter" id="co_pe_ethics">0 words</div>
+      </div>
+      <div>
+        <label>Assumptions (optional)</label>
+        <textarea id="pe_assump" disabled></textarea>
+        <div class="counter" id="co_pe_assump">0 words</div>
       </div>
     </div>
-    <div class="bd">
-      <div id="empty" class="empty">Select a vignette from the list.</div>
-      <div id="detail" style="display:none">
-        <div class="grid">
-          <div class="label">Title</div><div id="f_title"></div>
-          <div class="label">Setting snapshot</div><div id="f_setting_snapshot"></div>
-          <div class="label">Population</div><div id="f_population"></div>
-          <div class="label">Core problems</div><div id="f_core_problems"></div>
-          <div class="label">Stakeholders</div><div id="f_stakeholders"></div>
-          <div class="label">Equity signals</div><div id="f_equity_signals"></div>
-          <div class="label">Constraints & resources</div><div id="f_constraints_resources"></div>
-          <div class="label">Your role</div><div id="f_role"></div>
-        </div>
-        <div class="narrative">
-          <h3 style="margin:0 0 6px">Scenario summary</h3>
-          <div id="f_scenario_summary"></div>
-        </div>
-        <div class="narrative" id="extraWrap" style="display:none">
-          <details open>
-            <summary>Additional fields</summary>
-            <div id="extraFields" style="display:grid;grid-template-columns:220px 1fr;gap:6px;margin-top:6px"></div>
-          </details>
-        </div>
-      </div>
-    </div>
-  </section>
+  </div>
 </main>
 
-<!-- Prefer the JS dataset (defines window.CASES). Keep JSON as fallback. -->
-<script src="program_eval_cases.js"></script>
+<div id="toast2" class="toast" role="status" aria-live="polite"></div>
+
+<!-- Minimal html-docx-js (offline) -->
 <script>
-const FALLBACK_JSON = 'program_eval_cases.json';
-const $ = s => document.querySelector(s);
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]||c)).replace('&','&amp;')}
-function brize(s){return esc(s).replace(/\n/g,'<br>')}
-function slugify(s){return String(s||'').toLowerCase().trim().replace(/['"]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)}
-function normalize(arr){return (arr||[]).map((c,i)=>({id:i,slug:slugify(c.title||('case-'+(i+1))),...c}))}
-async function loadData(){
-  if(Array.isArray(window.CASES)&&window.CASES.length) return normalize(window.CASES);
-  const r = await fetch(FALLBACK_JSON,{cache:'no-store'}); if(!r.ok) throw new Error('Missing program_eval_cases data');
-  return normalize(await r.json());
-}
-let ALL=[], FILTER=[], PAGE=1, PER=8, ACTIVE=-1;
+(function(a){function b(a){return new Blob([a],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})}
+function c(a){return a.replace(/[\u2013\u2014]/g,"-")}
+function d(a){var b='<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+a+"</body></html>";
+var c='Mime-Version: 1.0\nContent-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"\n\n--NEXT.ITEM-BOUNDARY\nContent-Location: file:///C:/document.html\nContent-Type: text/html; charset=utf-8\nContent-Transfer-Encoding: 8bit\n\n'+b+"\n\n--NEXT.ITEM-BOUNDARY--";
+return "data:message/rfc822;base64,"+btoa(unescape(encodeURIComponent(c)))} a.htmlDocx||(a.htmlDocx={asBlob:function(a){return b(atob(d(c(a)).split(",")[1]))}})})(window);
+</script>
 
-function fieldsAll(){return ['title','setting_snapshot','population','core_problems','stakeholders','equity_signals','constraints_resources','role','scenario_summary']}
-function applyFilter(){
-  const q=(document.getElementById('q').value||'').toLowerCase().trim();
-  FILTER=!q?[...ALL]:ALL.filter(c=>fieldsAll().some(f=>String(c[f]||'').toLowerCase().includes(q)));
-  PAGE=1; renderList(); FILTER.length?selectByIndex(0):showEmpty(); document.getElementById('count').textContent=`${FILTER.length} result${FILTER.length===1?'':'s'}`
-}
-function renderList(){
-  const start=(PAGE-1)*PER; const slice=FILTER.slice(start,start+PER); const list=document.getElementById('list'); list.innerHTML='';
-  slice.forEach(c=>{
-    const div=document.createElement('div'); div.className='row'+(c.id===ACTIVE?' active':''); div.role='option'; div.tabIndex=0;
-    div.innerHTML=`<div style="flex:1"><div class="title">${esc(c.title)}</div><div class="snippet">${esc((c.setting_snapshot||'').replace(/\n/g,' '))}</div></div><div><span class="pill">${esc((c.population||'').split(/[.;]/)[0].slice(0,40)||'—')}</span></div>`;
-    div.onclick=()=>select(c.id); div.onkeydown=e=>{if(e.key==='Enter')select(c.id)}; list.appendChild(div);
+<script>
+const CONFIG2={COURSE_TAG:'SOW5404 • Spring 2026', APPKEY_PREFIX:'PD_APP_APPKEY_', DEFAULT_EXPORT_NAME:'Program_Evaluation.docx'};
+
+/* ==================== DATA — SCENARIOS ====================== */
+const SCENARIOS = [
+  { /* Jefferson Middle School */ title:"Jefferson Middle School: Discipline, Trust, and a System in Strain",
+    setting_snapshot:`Jefferson Middle School serves approximately 700 students in a neighborhood undergoing rapid gentrification. Long-standing Black and Latine families are being priced out, while newer families move in with different expectations, communication styles, and relationships to the school. The building is old, with frequent HVAC failures, limited classroom space, and a rotating roster of substitute teachers. Staff shortages are common, and teacher turnover has increased each year for the last three years.
+
+Leadership is under pressure from the district to improve behavioral indicators after a report showed rising suspension rates. Although alternatives to exclusionary practices are encouraged, no additional staff or training has been provided. Teachers describe crowded, unpredictable classrooms; the social worker covers crisis response, attendance, and family outreach with very limited time for prevention or programming.
+
+Families often report feeling disconnected. Some feel unwelcome when raising concerns. Others say they do not understand the discipline process or why certain decisions are made. Family engagement events occur, but attendance is inconsistent.`,
+    population_snapshot:`Primarily Black and Latine students ages 11 through 14. Many families work multiple jobs, creating challenges for attending meetings or monitoring school communication systems. Significant displacement due to rent increases. Approximately one in six students receives special education services. Many students report varying levels of mistrust toward adults in institutional settings.`,
+    core_problems:`Conflicting beliefs among staff about the real problem. Some cite increasing defiance and inconsistent classroom management. Others say zero-tolerance policies cause harm. Families express confusion and frustration about discipline decisions, sometimes feeling judged or misunderstood.
+
+Administrators feel caught between community expectations, district pressure, and staff fatigue. Teachers fear loosening responses will lead to loss of control. Students say suspensions occur for relatively small behaviors, and that adult interpretations of communication styles are seen as disrespect. No agreement on what should change or who is responsible.`,
+    stakeholder_glimpses:`Teachers: Want calmer classrooms, feel overwhelmed, and want consistent discipline.
+Students: Report feeling targeted, misunderstood, and excluded from decisions; fear suspensions damage their academic futures.
+Families: Want transparency and fairness; some feel intimidated in meetings; cultural norms and communication differences matter.
+Administrators: Worried about district scrutiny, family complaints, and public perception; want order without resources.
+District Representatives: Emphasize behavioral metrics tied to performance with limited guidance.
+School Social Worker: Overextended; wants collaborative systems but lacks authority.`,
+    equity_signals:`Racialized discipline patterns, gentrification pressures, inconsistent access to special education services, and limited language-inclusive communication. Neighborhood policing and safety perceptions affect trust.`,
+    constraints_resources:`Constraints: no new full-time positions; limited social work time; monthly reporting delays; limited space; inconsistent incident definitions; strong district pressure.
+Resources: committed teachers interested in collaboration; bilingual family liaison; after-school time with some space; student leadership groups; annual climate surveys.`,
+    role:`You are the MSW evaluator and program designer assigned to develop one small, feasible program or practice initiative, along with an evaluation plan, that fits constraints and addresses tensions. Consider all stakeholder perspectives.`
+  },
+  { /* Harbor House Shelter */ title:"Harbor House Shelter: Burnout, Inconsistent Policies, and Community Pressure",
+    setting_snapshot:`Harbor House is a year-round urban homelessness shelter that provides overnight beds, daytime services, meals, and case management. The aging building has inadequate ventilation and limited storage, with a mix of open sleeping areas and partitioned spaces. Demand has steadily increased due to rising housing costs. The shelter is funded through city contracts, private donations, and seasonal grants, each with different reporting expectations.
+
+Staffing is unstable. Many frontline staff are new with only brief on-the-job training. Turnover has increased significantly. Tensions arise between long-term employees who value consistency and newer staff who advocate for flexible rules. Policies around guest conduct, belongings storage, and incident documentation are inconsistently followed, frustrating both guests and staff.
+
+Community relationships are strained. Neighborhood residents have complained about loitering and safety concerns. City officials pressure leadership to demonstrate improved outcomes, especially transitions into stable housing, even though housing availability is outside the shelter’s control.`,
+    population_snapshot:`Adults experiencing homelessness, including individuals with chronic health conditions, untreated mental health concerns, limited income, and trauma histories. Many guests are Black or Latine community members who have faced long-term structural barriers. Many rely on public transportation and have inconsistent access to phones or documentation.`,
+    core_problems:`Staff report exhaustion and confusion about enforcing rules. Some believe consistency is crucial for safety, while others argue rigid rules escalate tension. Guests describe feeling disrespected or punished unpredictably. Case managers note documentation requirements pull them away from direct support and delay housing referrals.
+
+Leadership feels torn between satisfying funders and responding to burnout. Community members demand visible improvements, while guests report feeling surveilled or judged outside. No shared agreement on urgencies.`,
+    stakeholder_glimpses:`Frontline Staff: Want clearer policies, support, manageable workloads, and less blame.
+Guests: Want dignity, predictability, and fairness.
+Case Managers: Overwhelmed by paperwork and long housing program waits.
+Shelter Leadership: Facing pressure from funders and neighbors; worried about turnover.
+City Officials: Focus on public perception and shelter performance indicators.
+Neighborhood Residents: Safety concerns and desire for communication.`,
+    equity_signals:`Housing scarcity, racialized patterns of homelessness, barriers to care, neighborhood policing patterns, and inequitable access to supportive services.`,
+    constraints_resources:`Constraints: no additional FTEs; limited private space; high turnover; documentation tied to funding; inconsistent policy enforcement; limited housing availability.
+Resources: strong volunteer meal support; experienced staff who value mentoring; partnerships with clinics and food banks; daytime multipurpose room; some donor flexibility for pilots.`,
+    role:`You will design one small, feasible initiative and an evaluation plan that addresses the tensions and fits within constraints and community relationships.`
+  },
+  { /* Prairie County Van */ title:"Prairie County Mobile Health Van: Access, Weather, and Uneven Reach",
+    setting_snapshot:`Prairie County covers a large rural area with scattered towns and limited public transportation. A mobile health van travels on a rotating schedule offering screenings, chronic condition check-ins, immunizations, and referrals. Staffed by a nurse, a part-time behavioral health consultant, and a driver who handles scheduling and outreach.
+
+Routes are affected by weather, unpaved roads, and agricultural schedules. Winter cancellations are frequent. Summer demand is high due to travel and childcare barriers. Equipment is aging; the generator is unreliable.
+
+Public pressure increased after a news story showed wide gaps in service frequency. Some towns see the van weekly; others go three or more weeks without a visit. Leaders acknowledge inequities but cite staffing and geography constraints.`,
+    population_snapshot:`Older adults with mobility limitations, agricultural workers with seasonal injuries, low-income families, and Latine communities in the western county. Many lack consistent internet or phones. Some rely on neighbors to relay schedules. Trust varies, particularly among migrant farmworker communities due to past language access barriers.`,
+    core_problems:`Disagreement on route prioritization: consistency vs greatest-need concentration. Remote areas feel overlooked while populated towns get more visits. Nurse feels rushed; behavioral health consultant worries about follow-up with irregular visits.
+
+Leadership wants improved satisfaction but cannot add vehicles or staff hours. Town councils lobby for more visits, adding political pressure. No agreement on essential services.`,
+    stakeholder_glimpses:`Nurse: Wants safer conditions and predictable scheduling; worries about burnout.
+Behavioral Health Consultant: Needs regularity for trust-building.
+Driver/Outreach: Overwhelmed by scheduling and expectations.
+Health Department Leadership: Wants equitable optics with limited resources.
+Town Councils: Compete for visit frequency.
+Residents: Want access without long travel/time off; remote residents feel last on the list.`,
+    equity_signals:`Transportation infrastructure limits, geographic isolation, agricultural labor schedules, rural health underinvestment, and language barriers create inequities; weather amplifies disparities.`,
+    constraints_resources:`Constraints: one van; unreliable generator; seasonal disruptions; limited staff; political pressure; poor cellular/internet coverage.
+Resources: trusted community leaders; libraries to host; occasional volunteer drivers; a recent county health needs assessment.`,
+    role:`Create one feasible program/practice initiative and an evaluation plan that works within staffing and addresses geographic, seasonal, and political barriers.`
+  },
+  { /* Riverbend ARC */ title:"Riverbend Aging Resource Center: Isolation, Technology, and Uneven Access",
+    setting_snapshot:`A county-supported hub offers information, referrals, caregiver groups, and social programming for older adults. A new state mandate pushes digital literacy and virtual engagement: virtual appointments, online caregiver workshops, tablet lending, and digital navigation.
+
+The center has limited accessible space. Staff already juggle walk-ins, crisis calls, and state reporting. Many older adults arrive unscheduled seeking immediate help with housing, benefits, or transportation. Staff fear technology services will exclude those most in need and overwhelm capacity.`,
+    population_snapshot:`Diverse older adults. Many live alone, rely on fixed incomes, and have mobility limits. Significant Black and Latine elders with limited high-speed internet. Some rely on family or neighbors for transportation. Others are higher-income recent retirees expecting modern programming. Some have cognitive impairments.`,
+    core_problems:`Staff feel unprepared for digital navigation and worry tech programs will exclude people. Leadership emphasizes funding compliance. Some elders are embarrassed to ask tech questions and prefer in-person. Others are enthusiastic but face wait times and confusing instructions.
+
+Caregivers want virtual workshops if reliable. Phone system cannot handle peak calls. Concern about increasing virtual services without improving communication tools.`,
+    stakeholder_glimpses:`Front Desk: Overwhelmed triaging walk-ins and calls.
+Program Coordinators: Interested in innovation; uncertain about metrics.
+Older Adults: Mixed - excited vs anxious or excluded.
+Caregivers: Want reliable virtual options to reduce burden.
+County Leadership: Focused on mandate compliance.
+State Agencies: Require rollout with minimal training/funding.`,
+    equity_signals:`Digital divides by income, race, geography, disability, and language access. Structural ageism. Transportation and housing instability increase isolation.`,
+    constraints_resources:`Constraints: no additional staff; outdated phone system; limited accessible space; wide digital literacy variance; strict reporting; high walk-in demand.
+Resources: library partnerships; volunteer corps; small tech training grant; caregiver networks eager for virtual offerings.`,
+    role:`Develop one feasible initiative and an evaluation plan that respects diverse elder needs within constraints.`
+  },
+  { /* Lakewood Lead Pipes */ title:"Lakewood Lead Pipe Replacement: Timelines, Transparency, and Uneven Trust",
+    setting_snapshot:`The city launched a multi-year initiative to replace lead service lines after elevated lead levels were found. Rollout has been uneven: affluent neighborhoods were upgraded first due to easier access; older, predominantly Black and Latine neighborhoods face delays attributed to complexity, staffing, and permitting.
+
+Information is inconsistent. Meetings are poorly timed and poorly promoted. Website updates exist, but many households lack reliable internet or have limited data. Crews appear without notice; shutoffs and yard disturbances surprise residents; some repairs remain unfinished for weeks. Frustration grows; organizations demand clear communication and equitable prioritization. Internal emails show inter-department disagreements.`,
+    population_snapshot:`Long-standing Black families, multigenerational Latine households, immigrant families with varying English proficiency, families with young children, and older adults on fixed incomes. Many rely on bottled water, straining budgets. Outdated plumbing increases anxiety. Some households rent from absentee landlords.`,
+    core_problems:`Residents distrust delay explanations. Neighborhood associations argue that scarcity justifies inequity. Engineers cite technical barriers and contractor shortages. Communications staff struggle with clear, multilingual updates as timelines shift daily. Advocates allege online communication privileges residents with stable internet and free time.
+
+City workers report harassment from frustrated residents. Mayor’s office wants visible progress before elections, complicating transparency.`,
+    stakeholder_glimpses:`Residents: Want predictable schedules, honest explanations, and assurance against deprioritization.
+Community Organizations: Push for equitable timelines and culturally responsive communication.
+City Engineers: Cite technical constraints and contractor shortages.
+Communication Staff: Overstretched with daily timeline changes.
+Mayor’s Office: Focused on perception and election implications.
+Landlords: Often unresponsive, complicating permissions.
+Environmental Health Advocates: Emphasize health risks and accountability.`,
+    equity_signals:`Historically disinvested neighborhoods experience delays; language barriers limit access; renters lack control; digital disparities block engagement; bottled water burdens low-income households.`,
+    constraints_resources:`Constraints: cannot add contractors; complex infrastructure; overstretched communications; must minimize shutoffs; shifting timelines; high distrust.
+Resources: neighborhood ambassadors; community centers for flexible meetings; health department water testing data; strong advocacy groups.`,
+    role:`Create a small, feasible initiative plus an evaluation plan improving equity, transparency, or communication within staffing and financial constraints.`
+  },
+  { /* Turning Point House */ title:"Turning Point House: Reentry, Safety, and Autonomy in Tension",
+    setting_snapshot:`Transitional housing for adults returning from incarceration. Up to twenty residents in shared rooms. Case management, employment workshops, limited mental health support. Neighborhood complaints about noise and safety prompted a council meeting.
+
+Inside, staff disagree on maintaining safety without replicating restrictive conditions. Some prefer structured schedules and curfews; others want more autonomy. Residents report unpredictable rule enforcement and feeling unheard.`,
+    population_snapshot:`Adults recently released, primarily Black and Latine men with unstable housing, employment barriers, trauma exposure, chronic health conditions, and strained family connections. Some struggle with substance use or untreated mental health challenges. Many fear missteps may jeopardize freedom.`,
+    core_problems:`Residents want independence, respect, and consistent rules; staff want predictability and safety but disagree on balance. Leadership wants contract data for the oversight board; neighbors want reassurance. Case managers feel buried in admin work. Conflicts occur around room checks, curfew enforcement, visitation rules, and job-search documentation.`,
+    stakeholder_glimpses:`Residents: Seek autonomy, consistent rules, and support finding housing and jobs.
+Frontline Staff: Divided on structure vs flexibility; pressure to maintain order.
+Case Managers: Overextended; relational work vs paperwork tension.
+Leadership: Focused on contract expectations and reputation.
+Oversight Board: Wants measurable outcomes; limited guidance.
+Neighbors: Concerned about safety and community image.
+Local Employers: Sometimes willing to hire; inconsistent follow-through.`,
+    equity_signals:`Racialized incarceration, discrimination, surveillance extending into community settings, stigma, and housing scarcity.`,
+    constraints_resources:`Constraints: no new staff; required data reporting; limited private space; curfews mandated; neighborhood tensions; shared rooms with little privacy.
+Resources: employer partners; volunteer mentors; faith-based workshop space; monthly resident council; passionate staff.`,
+    role:`Develop one small, feasible initiative and evaluation plan balancing autonomy, safety, community relationships, and resident voice within constraints.`
+  },
+  { /* Maple Lane */ title:"Maple Lane Visitation Center: Quality, Consistency, and Family Dissatisfaction",
+    setting_snapshot:`A child welfare–contracted site with four small visitation rooms, a shared playroom, and an admin space that also serves as the staff kitchen. Toys and supplies are mismatched or outdated. Staffing varies between full-time supervisors, part-time aides, and rotating interns.
+
+County caseworkers schedule visits; the center carries them out and documents interactions. Scheduling is chaotic with last-minute cancellations and inconsistent communication. Overlaps strain limited space. An audit flagged inconsistent supervision, unclear expectations, and uneven documentation; the director must improve family satisfaction.`,
+    population_snapshot:`Families from diverse racial and socioeconomic backgrounds, many facing housing instability, employment challenges, and limited transportation. Significant Black and Latine representation with prior negative child welfare experiences. Many children have trauma histories and struggle during visits. Parents may be coping with grief, shame, or fear while navigating court requirements.`,
+    core_problems:`Disagreement about high-quality supervision. Some staff advocate frequent intervention for safety and compliance; others argue constant intervention undermines bonding. Parents report feeling judged and unclear on expectations. Children may be distressed by the setting. County wants reliable documentation; the center feels the county is unresponsive. Small layout limits privacy; charged moments are hard to manage.`,
+    stakeholder_glimpses:`Parents: Want clear expectations, dignity, and consistent supervision.
+Children: Need calm, predictable time with parents; struggle with transitions.
+Supervisors: Overwhelmed; safety concerns; inconsistent guidance.
+Interns/Aides: Minimal training and inconsistent handoffs.
+County Caseworkers: Need reliable documentation and fewer disruptions.
+Center Leadership: Pressured to reduce complaints and improve quality without new resources.
+Foster Parents: Want clearer communication on timing, transitions, and support.`,
+    equity_signals:`Marginalized families face disproportionate involvement; transportation barriers; cultural misunderstandings about parenting and communication; financial instability read through a deficit lens; system power dynamics shape parent experiences.`,
+    constraints_resources:`Constraints: cannot hire more supervisors; limited rooms; unpredictable county communication; mandatory court documentation; high emotional intensity; outdated play materials.
+Resources: committed supervisors; reconfigurable playroom; community volunteers for cleaning and toy repairs; a new director open to adjustments; access to some county data.`,
+    role:`Create one small, feasible initiative and an evaluation plan supporting consistency, quality, or family engagement while respecting dignity and constraints.`
+  },
+  { /* SafeLine */ title:"SafeLine Shelter Hotline: Surging Calls, Limited Staff, and Ethical Triage",
+    setting_snapshot:`A domestic violence shelter operates a 24/7 hotline for crisis support, safety planning, and shelter intake. Staffed by paid advocates and trained volunteers. Calls have increased, especially evenings when staffing is lowest. Beds fill quickly, leading to waitlists and difficult conversations.
+
+Calls range from brief information requests to complex, high-risk situations requiring extended time. Lines sometimes ring unanswered when advocates are on other calls. Volunteers feel uncertain during escalations. Community partners reported long waits or abrupt endings, raising concerns about quality and consistency.
+
+Strict confidentiality limits identifying info unless the caller chooses to disclose, complicating safety assessment. The director must demonstrate responsiveness to funders while protecting staff well-being.`,
+    population_snapshot:`Survivors of intimate partner violence, friends/family seeking support, survivors who have left but remain unsafe, individuals unsure their situation qualifies, and some in acute crisis with overlapping needs (mental health, substance use, homelessness). Many women, plus men, gender-diverse adults, and teens. Language gaps occur.`,
+    core_problems:`Tension between time spent per caller and keeping wait times reasonable. Some argue prioritizing crisis-only; others say emotional support prevents escalation. Volunteers need clearer boundaries and training; burnout is high. Bed scarcity forces referrals elsewhere, which can feel devastating. Language access gaps delay or limit support.`,
+    stakeholder_glimpses:`Hotline Advocates: Want manageable workloads, clearer protocols, and emotional support.
+Volunteers: Want additional training and clearer escalation guidance.
+Shelter Director: Balances funder expectations, quality, well-being, and perception.
+Survivors/Callers: Need safety, validation, and predictable support; may not call again after a poor interaction.
+Community Partners: Want reliable referrals and communication.
+Funders: Focus on call volume, wait times, and placements.`,
+    equity_signals:`Survivors face barriers including housing scarcity, financial dependence, biased policing responses, language access gaps, and limited disability-accessible options. Privacy to call is inequitable.`,
+    constraints_resources:`Constraints: no additional FTEs; limited beds; varying volunteer skill; strict confidentiality; surging call volume; inconsistent language access.
+Resources: strong training curriculum; committed advocates; partnerships with neighboring shelters; a small discretionary safety fund; prior internal peak-hour reports.`,
+    role:`Develop a small, feasible initiative and an evaluation plan that strengthens accessibility, safety, or consistency within current staffing and bed capacity.`
+  },
+  { /* Harborview Network */ title:"Harborview Community Violence Prevention Network: Funding Shifts, Community Trust, and Conflicting Visions",
+    setting_snapshot:`A city coalition of grassroots groups, mentors, street outreach workers, and a small admin team provides conflict mediation, mentorship, events, and supports youth at heightened risk. The city changed funding priorities to require short-term, quantifiable reductions in violence.
+
+The coalition is unsettled. Some groups rely on long-term relationship-building that does not produce quick metrics. Others welcome metrics but disagree on what and how to measure. No unified data approach. Youth trust varies; attendance is inconsistent due to suspensions, family duties, or unstable housing.`,
+    population_snapshot:`Youth and young adults ages 14-25, many Black or Latine, with school exclusion histories, unstable housing, and exposure to violence or loss. Some have probation/diversion involvement. Families navigate financial strain, community trauma, and limited mental health access. Member organizations reflect varied cultural and neighborhood identities.`,
+    core_problems:`Disagreement on adapting to revised expectations. Longstanding groups believe short-term metrics ignore prevention realities built on trust and consistency. Newer groups want clarity and support for data collection.
+
+Youth report mixed experiences: some feel deeply supported; others find programs inconsistent. Outreach workers feel pressure to be constantly available; burnout and safety concerns limit capacity. City wants evidence of impact but provides little guidance.`,
+    stakeholder_glimpses:`Youth Participants: Want consistent mentors, safe spaces, and relevant opportunities.
+Street Outreach Workers: Carry emotional burdens, work unpredictable hours; policing harms trust.
+Grassroots Organizations: Value cultural grounding and autonomy; feel squeezed by city demands.
+Coalition Leadership: Struggles with cohesion, reporting, and philosophy differences.
+City Officials: Focus on measurable reductions and accountability.
+Residents: Desire safety but worry about transparency and sustainability.
+Local Schools: Want conflict reduction spillover; communication inconsistent.`,
+    equity_signals:`Racialized policing, neighborhood disinvestment, trauma exposure, school exclusion, limited mental health access, and economic inequality. Broken institutional promises fuel mistrust. Metrics can prioritize the countable over the meaningful.`,
+    constraints_resources:`Constraints: funding tied to short-term metrics; internal conflict; limited capacity and burnout; safety concerns; inconsistent youth attendance; no shared data framework.
+Resources: deep trust between some workers and youth; strong cultural roots; community spaces; dedicated coordinator; youth leaders eager to contribute.`,
+    role:`Create a feasible initiative and evaluation plan that strengthens cohesion, clarifies outcomes, or improves equitable data collection, honoring differing prevention philosophies and stakeholder expectations.`
+  },
+  { /* Prism Youth */ title:"Prism Youth Collective: Safety, Identity, and Community Backlash",
+    setting_snapshot:`An after-school program serving LGBTQ youth ages 12-18 operates out of a community center that also hosts sports, seniors, and public meetings. The program offers drop-in hours, peer groups, creative arts workshops, and occasional family engagement. Staff: two youth workers, a part-time coordinator, and volunteers.
+
+Public scrutiny increased after contentious school board meetings questioning LGBTQ-focused services. Some volunteers withdrew. The center director received complaints about divisiveness and privacy concerns. Additional documentation is now required for room reservations and event approvals.
+
+Youth anxiety increased about being seen entering the building. Some want visibility and advocacy; others want privacy and low-profile gatherings. Staff aim to keep a safe, affirming space but are unsure how to balance visibility and protection.`,
+    population_snapshot:`Youth from diverse racial, cultural, and socioeconomic backgrounds. Many face family rejection, bullying, or anxiety/depression. Some are exploring identity privately and rely on the program for affirmation; others are fully out and active in advocacy. Several face unstable housing or unreliable transportation.`,
+    core_problems:`Administrative requirements limit flexibility and spontaneity. Youth disagree on visibility vs privacy. Parents who support the program are split on pushing back vs prioritizing safety and sustainability. Center leadership wants to avoid controversy and preserve funding; staff and youth feel this can be dismissive. Volunteers are uncertain without clear safety protocols.`,
+    stakeholder_glimpses:`Youth: Seek safety, affirmation, control over visibility.
+Program Staff: Want clarity, emotional support, and practical safety tools.
+Parents/Caregivers: Supportive but divided; high privacy concerns.
+Community Center Leadership: Focus on liability and neutrality.
+Residents: Some supportive; others skeptical or hostile.
+Local Advocates: Want public defense but risk backlash.
+Volunteers: Passionate; need guidance on safety.`,
+    equity_signals:`Systemic homophobia/transphobia, safety concerns intersecting with race/class/visibility, and transportation/housing barriers to affirming spaces.`,
+    constraints_resources:`Constraints: extra approvals for events; limited staff capacity; volunteer uncertainty; heightened scrutiny; variable youth privacy needs; limited transportation.
+Resources: strong youth-staff relationships; network of LGBTQ adults willing to mentor; after-hours rooms; mental health partners willing to consult; active youth leadership council.`,
+    role:`Create a feasible initiative and evaluation plan enhancing safety, accessibility, or youth empowerment while navigating backlash, visibility, and administrative limits.`
+  }
+];
+
+/* ==================== HELPERS ==================== */
+function $(id){return document.getElementById(id)}
+function escapeHTML(s=''){return s.replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+function normalizeDashes(s=''){return s.replace(/[\u2013\u2014]/g,'-')}
+function stripEmojis(s=''){return s.replace(/[\p{Extended_Pictographic}\uFE0F]/gu,'')}
+function paragraphsHTML(text=''){let t=text.replace(/\r\n/g,'\n'); t=normalizeDashes(t); t=stripEmojis(t); return t.split(/\n\s*\n/g).map(p=>`<p>${escapeHTML(p).replace(/\n/g,'<br>')}</p>`).join('')}
+function toast2(msg){const el=$('toast2');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1200)}
+function nowISO(){return new Date().toISOString()}
+function activeIsTyping(){const ae=document.activeElement; if(!ae) return false; const tag=ae.tagName.toLowerCase(); return tag==='textarea'||tag==='input'||ae.isContentEditable}
+function wordCount(s=''){return (s.trim().match(/\b[\w'-]+\b/g)||[]).length}
+
+/* ==================== STATE ==================== */
+let locked2=false, currentSc=null, autosaveTimer2=null;
+
+/* ==================== INIT ==================== */
+document.addEventListener('DOMContentLoaded',()=>{
+  $('courseTag2').textContent=CONFIG2.COURSE_TAG;
+  bind('btnRandom2', onRandom2); bind('btnLock2', onLock2); bind('btnNew2', onNew2);
+  bind('btnSave2', onSave2); bind('btnLoad2', onLoad2);
+  bind('btnCopyScenario2', onCopyScenario2); bind('btnCopyAll2', onCopyAll2);
+  bind('btnExport2', onExport2); bind('btnPrint2', ()=>window.print());
+
+  ;['pe_ctx','pe_design','pe_purpose','pe_outcomes','pe_ops','pe_designplan','pe_ethics','pe_assump']
+    .forEach(id=>$(id).addEventListener('input',()=>{updateCounters2(); if(locked2){} }));
+
+  document.addEventListener('keydown', e=>{
+    const modS=(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'; if(modS){e.preventDefault();onSave2();return;}
+    if(activeIsTyping()) return;
+    if(e.altKey&&/r/i.test(e.key)){e.preventDefault();onRandom2();}
+    if(e.altKey&&/l/i.test(e.key)){e.preventDefault();onLock2();}
+    if(e.altKey&&/e/i.test(e.key)){e.preventDefault();onExport2();}
+    if(e.altKey&&/p/i.test(e.key)){e.preventDefault();window.print();}
   });
-  const pages=Math.max(1,Math.ceil(FILTER.length/PER)); document.getElementById('pageMeta').textContent=`Page ${PAGE}/${pages}`;
-  document.getElementById('prev').disabled=PAGE<=1; document.getElementById('next').disabled=PAGE>=pages;
-}
-function showEmpty(){ document.getElementById('empty').style.display=''; document.getElementById('detail').style.display='none'; document.getElementById('detailHeading').textContent='Details' }
-function selectByIndex(ix){const id=(FILTER[ix]||{}).id; if(typeof id==='number') select(id)}
-function select(id){
-  ACTIVE=id; renderList(); const c=ALL.find(x=>x.id===id); if(!c) return showEmpty();
-  history.replaceState(null,'',`#case=${encodeURIComponent(c.slug)}`); fillDetail(c);
-}
-function fillDetail(c){
-  document.getElementById('empty').style.display='none'; document.getElementById('detail').style.display='';
-  document.getElementById('detailHeading').textContent=c.title||'Details';
-  const set=(id,val)=>document.getElementById(id).innerHTML=brize(val||'');
-  set('f_title',c.title); set('f_setting_snapshot',c.setting_snapshot); set('f_population',c.population); set('f_core_problems',c.core_problems);
-  set('f_stakeholders',c.stakeholders); set('f_equity_signals',c.equity_signals); set('f_constraints_resources',c.constraints_resources); set('f_role',c.role);
-  set('f_scenario_summary',c.scenario_summary);
-  const extras=c.extra||c.__extra__||{}; const names=Object.keys(extras).filter(k=>extras[k] && String(extras[k]).trim());
-  const wrap=document.getElementById('extraWrap'); const tgt=document.getElementById('extraFields');
-  if(names.length){ wrap.style.display=''; tgt.innerHTML=''; names.forEach(k=>{ const K=document.createElement('div'); K.textContent=k; K.style.color='#6b7280'; const V=document.createElement('div'); V.innerHTML=brize(Array.isArray(extras[k])?extras[k].join('\n'):extras[k]); tgt.appendChild(K); tgt.appendChild(V); }); }
-  else{ wrap.style.display='none' }
-}
-document.getElementById('btnClear').onclick=()=>{ document.getElementById('q').value=''; applyFilter() }
-document.getElementById('prev').onclick=()=>{ if(PAGE>1){PAGE--;renderList()} }
-document.getElementById('next').onclick=()=>{ const max=Math.ceil(FILTER.length/PER)||1; if(PAGE<max){PAGE++;renderList()} }
-document.getElementById('btnCopyLink').onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href) }catch{} }
-document.getElementById('btnPrint').onclick=()=>window.print();
-document.getElementById('btnOpen').onclick=()=>{ const c=ALL.find(x=>x.id===ACTIVE); if(!c) return; try{ localStorage.setItem('PD_PRELOAD_TITLE', c.title||'') }catch{}; location.href='program-evaluation-generator.html' }
+});
 
-/* ---------- Export Case (.docx) using your OG htmlDocx pipeline ---------- */
-document.getElementById('btnExportCase').onclick=()=>{
-  const c=ALL.find(x=>x.id===ACTIVE); if(!c) return;
-  const html = buildCaseExportHTML(c);
-  const blob = window.htmlDocx.asBlob(html);
-  const a = document.createElement('a');
-  const name = (c.title ? c.title.replace(/[^\w\s-]/g,'').slice(0,40)+'_' : '') + 'Scenario_Only.docx';
-  a.href = URL.createObjectURL(blob); a.download = name; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-};
-function buildCaseExportHTML(c){
-  const esc = s => String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-  const br = s => esc(s).replace(/\n/g,'<br>');
-  const p  = s => (String(s||'').replace(/\r\n/g,'\n').split(/\n\s*\n/).map(x=>`<p>${br(x)}</p>`).join('')) || '<p></p>';
-  const h = (n,t)=>`<h${n}>${esc(t)}</h${n}>`;
-  const parts=[];
-  parts.push(h(1,'Program Evaluation — Scenario Packet'));
-  parts.push(h(2, c.title||'Untitled Scenario'));
-  parts.push(`<p><strong>Setting snapshot:</strong> ${br(c.setting_snapshot)}</p>`);
-  parts.push(`<p><strong>Population:</strong> ${br(c.population)}</p>`);
-  parts.push(`<p><strong>Core problems:</strong><br>${br(c.core_problems)}</p>`);
-  parts.push(`<p><strong>Stakeholders:</strong><br>${br(c.stakeholders)}</p>`);
-  parts.push(`<p><strong>Equity signals:</strong><br>${br(c.equity_signals)}</p>`);
-  parts.push(`<p><strong>Constraints & resources:</strong><br>${br(c.constraints_resources)}</p>`);
-  parts.push(`<p><strong>Your role:</strong> ${br(c.role)}</p>`);
-  if(c.scenario_summary) { parts.push(h(3,'Scenario summary')); parts.push(p(c.scenario_summary)); }
-  const ex=c.extra||c.__extra__||{};
-  const names=Object.keys(ex).filter(k=>ex[k] && String(ex[k]).trim());
-  if(names.length){ parts.push(h(2,'Additional fields'));
-    names.forEach(k=>{ const v = Array.isArray(ex[k])? ex[k].join('\n') : ex[k]; parts.push(`<p><strong>${esc(k)}:</strong><br>${br(v)}</p>`); });
-  }
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(c.title||'Scenario')}</title></head><body>${parts.join('\n')}</body></html>`;
+/* ==================== DOM UTIL ==================== */
+function bind(id,fn){const el=$(id); if(el) el.addEventListener('click',fn)}
+
+/* ==================== RENDER ==================== */
+function onRandom2(){ if(!SCENARIOS||!SCENARIOS.length){toast2('No scenarios available');return;} const idx=Math.floor(Math.random()*SCENARIOS.length); currentSc=SCENARIOS[idx]; renderSc(currentSc); toast2('Scenario selected'); clearBuilder2(); }
+function renderSc(s){
+  $('scTitle').textContent=s?.title||'Untitled';
+  const grid=$('scGrid'); grid.innerHTML='';
+  const map={'Setting Snapshot':s.setting_snapshot,'Population Snapshot':s.population_snapshot,'Core Problems or Tensions':s.core_problems,'Stakeholder Glimpses':s.stakeholder_glimpses,'Equity Signals':s.equity_signals,'Known Constraints and Resources':s.constraints_resources,'Your Role':s.role};
+  for(const k in map){grid.insertAdjacentHTML('beforeend',`<div class="row"><div class="key">${escapeHTML(k)}</div><div class="val">${paragraphsHTML(map[k]||'')}</div></div>`)}
 }
 
-/* ---------- Minimal, safe htmlDocx.asBlob (same core as OG) ---------- */
-(function(){
-  const enc = new TextEncoder();
-  const utf8 = s => enc.encode(String(s??""));
-  function xmlEscape(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-  const textRun=(t,props='')=>`<w:r>${props?`<w:rPr>${props}</w:rPr>`:''}<w:t xml:space="preserve">${xmlEscape(t)}</w:t></w:r>`;
-  const br=()=>`<w:r><w:br/></w:r>`; const para=(inner,pPr='')=>`<w:p>${pPr?`<w:pPr>${pPr}</w:pPr>`:''}${inner||''}</w:p>`;
-  function nodeToParas(node){
-    const out=[]; const walk=(n,acc=[])=>{
-      if(n.nodeType===3){ if(n.nodeValue) acc.push(textRun(n.nodeValue)); }
-      else if(n.nodeType===1){
-        const tag=n.tagName.toLowerCase();
-        if(tag==='br'){ acc.push(br()); }
-        else if(['strong','b','em','i','u'].includes(tag)){
-          const inner=[]; n.childNodes.forEach(c=>walk(c,inner));
-          let rPr=''; if(tag==='strong'||tag==='b') rPr+='<w:b/>'; if(tag==='em'||tag==='i') rPr+='<w:i/>'; if(tag==='u') rPr+='<w:u w:val="single"/>';
-          const textOnly=inner.join('').replace(/^<w:r>|<\/w:r>$/g,''); acc.push(`<w:r><w:rPr>${rPr}</w:rPr>${textOnly}</w:r>`);
-        } else if(tag==='span'){ n.childNodes.forEach(c=>walk(c,acc)); }
-        else if(['h1','h2','h3','p'].includes(tag)){
-          const runs=[]; n.childNodes.forEach(c=>walk(c,runs));
-          if(tag==='p'){ out.push(para(runs.join(''))); }
-          else{
-            const size = tag==='h1'?36:tag==='h2'?28:24;
-            const first=runs.length? runs[0].replace('<w:r>','<w:r><w:rPr><w:b/><w:sz w:val="'+size+'"/><w:szCs w:val="'+size+'"/></w:rPr>') : textRun('', `<w:b/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/>`);
-            const rest=runs.length? runs.slice(1).join('') : '';
-            out.push(para(first+rest,'<w:spacing w:after="160"/>'));
-          }
-        } else if(tag==='ul'){
-          n.childNodes.forEach(li=>{ if(li.tagName && li.tagName.toLowerCase()==='li'){ const runs=[textRun('• ')]; li.childNodes.forEach(c=>walk(c,runs)); out.push(para(runs.join(''))); }});
-        } else{ n.childNodes.forEach(c=>walk(c,acc)); }
-      } return acc;
-    };
-    if(node.childNodes && node.childNodes.length){
-      node.childNodes.forEach(ch=>{
-        if(ch.nodeType===3){ out.push(para(textRun(ch.nodeValue))); }
-        else if(ch.nodeType===1 && ['h1','h2','h3','p','ul'].includes(ch.tagName.toLowerCase())){ walk(ch); }
-        else if(ch.nodeType===1){ const runs=[]; walk(ch,runs); if(runs.length) out.push(para(runs.join(''))); }
-      });
-    } return out.join('');
-  }
-  function buildDocumentXML(html){
-    const doc=new DOMParser().parseFromString(html,'text/html'); const body=doc.body;
-    const content=nodeToParas(body)||para(textRun(''));
-    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.microsoft.com/office/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/2010/word/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>${content}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>`;
-  }
-  function u8cat(chunks){ let len=0; chunks.forEach(c=>len+=c.length); const out=new Uint8Array(len); let o=0; chunks.forEach(c=>{out.set(c,o);o+=c.length}); return out; }
-  const CRC_TABLE=(()=>{ let c,t=new Uint32Array(256); for(let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1)); t[n]=c>>>0; } return t; })();
-  function crc32(buf){ let c=~0>>>0; for(let i=0;i<buf.length;i++){ c=(c>>>8)^CRC_TABLE[(c^buf[i])&0xFF]; } return (~c)>>>0; }
-  function dateToDos(d=new Date()){ const time=(d.getHours()<<11)|(d.getMinutes()<<5)|((d.getSeconds()/2)|0); const date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate(); return {time,date}; }
-  function zipStore(files){
-    const cd=[]; let offset=0; const chunks=[]; const now=dateToDos(new Date());
-    files.forEach(f=>{
-      const nameBytes=utf8(f.name); const data=f.data; const crc=crc32(data);
-      const localHeader=new Uint8Array(30+nameBytes.length); const dv=new DataView(localHeader.buffer);
-      dv.setUint32(0,0x04034b50,true); dv.setUint16(4,20,true); dv.setUint16(6,0,true); dv.setUint16(8,0,true);
-      dv.setUint16(10,now.time,true); dv.setUint16(12,now.date,true); dv.setUint32(14,crc,true);
-      dv.setUint32(18,data.length,true); dv.setUint32(22,data.length,true); dv.setUint16(26,nameBytes.length,true); dv.setUint16(28,0,true);
-      localHeader.set(nameBytes,30); chunks.push(localHeader,data);
-      const cdH=new Uint8Array(46+nameBytes.length); const cdv=new DataView(cdH.buffer);
-      cdv.setUint32(0,0x02014b50,true); cdv.setUint16(4,20,true); cdv.setUint16(6,20,true); cdv.setUint16(8,0,true); cdv.setUint16(10,0,true);
-      cdv.setUint16(12,now.time,true); cdv.setUint16(14,now.date,true); cdv.setUint32(16,crc,true);
-      cdv.setUint32(20,data.length,true); cdv.setUint32(24,data.length,true); cdv.setUint16(28,nameBytes.length,true);
-      cdv.setUint16(30,0,true); cdv.setUint16(32,0,true); cdv.setUint16(34,0,true); cdv.setUint16(36,0,true); cdv.setUint32(38,0,true); cdv.setUint32(42,offset,true);
-      cdH.set(nameBytes,46); cd.push(cdH); offset += localHeader.length + data.length;
-    });
-    const central=u8cat(cd); const end=new Uint8Array(22); const edv=new DataView(end.buffer);
-    edv.setUint32(0,0x06054b50,true); edv.setUint16(4,0,true); edv.setUint16(6,0,true); edv.setUint16(8,files.length,true); edv.setUint16(10,files.length,true);
-    edv.setUint32(12,central.length,true); edv.setUint32(16,offset,true); edv.setUint16(20,0,true);
-    return new Blob([u8cat([...chunks,central,end])],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-  }
-  window.htmlDocx = { asBlob(html){
-    const docXml=buildDocumentXML(html);
-    const files=[
-      { name:'[Content_Types].xml', data:utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`)},
-      { name:'_rels/.rels', data:utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`)},
-      { name:'word/document.xml', data:utf8(docXml) }
-    ];
-    return zipStore(files);
-  }};
-})();
+/* ==================== LOCK / AUTOSAVE ==================== */
+function setLocked2(v){locked2=v; [...document.querySelectorAll('textarea')].forEach(f=>f.disabled=!locked2);
+  $('btnLock2').textContent=locked2?'Unlock':'Lock'; const chip=$('statusChip2'); chip.textContent=locked2?'Locked for writing':'Unlocked';
+  chip.classList.toggle('locked',locked2); chip.classList.toggle('unlocked',!locked2); if(locked2){startAuto2()} else {stopAuto2()} }
+function onLock2(){ if(!currentSc){toast2('Randomize a scenario first');return;} setLocked2(!locked2) }
+function startAuto2(){ stopAuto2(); autosaveTimer2=setInterval(onSave2,4000) }
+function stopAuto2(){ if(autosaveTimer2){clearInterval(autosaveTimer2); autosaveTimer2=null} }
+
+/* ==================== BUILDER ==================== */
+function clearBuilder2(){['pe_ctx','pe_design','pe_purpose','pe_outcomes','pe_ops','pe_designplan','pe_ethics','pe_assump'].forEach(id=>$(id).value=''); updateCounters2(); $('progress2').textContent='0';}
+function updateCounters2(){
+  const ids=['pe_ctx','pe_design','pe_purpose','pe_outcomes','pe_ops','pe_designplan','pe_ethics','pe_assump'];
+  ids.forEach(id=>{$(`co_${id}`).textContent=`${wordCount($(id).value)} words`});
+  const core=['pe_ctx','pe_design','pe_purpose','pe_outcomes','pe_ops','pe_designplan','pe_ethics'];
+  const done=core.reduce((a,id)=>a+(wordCount($(id).value)>=100?1:0),0); $('progress2').textContent=String(done);
+}
+
+/* ==================== SAVE / LOAD ==================== */
+function storageKey2(){const title=(currentSc?.title||'UNTITLED').slice(0,50); return CONFIG2.APPKEY_PREFIX+title}
+function collect2(){const fields={ctx:$('pe_ctx').value,design:$('pe_design').value,purpose:$('pe_purpose').value,outcomes:$('pe_outcomes').value,ops:$('pe_ops').value,designplan:$('pe_designplan').value,ethics:$('pe_ethics').value,assump:$('pe_assump').value}; return {caseTitle:currentSc?.title||'',fields,timestamp:nowISO()}}
+function onSave2(){ if(!currentSc){toast2('Nothing to save');return;} try{localStorage.setItem(storageKey2(),JSON.stringify(collect2()));toast2('Saved')}catch(e){console.error(e);toast2('Save failed')} }
+function onLoad2(){ if(!currentSc){toast2('Randomize a scenario first');return;} const raw=localStorage.getItem(storageKey2()); if(!raw){toast2('No saved draft');return;}
+  try{const d=JSON.parse(raw); $('pe_ctx').value=d.fields?.ctx||''; $('pe_design').value=d.fields?.design||''; $('pe_purpose').value=d.fields?.purpose||''; $('pe_outcomes').value=d.fields?.outcomes||''; $('pe_ops').value=d.fields?.ops||''; $('pe_designplan').value=d.fields?.designplan||''; $('pe_ethics').value=d.fields?.ethics||''; $('pe_assump').value=d.fields?.assump||''; updateCounters2(); toast2('Loaded');
+  }catch(e){console.error(e);toast2('Load failed')} }
+
+/* ==================== COPY / EXPORT ==================== */
+function plainScenario2(){ if(!currentSc) return 'No scenario selected.'; const s=currentSc; const kv=[['Title',s.title],['Setting Snapshot',s.setting_snapshot],['Population Snapshot',s.population_snapshot],['Core Problems or Tensions',s.core_problems],['Stakeholder Glimpses',s.stakeholder_glimpses],['Equity Signals',s.equity_signals],['Known Constraints and Resources',s.constraints_resources],['Your Role',s.role]]; return kv.map(([k,v])=>`${k}:\n${normalizeDashes(stripEmojis(v||''))}`).join('\n\n')}
+function plainAll2(){const d=collect2(); return `${plainScenario2()}
+
+Scenario Context & Stakeholders:
+${d.fields.ctx}
+
+Your Program or Practice Design:
+${d.fields.design}
+
+Evaluation Purpose & Questions:
+${d.fields.purpose}
+
+Outcomes (Conceptualization):
+${d.fields.outcomes}
+
+Operationalization & Data Sources:
+${d.fields.ops}
+
+Evaluation Design Plan:
+${d.fields.designplan}
+
+Ethics, Power, Limitations & Communication:
+${d.fields.ethics}
+
+Assumptions:
+${d.fields.assump}
+
+Saved: ${d.timestamp}` }
+function onCopyScenario2(){navigator.clipboard.writeText(plainScenario2()).then(()=>toast2('Scenario copied'))}
+function onCopyAll2(){navigator.clipboard.writeText(plainAll2()).then(()=>toast2('All copied'))}
+function onExport2(){
+  if(!currentSc){toast2('Randomize a scenario first');return;}
+  const d=collect2(), s=currentSc;
+  const grid=`<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%">
+    ${Object.entries({'Setting Snapshot':s.setting_snapshot,'Population Snapshot':s.population_snapshot,'Core Problems or Tensions':s.core_problems,'Stakeholder Glimpses':s.stakeholder_glimpses,'Equity Signals':s.equity_signals,'Known Constraints and Resources':s.constraints_resources,'Your Role':s.role}).map(([k,v])=>`<tr><td style="width:230px;font-weight:bold;background:#f5f5f5">${escapeHTML(k)}</td><td>${paragraphsHTML(v||'')}</td></tr>`).join('')}
+  </table>`;
+  const html=`<h1>${escapeHTML(s.title||'Untitled')}</h1>
+  <p><strong>${escapeHTML(CONFIG2.COURSE_TAG)}</strong></p>
+  <h2>Scenario</h2>${grid}
+  <h2>Scenario Context & Stakeholders</h2><p>${escapeHTML(d.fields.ctx).replace(/\n/g,'<br>')}</p>
+  <h2>Your Program or Practice Design</h2><p>${escapeHTML(d.fields.design).replace(/\n/g,'<br>')}</p>
+  <h2>Evaluation Purpose & Questions</h2><p>${escapeHTML(d.fields.purpose).replace(/\n/g,'<br>')}</p>
+  <h2>Outcomes (Conceptualization)</h2><p>${escapeHTML(d.fields.outcomes).replace(/\n/g,'<br>')}</p>
+  <h2>Operationalization & Data Sources</h2><p>${escapeHTML(d.fields.ops).replace(/\n/g,'<br>')}</p>
+  <h2>Evaluation Design Plan</h2><p>${escapeHTML(d.fields.designplan).replace(/\n/g,'<br>')}</p>
+  <h2>Ethics, Power, Limitations & Communication</h2><p>${escapeHTML(d.fields.ethics).replace(/\n/g,'<br>')}</p>
+  ${d.fields.assump?.trim()?`<h2>Assumptions</h2><p>${escapeHTML(d.fields.assump).replace(/\n/g,'<br>')}</p>`:''}
+  <p><em>Exported: ${escapeHTML(d.timestamp)}</em></p>`;
+  try{const blob=window.htmlDocx.asBlob(html); const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    const safe=(s.title||'Program_Evaluation').replace(/[^\w\-]+/g,'_').slice(0,80)+'.docx'; a.download=safe||CONFIG2.DEFAULT_EXPORT_NAME; a.click(); URL.revokeObjectURL(a.href); toast2('Exported .docx');
+  }catch(e){console.error(e);toast2('Export failed')}
+}
+function onNew2(){clearBuilder2(); toast2('Cleared')}
 </script>
 </body>
 </html>
-
-<!-- =========================
-ADD-ON: EBP Index export button (drop near your existing action buttons)
-Why: Export selected EBP case as .docx from the index page.
-Assumes you already have ALL/FILTER/ACTIVE and htmlDocx from the PD block (reuse that).
-========================= -->
-<script>
-// Only add if #btnExportCase_EBP not present
-(function(){
-  if(!document.getElementById('btnExportCase_EBP') && document.getElementById('detailCard')){
-    const actions = document.querySelector('#detailCard .hd .actions') || document.querySelector('#detailCard .hd div');
-    if(actions){
-      const b = document.createElement('button'); b.id='btnExportCase_EBP'; b.textContent='Export Case (.docx)';
-      b.onclick = ()=>{
-        const c = (window.ALL||[]).find(x=>x.id===window.ACTIVE); if(!c) return;
-        const html = (function buildEBP(c){
-          const esc = s => String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-          const br = s => esc(s).replace(/\n/g,'<br>');
-          const p  = s => (String(s||'').replace(/\r\n/g,'\n').split(/\n\s*\n/).map(x=>`<p>${br(x)}</p>`).join('')) || '<p></p>';
-          const h = (n,t)=>`<h${n}>${esc(t)}</h${n}>`;
-          const parts=[];
-          parts.push(h(1,'EBP — Scenario Packet'));
-          parts.push(h(2, c.title||'Untitled Case'));
-          parts.push(`<p><strong>Client profile:</strong> ${br(c.client_profile)}</p>`);
-          parts.push(`<p><strong>Setting:</strong> ${br(c.setting)}</p>`);
-          parts.push(`<p><strong>Presenting problem:</strong><br>${br(c.presenting_problem)}</p>`);
-          parts.push(`<p><strong>Relevant history:</strong><br>${br(c.relevant_history)}</p>`);
-          parts.push(`<p><strong>Goals & preferences:</strong><br>${br(c.goals_and_preferences)}</p>`);
-          parts.push(`<p><strong>Strengths & resources:</strong><br>${br(c.strengths_and_resources)}</p>`);
-          parts.push(`<p><strong>Contextual factors & barriers:</strong><br>${br(c.contextual_factors_and_barriers)}</p>`);
-          parts.push(`<p><strong>EBP decision point:</strong> ${br(c.ebp_decision_point)}</p>`);
-          parts.push(`<p><strong>Target outcomes:</strong> ${br(c.target_outcomes)}</p>`);
-          parts.push(`<p><strong>Risks & ethics:</strong> ${br(c.risks_and_ethics)}</p>`);
-          parts.push(`<p><strong>Equity signal:</strong> ${br(c.equity_signal)}</p>`);
-          if(c.narrative){ parts.push(h(3,'Narrative vignette')); parts.push(p(c.narrative)); }
-          const ex=c.extra||c.__extra__||{}; const names=Object.keys(ex).filter(k=>ex[k] && String(ex[k]).trim());
-          if(names.length){ parts.push(h(2,'Additional fields')); names.forEach(k=>{ const v=Array.isArray(ex[k])?ex[k].join('\n'):ex[k]; parts.push(`<p><strong>${esc(k)}:</strong><br>${br(v)}</p>`); }); }
-          return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(c.title||'Case')}</title></head><body>${parts.join('\n')}</body></html>`;
-        })(c);
-        const blob = window.htmlDocx.asBlob(html);
-        const a = document.createElement('a');
-        a.href=URL.createObjectURL(blob); a.download=((c.title||'Case').replace(/[^\w\s-]/g,'').slice(0,40)+'_Scenario_Only.docx'); a.click();
-        setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-      };
-      actions.appendChild(b);
-    }
-  }
-})();
-</script>
-
-<!-- =========================
-HOOK: Builders export notes only when locked + preload selection
-Paste into: /program-evaluation-generator.html and /ebp.html after your existing scripts.
-========================= -->
-<script>
-// Preload selected case from index
-document.addEventListener('DOMContentLoaded', ()=>{
-  try{
-    const key = location.pathname.includes('program-evaluation') ? 'PD_PRELOAD_TITLE' : 'EBP_PRELOAD_TITLE';
-    const want = localStorage.getItem(key);
-    if(want && Array.isArray(window.CASES)){
-      const m = window.CASES.find(c=>c.title===want);
-      if(m){ window.current=m; window.locked=false; (window.clearForm||(()=>{}))(); (window.renderCase||(()=>{}))(); }
-    }
-    localStorage.removeItem('PD_PRELOAD_TITLE'); localStorage.removeItem('EBP_PRELOAD_TITLE');
-  }catch(_){}
-});
-
-// Disable Export until locked (keeps parity with “once locked” requirement)
-(function(){
-  const exportBtn = document.getElementById('btnExport');
-  const lockBtn = document.getElementById('btnLock');
-  const status = document.getElementById('status');
-  if(!exportBtn || !lockBtn) return;
-  const update = ()=>{
-    const can = !!window.locked;
-    exportBtn.disabled = !can;
-    if(status) status.textContent = can ? 'Editing enabled (autosave on)' : 'Editing disabled';
-  };
-  update();
-  lockBtn.addEventListener('click', ()=>{ setTimeout(update, 0); });
-})();
-</script>
