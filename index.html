@@ -17,10 +17,10 @@ Program Evaluation Generator — single-file, offline, no deps
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% 20%,#f1f5ff 0,#f5f7fb 35%,#f5f7fb 70%,#edf2ff 100%);line-height:1.6}
-  header{position:static;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);box-shadow:0 6px 30px rgba(37,99,235,.08)}
-  .wrap{max-width:1240px;margin:0 auto;padding:14px 16px}
-  .titlebar{position:relative;display:flex;gap:12px;align-items:flex-start;justify-content:flex-start;flex-wrap:wrap;padding:12px 16px;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);background:linear-gradient(120deg,rgba(37,99,235,.06),rgba(37,99,235,.00),rgba(14,165,233,.04))}
-  .toolbar{position:absolute;top:12px;right:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;max-width:460px}
+  header{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);box-shadow:0 6px 30px rgba(37,99,235,.08);z-index:10}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px 16px}
+  .titlebar{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
   button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.02)}
   button:hover{border-color:#cbd5e1}
   button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -30,17 +30,16 @@ Program Evaluation Generator — single-file, offline, no deps
   .status.unlocked{border-color:#ffe2c7;background:#fff7ed;color:var(--warn)}
   .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
   @media(max-width:1024px){.layout{grid-template-columns:1fr}}
-  .hero{display:grid;gap:4px;flex:1;min-width:320px;max-width:720px}
+  .hero{display:grid;gap:6px;flex:1;min-width:320px}
   .eyebrow{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
-  .title{font-size:24px;font-weight:800;display:flex;align-items:center;gap:10px;line-height:1.2}
-  .subtitle{margin:0 0 4px;color:#334155;font-weight:500}
+  .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
+  .subtitle{margin:2px 0 4px;color:#334155;font-weight:500}
   .pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:6px 10px;border-radius:999px;border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.08)}
   .pill.accent{background:#e0e7ff;border-color:#c7d2fe;color:#1e3a8a}
   .pill.soft{background:#ecfdf3;border-color:#bbf7d0;color:#166534}
-  .pill.warn{background:#fff7ed;border-color:#fdba74;color:#7c2d12}
   .pill.outline{background:transparent}
   .meta{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
-  .banner-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin-top:8px}
+  .banner-row{display:grid;gap:8px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .card h2{margin:0;padding:16px;border-bottom:1px solid var(--line);font-size:18px}
   .card .body{padding:16px}
@@ -49,13 +48,6 @@ Program Evaluation Generator — single-file, offline, no deps
   .banner.primary{border-color:#bfdbfe;background:#e0f2fe;color:#0f172a}
   .banner.warn{border-color:#fed7aa;background:#fff7ed;color:#7c2d12}
   .banner.neutral{border-color:#e5e7eb;background:#f8fafc}
-  .notice-bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:13px;color:#334155}
-  .notice-bar .pill{padding:6px 8px;font-size:12px;box-shadow:none;border-style:solid;border-color:#cbd5e1}
-  .notice-toggle{margin-left:auto}
-  details.notices summary{cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#1e3a8a;list-style:none}
-  details.notices summary::marker{display:none}
-  details.notices summary::-webkit-details-marker{display:none}
-  details.notices[open]{margin-top:4px}
   .grid{display:grid;grid-template-columns:240px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}
   .row{display:contents}
   .key{padding:10px 12px;background:#f8fafc;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-weight:600}
@@ -68,9 +60,8 @@ Program Evaluation Generator — single-file, offline, no deps
   .toast{position:fixed;bottom:12px;right:12px;background:#111;color:#fff;padding:10px 12px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}
   .toast.show{opacity:1;transform:translateY(0)}
   @media(max-width:900px){
-    .titlebar{padding-right:16px;align-items:flex-start}
+    .titlebar{padding-right:16px}
     .toolbar{position:static;justify-content:flex-start}
-    .notice-bar{flex-direction:column}
   }
   @media print{
     header,.toast,.toolbar{display:none !important}
@@ -92,17 +83,10 @@ Program Evaluation Generator — single-file, offline, no deps
         <span class="pill outline">Single-file • Offline-ready</span>
         <span class="pill outline">Built-in Word export</span>
       </div>
-      <div class="notice-bar">
-        <span class="pill soft">Locked mode autosaves; click <strong>Save</strong> before leaving.</span>
-        <span class="pill warn">Word may show an "unreadable content" prompt—choose Yes to open.</span>
-        <details class="notices notice-toggle">
-          <summary>More assignment notes</summary>
-          <div class="banner-row">
-            <div class="banner primary">Editing is enabled only when <strong>Locked</strong>. While locked, a draft autosaves to your browser every few seconds. <em>Always</em> click <strong>Save</strong> before leaving the page.</div>
-            <div class="banner neutral">This page is dedicated to the <strong>PROGRAM EVALUATION</strong> assignment. Use the <em>Program Development Generator</em> for the separate development project.</div>
-            <div class="banner warn" role="status">Note: When opening an exported Word file you may see an "unreadable content" warning. Click <strong>Yes</strong> to recover and the document will load correctly.</div>
-          </div>
-        </details>
+      <div class="banner-row">
+        <div class="banner primary">Editing is enabled only when <strong>Locked</strong>. While locked, a draft autosaves to your browser every few seconds. <em>Always</em> click <strong>Save</strong> before leaving the page.</div>
+        <div class="banner neutral">This page is dedicated to the <strong>PROGRAM EVALUATION</strong> assignment. Use the <em>Program Development Generator</em> for the separate development project.</div>
+        <div class="banner warn" role="status">Note: When opening an exported Word file you may see an "unreadable content" warning. Click <strong>Yes</strong> to recover and the document will load correctly.</div>
       </div>
     </div>
     <div class="toolbar">
