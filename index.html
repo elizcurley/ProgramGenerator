@@ -537,7 +537,8 @@ let locked=false, currentScenario=null, autosaveTimer=null, lastSavedHash='';
 
 /* =============== INIT =============== */
 document.addEventListener('DOMContentLoaded',()=>{
-  $('courseTag').textContent=CONFIG.COURSE_TAG;
+ const ct = $('courseTag');
+if (ct) ct.textContent = CONFIG.COURSE_TAG;
   bind('btnRandom', onRandomize); bind('btnLock', onLockToggle); bind('btnNew', onNew);
   bind('btnSave', onSave); bind('btnLoad', onLoad);
   bind('btnCopyScenario', onCopyScenario); bind('btnCopyAll', onCopyAll);
@@ -615,8 +616,9 @@ function stopAutosave(){ if(autosaveTimer){clearInterval(autosaveTimer); autosav
 /* =============== BUILDER =============== */
 function clearBuilder(){
   ['f_context','f_design','f_purpose','f_outcomes','f_operational','f_designplan','f_ethics','f_assumptions']
-    .forEach(id=>$(id).value='';
+    .forEach(id => $(id).value = '');
 }
+
 
 /* =============== SAVE / LOAD =============== */
 function storageKey(){const title=(currentScenario?.title||'UNTITLED').slice(0,50); return CONFIG.APPKEY_PREFIX+title}
