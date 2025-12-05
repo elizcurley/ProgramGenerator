@@ -1,79 +1,78 @@
-<!-- /program-evaluation-generator.html -->
+<!-- =========================
+DROP-IN: Program Evaluation Index (student-facing)
+File: /program-eval-index.html
+Why: Full page with search, details, Open-in-Builder, and Export Case (.docx)
+========================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Program Evaluation Generator</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program Evaluation Vignette Index</title>
 <style>
-  :root{
-    --bg:#f6f7f9; --card:#fff; --muted:#6b7280; --text:#111827; --line:#e5e7eb; --accent:#2563eb;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"}
-  header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:3}
-  .wrap{max-width:1200px;margin:0 auto;padding:16px}
-  h1{font-size:18px;margin:0 0 8px}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-  button{
-    border:1px solid var(--line); background:var(--card); border-radius:8px; padding:8px 10px; cursor:pointer;
-    box-shadow:0 1px 2px rgba(0,0,0,.04);
-  }
-  button:hover{border-color:#d1d5db}
-  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  button:disabled{opacity:.6;cursor:not-allowed}
-  main{max-width:1200px;margin:16px auto;padding:0 16px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
-  @media (max-width: 960px){ main{grid-template-columns:1fr} }
-  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06)}
-  .card .hd{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
-  .card .hd h2{font-size:16px;margin:0}
-  .card .bd{padding:14px}
-  .grid{display:grid;grid-template-columns:200px 1fr;gap:8px;border-top:1px dashed var(--line);padding-top:8px}
-  .label{color:var(--muted)}
-  .muted{color:var(--muted)}
-  .narrative{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+  :root{ --bg:#f6f7f9; --card:#fff; --muted:#6b7280; --text:#111827; --line:#e5e7eb; --accent:#2563eb }
+  *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+  header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:5}
+  .wrap{max-width:1200px;margin:0 auto;padding:12px 16px}
+  h1{font-size:18px;margin:0 0 6px}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input[type=search]{width:360px;max-width:60vw;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fafafa}
+  button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  button:hover{border-color:#d1d5db} button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{max-width:1200px;margin:12px auto 20px;padding:0 16px;display:grid;grid-template-columns:1fr 1.2fr;gap:14px}
+  @media (max-width:960px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .hd{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .bd{padding:10px 12px} .muted{color:var(--muted)}
+  .list{max-height:70vh;overflow:auto}
+  .row{display:flex;gap:10px;align-items:flex-start;border-bottom:1px dashed var(--line);padding:10px 6px;cursor:pointer}
+  .row:last-child{border-bottom:0} .row.active{background:#f3f4f6}
+  .title{font-weight:600;margin-bottom:2px}
+  .snippet{color:var(--muted);font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .pill{display:inline-block;background:#eef2ff;color:#3730a3;border:1px solid #e0e7ff;border-radius:999px;padding:2px 8px;font-size:12px}
-  textarea, input[type="text"]{
-    width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; background:#fafafa;
-  }
-  textarea:disabled, input:disabled{background:#f3f4f6}
-  .row{margin-bottom:10px}
-  .row label{display:block;font-weight:600;margin-bottom:6px}
-  .flex{display:flex;gap:8px;align-items:center}
-  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;background:#111827;color:#e5e7eb;border-radius:6px;padding:0px 6px;display:inline-block;font-size:12px}
-  .empty{padding:10px;border:1px dashed var(--line);border-radius:10px;background:#fcfcfd;color:var(--muted)}
-  .counts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-  .count{border:1px dashed var(--line); border-radius:10px; padding:6px 8px; text-align:center}
-  .count strong{display:block;font-size:16px}
+  .grid{display:grid;grid-template-columns:220px 1fr;gap:8px}
+  .label{color:var(--muted)}
+  .narrative{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+  .empty{color:var(--muted);padding:8px;border:1px dashed var(--line);border-radius:10px;background:#fcfcfd}
+  details summary{cursor:pointer;user-select:none}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <h1>Program Evaluation Generator</h1>
+    <h1>Program Evaluation Vignette Index</h1>
     <div class="toolbar">
-      <button id="btnRandom" class="primary" title="Alt+R — Draw a random scenario">Randomize</button>
-      <button id="btnLock" title="Alt+L — Lock/Unlock editing">Lock</button>
-      <button id="btnNew" title="Start a new plan for this scenario">New</button>
-      <button id="btnSave" title="Ctrl/Cmd+S — Save draft (only when locked)">Save</button>
-      <button id="btnLoad" title="Load saved draft for this scenario">Load</button>
-      <button id="btnExport" title="Alt+E — Export Word (.docx)">Export Word (.docx)</button>
-      <button id="btnCopy" title="Copy all plan text to clipboard">Copy Text</button>
-      <button id="btnPrint" title="Alt+P — Print the page">Print</button>
-      <span id="status" class="muted" style="margin-left:auto"></span>
+      <input id="q" type="search" placeholder="Search title, setting, population, problems, stakeholders…" aria-label="Search">
+      <button id="btnClear">Clear</button>
+      <span id="count" class="muted"></span>
+      <span style="margin-left:auto" class="muted">Tip: shareable links copy from “Copy Link”.</span>
     </div>
   </div>
 </header>
 
 <main>
-  <section class="card" id="caseCard" aria-labelledby="caseHeading">
+  <section class="card">
+    <div class="hd"><strong>Vignettes</strong><div class="muted" id="pageMeta"></div></div>
+    <div class="bd">
+      <div id="list" class="list" role="listbox" aria-label="Vignette list"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button id="prev">Prev</button><button id="next">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="detailCard" aria-labelledby="detailHeading">
     <div class="hd">
-      <h2 id="caseHeading">Scenario Snapshot</h2>
-      <span id="casePill" class="pill">No scenario selected</span>
+      <h2 id="detailHeading" style="font-size:16px;margin:0">Details</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnOpen" class="primary">Open in Plan Builder</button>
+        <button id="btnExportCase">Export Case (.docx)</button>
+        <button id="btnCopyLink">Copy Link</button>
+        <button id="btnPrint">Print</button>
+      </div>
     </div>
     <div class="bd">
-      <div id="emptyCase" class="empty">Click <strong>Randomize</strong> (<span class="kbd">Alt+R</span>) to draw a scenario.</div>
-      <div id="intake" style="display:none">
+      <div id="empty" class="empty">Select a vignette from the list.</div>
+      <div id="detail" style="display:none">
         <div class="grid">
           <div class="label">Title</div><div id="f_title"></div>
           <div class="label">Setting snapshot</div><div id="f_setting_snapshot"></div>
@@ -88,623 +87,271 @@
           <h3 style="margin:0 0 6px">Scenario summary</h3>
           <div id="f_scenario_summary"></div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card" id="noteCard" aria-labelledby="noteHeading">
-    <div class="hd">
-      <h2 id="noteHeading">Evaluation Plan Builder</h2>
-      <span id="lockPill" class="pill">Locked: <span id="lockState">No</span></span>
-    </div>
-    <div class="bd">
-      <div class="row">
-        <div class="muted">Editing requires <strong>Lock</strong>. Autosave occurs only while locked.</div>
-      </div>
-
-      <div class="row">
-        <label for="context">Context &amp; Stakeholders <span class="muted" id="wc_context">(0 words)</span></label>
-        <textarea id="context" rows="6" disabled placeholder="Setting, population, needs, power dynamics, stakeholder map, engagement plan…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="design">Program/Practice Design <span class="muted" id="wc_design">(0 words)</span></label>
-        <textarea id="design" rows="6" disabled placeholder="Theory of change / logic model highlights, activities, dosage, delivery, adaptations…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="purpose">Evaluation Purpose &amp; Questions <span class="muted" id="wc_purpose">(0 words)</span></label>
-        <textarea id="purpose" rows="6" disabled placeholder="Decision-use focus (improvement, accountability, learning), primary evaluation questions…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="outcomes">Outcomes <span class="muted" id="wc_outcomes">(0 words)</span></label>
-        <textarea id="outcomes" rows="6" disabled placeholder="Short-, intermediate-, and long-term outcomes aligned to questions…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="operationalization">Operationalization &amp; Data Sources <span class="muted" id="wc_operationalization">(0 words)</span></label>
-        <textarea id="operationalization" rows="6" disabled placeholder="Indicators, measures, data collection methods, sources, frequency, quality checks…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="designPlan">Evaluation Design Plan <span class="muted" id="wc_designPlan">(0 words)</span></label>
-        <textarea id="designPlan" rows="6" disabled placeholder="Design type (e.g., pre-post, comparison, RCT, realist, developmental), sampling, analysis…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="ethics">Ethics/Power/Limitations &amp; Communication <span class="muted" id="wc_ethics">(0 words)</span></label>
-        <textarea id="ethics" rows="6" disabled placeholder="Consent, privacy, burden, risks, representation, bias mitigation, dissemination plan…"></textarea>
-      </div>
-
-      <div class="row">
-        <label for="assumptions">Assumptions (optional)</label>
-        <textarea id="assumptions" rows="3" disabled placeholder="Key assumptions underlying design and interpretation…"></textarea>
-      </div>
-
-      <div class="counts">
-        <div class="count"><strong id="wc1">0</strong><div class="muted">Context</div></div>
-        <div class="count"><strong id="wc2">0</strong><div class="muted">Design</div></div>
-        <div class="count"><strong id="wc3">0</strong><div class="muted">Purpose</div></div>
+        <div class="narrative" id="extraWrap" style="display:none">
+          <details open>
+            <summary>Additional fields</summary>
+            <div id="extraFields" style="display:grid;grid-template-columns:220px 1fr;gap:6px;margin-top:6px"></div>
+          </details>
+        </div>
       </div>
     </div>
   </section>
 </main>
 
+<!-- Prefer the JS dataset (defines window.CASES). Keep JSON as fallback. -->
+<script src="program_eval_cases.js"></script>
 <script>
-/* ===================== Utilities ===================== */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-const debounce = (fn, ms=600) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; };
-function wordCount(s){ return (s||'').trim().split(/\s+/).filter(Boolean).length; }
-function escHtml(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function brize(s){ return escHtml(s).replace(/\n/g,'<br>'); }
-function paragraphsFromText(s){
-  const safe=(s||'').replace(/\r\n/g,'\n');
-  return safe.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+const FALLBACK_JSON = 'program_eval_cases.json';
+const $ = s => document.querySelector(s);
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]||c)).replace('&','&amp;')}
+function brize(s){return esc(s).replace(/\n/g,'<br>')}
+function slugify(s){return String(s||'').toLowerCase().trim().replace(/['"]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)}
+function normalize(arr){return (arr||[]).map((c,i)=>({id:i,slug:slugify(c.title||('case-'+(i+1))),...c}))}
+async function loadData(){
+  if(Array.isArray(window.CASES)&&window.CASES.length) return normalize(window.CASES);
+  const r = await fetch(FALLBACK_JSON,{cache:'no-store'}); if(!r.ok) throw new Error('Missing program_eval_cases data');
+  return normalize(await r.json());
 }
-/* ===================== DEBUGGABLE RANDOMIZER (SHOW THIS EXACT PATTERN) ===================== */
-// defined above handlers
-const CASES = [ /* at least 6–10 full cases */ 
-  {
-    title: "School Attendance Boost — Urban Middle School",
-    setting_snapshot: "Large urban public middle school; 6th–8th grade; high FRPL eligibility.",
-    population: "Chronically absent students (≥10% days), predominantly grades 6–7; families with shift-work schedules.",
-    core_problems: "Chronic absenteeism tied to transportation gaps and low perceived relevance of early classes.\n\nInconsistent school-home communication; limited personalized outreach.",
-    stakeholders: "Students; caregivers; attendance team; bus contractor; community org for afterschool; district data office.",
-    equity_signals: "Disproportionate absences among students with IEPs and emergent bilingual students; disciplinary referrals correlate with absences.",
-    constraints_resources: "One attendance counselor (0.5 FTE); small mini-grant; SMS platform; limited weekend staffing.",
-    role: "You are the district evaluation fellow embedded with the school’s attendance team.",
-    scenario_summary: "Principal requests a rapid evaluation to inform next semester scheduling and resource allocation.\n\nPilot ideas include: text nudges, first-period mentoring, and bus route adjustments. Decision-makers want credible but timely evidence without adding burden."
-  },
-  {
-    title: "Perinatal Home Visiting — Rural County",
-    setting_snapshot: "County public health dept partnering with two clinics; long drive times; spotty broadband.",
-    population: "Pregnant and postpartum parents up to 12 months; mix of Medicaid and uninsured; many first-time parents.",
-    core_problems: "Low visit completion rates after month 3; inconsistent documentation; limited referrals for mental health.\n\nNurses cite competing priorities and travel time.",
-    stakeholders: "Clients; home visitors; nurse supervisor; clinic social workers; WIC; county IT.",
-    equity_signals: "Lower completion among families with limited English proficiency; seasonal farmwork schedules.",
-    constraints_resources: "Two new hires in training; tablets shared across teams; small translation budget.",
-    role: "You are contracted to design an improvement-focused evaluation for the county board.",
-    scenario_summary: "Board asks whether a streamlined visit schedule + screening workflow improves completion and identification of needs.\n\nThey want results to inform a budget vote within 4 months."
-  },
-  {
-    title: "Youth Employment Initiative — Suburban Consortium",
-    setting_snapshot: "Consortium of three suburbs; workforce board + community college; summer placements with local employers.",
-    population: "16–24-year-olds not in school and not employed.",
-    core_problems: "Drop-off between orientation and placement; employer feedback about inconsistent soft skills.\n\nInsufficient data-sharing across partners.",
-    stakeholders: "Participants; career coaches; employers; community college; workforce board analysts.",
-    equity_signals: "Lower placement rates for young women of color; transportation and childcare cited repeatedly.",
-    constraints_resources: "Stipends available; small training budget; employers volunteer supervisors.",
-    role: "You are the evaluator advising the board on scaling decisions.",
-    scenario_summary: "Board needs evidence on retention drivers and short-term outcomes (credential attainment, wages) to justify next year’s funding.\n\nPartners willing to pilot a soft-skills bootcamp."
-  },
-  {
-    title: "Community Violence Interruption — Hospital-Based",
-    setting_snapshot: "Level I trauma center; social work + community partners provide bedside intervention for violently injured patients.",
-    population: "15–35-year-olds admitted for assault-related injuries.",
-    core_problems: "Inconsistent enrollment after discharge; limited follow-up contact; safety concerns for staff.\n\nData systems siloed between hospital and CBOs.",
-    stakeholders: "Patients; social workers; CBO navigators; hospital leadership; city public health.",
-    equity_signals: "High burden among Black and Latino men; neighborhood-level exposure to violence; policing tensions.",
-    constraints_resources: "Grant ends in 9 months; two navigator vacancies; IRB timeline uncertain.",
-    role: "You are embedded evaluator supporting hospital leadership.",
-    scenario_summary: "Leadership asks for a feasible evaluation design that can speak to short-term recidivism and linkage to services, respecting safety and privacy constraints."
-  },
-  {
-    title: "Behavioral Health Integration — FQHC",
-    setting_snapshot: "Federally Qualified Health Center with co-located primary care and brief behavioral health.",
-    population: "Adults with depression/anxiety identified by PHQ-9/GAD-7 during primary care visits.",
-    core_problems: "No-show rates for warm handoffs; low follow-up beyond first brief session.\n\nUnclear pathways for patients needing specialty care.",
-    stakeholders: "Patients; PCPs; BHCs; schedulers; referral coordinators; payers.",
-    equity_signals: "Lower completion for patients needing interpreters; digital divide for telehealth follow-ups.",
-    constraints_resources: "EHR templates exist; analytics team bandwidth limited; interpreter pool shared.",
-    role: "You are the practice-based evaluator advising the QI lead.",
-    scenario_summary: "QI team wants to test same-day scheduling blocks and text reminders.\n\nThey need outcome and process measures that are valid and low-burden."
-  },
-  {
-    title: "Opioid-Sparing Post-Op Pathway — Safety-Net Hospital",
-    setting_snapshot: "Safety-net hospital surgical units; enhanced recovery after surgery (ERAS) being rolled out.",
-    population: "Adults undergoing laparoscopic procedures; high comorbidity burden.",
-    core_problems: "Variation in prescribing; inadequate non-opioid pain education; readmissions for uncontrolled pain.\n\nLimited linkage to physical therapy.",
-    stakeholders: "Patients; surgeons; anesthesiologists; nurses; PT; pharmacy; patient educators.",
-    equity_signals: "Language access gaps; higher readmissions among uninsured; stigma in pain management.",
-    constraints_resources: "Education materials outdated; PT staffing thin; pharmacy can build order sets.",
-    role: "You are evaluating early outcomes and implementation fidelity.",
-    scenario_summary: "Leadership wants early signals to guide spread across service lines while minimizing chart review burden."
-  },
-  {
-    title: "Food Security & Navigation — Community Hub",
-    setting_snapshot: "Nonprofit hub with pantry, benefits navigation, and financial coaching.",
-    population: "Adults and families experiencing food insecurity; many recent immigrants.",
-    core_problems: "Pantry repeat visits without benefits uptake; clients report confusing eligibility and documentation.\n\nData fragmented between programs.",
-    stakeholders: "Clients; navigators; pantry staff; finance coaches; partner agencies.",
-    equity_signals: "Language and literacy barriers; variable ID requirements; digital exclusion.",
-    constraints_resources: "Volunteer-heavy model; limited private space; donor reporting deadlines quarterly.",
-    role: "You are the pro bono evaluator designing a low-burden dashboard and learning cycle.",
-    scenario_summary: "Board wants evidence that navigation increases benefits uptake and reduces emergency pantry dependence over 6 months."
-  },
-  {
-    title: "STEM Afterschool — Charter Network",
-    setting_snapshot: "Charter network with 12 sites; afterschool robotics and coding tracks.",
-    population: "Grades 4–8; mixed prior exposure to STEM; many girls underrepresented in robotics track.",
-    core_problems: "Attendance drops after week 5; uneven facilitation quality; supply constraints.\n\nNo standard outcome measures.",
-    stakeholders: "Students; families; site coordinators; volunteers; curriculum vendor.",
-    equity_signals: "Gender gap in retention; sites in lower-income areas have higher attrition.",
-    constraints_resources: "Microgrants available; mentor training slots limited; equipment backorders.",
-    role: "You are tasked with proposing a practical outcome framework and evaluation design.",
-    scenario_summary: "Leadership wants a scalable approach to measuring engagement and skill gains that respects volunteer capacity."
-  }
-];
+let ALL=[], FILTER=[], PAGE=1, PER=8, ACTIVE=-1;
 
-function paragraphsHTML(text){
-  const safe = (text||'').replace(/\r\n/g,'\n');
-  return safe.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean)
-             .map(p=>`<p>${p.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</p>`)
-             .join('');
+function fieldsAll(){return ['title','setting_snapshot','population','core_problems','stakeholders','equity_signals','constraints_resources','role','scenario_summary']}
+function applyFilter(){
+  const q=(document.getElementById('q').value||'').toLowerCase().trim();
+  FILTER=!q?[...ALL]:ALL.filter(c=>fieldsAll().some(f=>String(c[f]||'').toLowerCase().includes(q)));
+  PAGE=1; renderList(); FILTER.length?selectByIndex(0):showEmpty(); document.getElementById('count').textContent=`${FILTER.length} result${FILTER.length===1?'':'s'}`
 }
-
-let current=null, locked=false;
-
-function renderCase(){
-  if(!current){ /* show empty state */ return; }
-  $('#emptyCase').style.display='none';
-  $('#intake').style.display='';
-  $('#casePill').textContent = current.title;
-  $('#f_title').textContent = current.title||'';
-  $('#f_setting_snapshot').textContent = current.setting_snapshot||'';
-  $('#f_population').textContent = current.population||'';
-  $('#f_core_problems').innerHTML = paragraphsHTML(current.core_problems);
-  $('#f_stakeholders').innerHTML = paragraphsHTML(current.stakeholders);
-  $('#f_equity_signals').innerHTML = paragraphsHTML(current.equity_signals);
-  $('#f_constraints_resources').innerHTML = paragraphsHTML(current.constraints_resources);
-  $('#f_role').textContent = current.role||'';
-  $('#f_scenario_summary').innerHTML = paragraphsHTML(current.scenario_summary);
-  updateLockUi();
+function renderList(){
+  const start=(PAGE-1)*PER; const slice=FILTER.slice(start,start+PER); const list=document.getElementById('list'); list.innerHTML='';
+  slice.forEach(c=>{
+    const div=document.createElement('div'); div.className='row'+(c.id===ACTIVE?' active':''); div.role='option'; div.tabIndex=0;
+    div.innerHTML=`<div style="flex:1"><div class="title">${esc(c.title)}</div><div class="snippet">${esc((c.setting_snapshot||'').replace(/\n/g,' '))}</div></div><div><span class="pill">${esc((c.population||'').split(/[.;]/)[0].slice(0,40)||'—')}</span></div>`;
+    div.onclick=()=>select(c.id); div.onkeydown=e=>{if(e.key==='Enter')select(c.id)}; list.appendChild(div);
+  });
+  const pages=Math.max(1,Math.ceil(FILTER.length/PER)); document.getElementById('pageMeta').textContent=`Page ${PAGE}/${pages}`;
+  document.getElementById('prev').disabled=PAGE<=1; document.getElementById('next').disabled=PAGE>=pages;
 }
-
-function randomize(){
-  if(!Array.isArray(CASES) || !CASES.length){ console.error('No cases'); return; }
-  const idx = Math.floor(Math.random()*CASES.length);
-  current = CASES[idx];
-  locked = false;
-  clearForm();
-  renderCase();
+function showEmpty(){ document.getElementById('empty').style.display=''; document.getElementById('detail').style.display='none'; document.getElementById('detailHeading').textContent='Details' }
+function selectByIndex(ix){const id=(FILTER[ix]||{}).id; if(typeof id==='number') select(id)}
+function select(id){
+  ACTIVE=id; renderList(); const c=ALL.find(x=>x.id===id); if(!c) return showEmpty();
+  history.replaceState(null,'',`#case=${encodeURIComponent(c.slug)}`); fillDetail(c);
 }
+function fillDetail(c){
+  document.getElementById('empty').style.display='none'; document.getElementById('detail').style.display='';
+  document.getElementById('detailHeading').textContent=c.title||'Details';
+  const set=(id,val)=>document.getElementById(id).innerHTML=brize(val||'');
+  set('f_title',c.title); set('f_setting_snapshot',c.setting_snapshot); set('f_population',c.population); set('f_core_problems',c.core_problems);
+  set('f_stakeholders',c.stakeholders); set('f_equity_signals',c.equity_signals); set('f_constraints_resources',c.constraints_resources); set('f_role',c.role);
+  set('f_scenario_summary',c.scenario_summary);
+  const extras=c.extra||c.__extra__||{}; const names=Object.keys(extras).filter(k=>extras[k] && String(extras[k]).trim());
+  const wrap=document.getElementById('extraWrap'); const tgt=document.getElementById('extraFields');
+  if(names.length){ wrap.style.display=''; tgt.innerHTML=''; names.forEach(k=>{ const K=document.createElement('div'); K.textContent=k; K.style.color='#6b7280'; const V=document.createElement('div'); V.innerHTML=brize(Array.isArray(extras[k])?extras[k].join('\n'):extras[k]); tgt.appendChild(K); tgt.appendChild(V); }); }
+  else{ wrap.style.display='none' }
+}
+document.getElementById('btnClear').onclick=()=>{ document.getElementById('q').value=''; applyFilter() }
+document.getElementById('prev').onclick=()=>{ if(PAGE>1){PAGE--;renderList()} }
+document.getElementById('next').onclick=()=>{ const max=Math.ceil(FILTER.length/PER)||1; if(PAGE<max){PAGE++;renderList()} }
+document.getElementById('btnCopyLink').onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href) }catch{} }
+document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnOpen').onclick=()=>{ const c=ALL.find(x=>x.id===ACTIVE); if(!c) return; try{ localStorage.setItem('PD_PRELOAD_TITLE', c.title||'') }catch{}; location.href='program-evaluation-generator.html' }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('btnRandom').addEventListener('click', randomize);
-  document.getElementById('btnLock').addEventListener('click', () => { if(!current) return; locked=!locked; updateLockUi(); if(locked) loadDraft(); });
-  // …other bindings
-});
-/* ===================== end required pattern ===================== */
-
-/* ====== App-specific bindings & logic (below required pattern) ====== */
-const fields = {
-  context: $('#context'),
-  design: $('#design'),
-  purpose: $('#purpose'),
-  outcomes: $('#outcomes'),
-  operationalization: $('#operationalization'),
-  designPlan: $('#designPlan'),
-  ethics: $('#ethics'),
-  assumptions: $('#assumptions')
+/* ---------- Export Case (.docx) using your OG htmlDocx pipeline ---------- */
+document.getElementById('btnExportCase').onclick=()=>{
+  const c=ALL.find(x=>x.id===ACTIVE); if(!c) return;
+  const html = buildCaseExportHTML(c);
+  const blob = window.htmlDocx.asBlob(html);
+  const a = document.createElement('a');
+  const name = (c.title ? c.title.replace(/[^\w\s-]/g,'').slice(0,40)+'_' : '') + 'Scenario_Only.docx';
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
 };
-
-function updateLockUi(){
-  const inputs = $$('textarea, input[type="text"]');
-  inputs.forEach(el=>{ el.disabled = !locked; });
-  $('#lockState').textContent = locked ? 'Yes' : 'No';
-  $('#btnLock').textContent = locked ? 'Unlock' : 'Lock';
-  $('#status').textContent = locked ? 'Editing enabled (autosave on)' : 'Editing disabled';
-}
-
-function clearForm(){
-  Object.keys(fields).forEach(k=> fields[k].value='');
-  refreshCounts();
-}
-
-function collectFields(){
-  return {
-    context: fields.context.value||'',
-    design: fields.design.value||'',
-    purpose: fields.purpose.value||'',
-    outcomes: fields.outcomes.value||'',
-    operationalization: fields.operationalization.value||'',
-    designPlan: fields.designPlan.value||'',
-    ethics: fields.ethics.value||'',
-    assumptions: fields.assumptions.value||'',
-  };
-}
-
-function populateFields(data){
-  if(!data) return;
-  fields.context.value = data.context||'';
-  fields.design.value = data.design||'';
-  fields.purpose.value = data.purpose||'';
-  fields.outcomes.value = data.outcomes||'';
-  fields.operationalization.value = data.operationalization||'';
-  fields.designPlan.value = data.designPlan||'';
-  fields.ethics.value = data.ethics||'';
-  fields.assumptions.value = data.assumptions||'';
-  refreshCounts();
-}
-
-function storageKey(){
-  if(!current || !current.title) return null;
-  const base = current.title.slice(0,50);
-  return `EBP_NOTE_${base}`;
-}
-
-function saveDraft(manual=false){
-  if(!locked || !current) return;
-  const key = storageKey();
-  if(!key) return;
-  const payload = { caseTitle: current.title, fields: collectFields(), ts: new Date().toISOString() };
-  localStorage.setItem(key, JSON.stringify(payload));
-  $('#status').textContent = manual ? 'Draft saved' : 'Autosaved';
-}
-
-function loadDraft(){
-  const key = storageKey(); if(!key) return;
-  const raw = localStorage.getItem(key);
-  if(!raw){ $('#status').textContent = 'No saved draft'; return; }
-  try{
-    const obj = JSON.parse(raw);
-    if(obj && obj.caseTitle === current.title){ populateFields(obj.fields); $('#status').textContent = 'Draft loaded'; }
-  }catch(e){ console.error(e); $('#status').textContent='Load failed'; }
-}
-
-function refreshCounts(){
-  const w = (id)=>wordCount(fields[id].value);
-  $('#wc_context').textContent = `(${w('context')} words)`;
-  $('#wc_design').textContent = `(${w('design')} words)`;
-  $('#wc_purpose').textContent = `(${w('purpose')} words)`;
-  $('#wc_outcomes').textContent = `(${w('outcomes')} words)`;
-  $('#wc_operationalization').textContent = `(${w('operationalization')} words)`;
-  $('#wc_designPlan').textContent = `(${w('designPlan')} words)`;
-  $('#wc_ethics').textContent = `(${w('ethics')} words)`;
-  $('#wc1').textContent = w('context');
-  $('#wc2').textContent = w('design');
-  $('#wc3').textContent = w('purpose');
-}
-
-const autosave = debounce(()=>saveDraft(false), 800);
-
-function bindInputs(){
-  Object.keys(fields).forEach(id=>{
-    const el = fields[id];
-    el.addEventListener('input', ()=>{ refreshCounts(); if(locked) autosave(); });
-  });
-}
-
-function initButtons(){
-  $('#btnSave').addEventListener('click', ()=>saveDraft(true));
-  $('#btnLoad').addEventListener('click', ()=>loadDraft());
-  $('#btnNew').addEventListener('click', ()=>{
-    if(!current) return;
-    locked=false; clearForm(); updateLockUi(); $('#status').textContent='New plan started (unlock to edit, then lock)';
-  });
-  $('#btnExport').addEventListener('click', ()=>{
-    const html = buildExportHTML();
-    const blob = window.htmlDocx.asBlob(html);
-    const a = document.createElement('a');
-    const name = (current?.title ? `${current.title.replace(/[^\w\s-]/g,'').slice(0,40)}_` : '') + 'Program_Eval_Note.docx';
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-  });
-  $('#btnCopy').addEventListener('click', async ()=>{
-    const txt = composeClipboardText();
-    try{ await navigator.clipboard.writeText(txt); $('#status').textContent='Copied plan to clipboard'; }
-    catch{ $('#status').textContent='Copy failed'; }
-  });
-  $('#btnPrint').addEventListener('click', ()=>window.print());
-}
-
-function buildExportHTML(){
-  const f = collectFields();
-  const caseTitle = current?.title || 'Selected Scenario';
-  const parts = [];
-  const h = (lvl, txt)=>`<h${lvl}>${escHtml(txt)}</h${lvl}>`;
-  const pp = (txt)=> paragraphsFromText(txt).map(p=>`<p>${brize(p)}</p>`).join('') || '<p></p>';
-
-  parts.push(h(1,'Program Evaluation Plan'));
-  parts.push(`<p><strong>Scenario:</strong> ${escHtml(caseTitle)}</p>`);
-
-  parts.push(h(2,'Context & Stakeholders'));
-  parts.push(pp(f.context));
-
-  parts.push(h(2,'Program/Practice Design'));
-  parts.push(pp(f.design));
-
-  parts.push(h(2,'Evaluation Purpose & Questions'));
-  parts.push(pp(f.purpose));
-
-  parts.push(h(2,'Outcomes'));
-  parts.push(pp(f.outcomes));
-
-  parts.push(h(2,'Operationalization & Data Sources'));
-  parts.push(pp(f.operationalization));
-
-  parts.push(h(2,'Evaluation Design Plan'));
-  parts.push(pp(f.designPlan));
-
-  parts.push(h(2,'Ethics/Power/Limitations & Communication'));
-  parts.push(pp(f.ethics));
-
-  if(f.assumptions && f.assumptions.trim()){
-    parts.push(h(2,'Assumptions'));
-    parts.push(pp(f.assumptions));
+function buildCaseExportHTML(c){
+  const esc = s => String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const br = s => esc(s).replace(/\n/g,'<br>');
+  const p  = s => (String(s||'').replace(/\r\n/g,'\n').split(/\n\s*\n/).map(x=>`<p>${br(x)}</p>`).join('')) || '<p></p>';
+  const h = (n,t)=>`<h${n}>${esc(t)}</h${n}>`;
+  const parts=[];
+  parts.push(h(1,'Program Evaluation — Scenario Packet'));
+  parts.push(h(2, c.title||'Untitled Scenario'));
+  parts.push(`<p><strong>Setting snapshot:</strong> ${br(c.setting_snapshot)}</p>`);
+  parts.push(`<p><strong>Population:</strong> ${br(c.population)}</p>`);
+  parts.push(`<p><strong>Core problems:</strong><br>${br(c.core_problems)}</p>`);
+  parts.push(`<p><strong>Stakeholders:</strong><br>${br(c.stakeholders)}</p>`);
+  parts.push(`<p><strong>Equity signals:</strong><br>${br(c.equity_signals)}</p>`);
+  parts.push(`<p><strong>Constraints & resources:</strong><br>${br(c.constraints_resources)}</p>`);
+  parts.push(`<p><strong>Your role:</strong> ${br(c.role)}</p>`);
+  if(c.scenario_summary) { parts.push(h(3,'Scenario summary')); parts.push(p(c.scenario_summary)); }
+  const ex=c.extra||c.__extra__||{};
+  const names=Object.keys(ex).filter(k=>ex[k] && String(ex[k]).trim());
+  if(names.length){ parts.push(h(2,'Additional fields'));
+    names.forEach(k=>{ const v = Array.isArray(ex[k])? ex[k].join('\n') : ex[k]; parts.push(`<p><strong>${esc(k)}:</strong><br>${br(v)}</p>`); });
   }
-
-  if(current){
-    parts.push(h(2,'Scenario Snapshot'));
-    const snap = [
-      ['Setting snapshot', current.setting_snapshot],
-      ['Population', current.population],
-      ['Core problems', current.core_problems],
-      ['Stakeholders', current.stakeholders],
-      ['Equity signals', current.equity_signals],
-      ['Constraints & resources', current.constraints_resources],
-      ['Role', current.role]
-    ].map(([k,v])=>`<p><strong>${escHtml(k)}:</strong> ${brize(v||'')}</p>`).join('');
-    parts.push(snap);
-    parts.push(h(3,'Scenario summary'));
-    parts.push(paragraphsHTML(current.scenario_summary));
-  }
-
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Program Evaluation Plan</title></head><body>${parts.join('\n')}</body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(c.title||'Scenario')}</title></head><body>${parts.join('\n')}</body></html>`;
 }
 
-function composeClipboardText(){
-  const f = collectFields();
-  const caseTitle = current?.title || 'Selected Scenario';
-  const par = s => paragraphsFromText(s).join('\n\n');
-  const arr = [
-    `Program Evaluation Plan`,
-    `Scenario: ${caseTitle}`,
-    `\nContext & Stakeholders\n${par(f.context)}`,
-    `\nProgram/Practice Design\n${par(f.design)}`,
-    `\nEvaluation Purpose & Questions\n${par(f.purpose)}`,
-    `\nOutcomes\n${par(f.outcomes)}`,
-    `\nOperationalization & Data Sources\n${par(f.operationalization)}`,
-    `\nEvaluation Design Plan\n${par(f.designPlan)}`,
-    `\nEthics/Power/Limitations & Communication\n${par(f.ethics)}`
-  ];
-  if(f.assumptions && f.assumptions.trim()){
-    arr.push(`\nAssumptions\n${par(f.assumptions)}`);
-  }
-  return arr.join('\n');
-}
-
-function notTypingTarget(){
-  const ae = document.activeElement;
-  if(!ae) return true;
-  return !(ae.tagName==='TEXTAREA' || (ae.tagName==='INPUT' && ae.type==='text') || ae.isContentEditable);
-}
-
-function initShortcuts(){
-  document.addEventListener('keydown', (e)=>{
-    const alt = e.altKey, ctrl = e.ctrlKey||e.metaKey, k = e.key.toLowerCase();
-    if(!notTypingTarget()) return;
-    if(alt && k==='r'){ e.preventDefault(); $('#btnRandom').click(); }
-    else if(alt && k==='l'){ e.preventDefault(); $('#btnLock').click(); }
-    else if(alt && k==='e'){ e.preventDefault(); $('#btnExport').click(); }
-    else if(alt && k==='p'){ e.preventDefault(); $('#btnPrint').click(); }
-    else if(ctrl && k==='s'){ e.preventDefault(); $('#btnSave').click(); }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  initButtons();
-  initShortcuts();
-  bindInputs();
-});
-
-/* ===================== Fixed offline htmlDocx.asBlob (UTF-8 + valid OOXML) ===================== */
+/* ---------- Minimal, safe htmlDocx.asBlob (same core as OG) ---------- */
 (function(){
   const enc = new TextEncoder();
-  const utf8 = (s) => enc.encode(String(s ?? ""));
-  function xmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
-  const textRun = (t, props='') => `<w:r>${props?`<w:rPr>${props}</w:rPr>`:''}<w:t xml:space="preserve">${xmlEscape(t)}</w:t></w:r>`;
-  const br = () => `<w:r><w:br/></w:r>`;
-  const para = (inner, pPr='') => `<w:p>${pPr?`<w:pPr>${pPr}</w:pPr>`:''}${inner||''}</w:p>`;
-
+  const utf8 = s => enc.encode(String(s??""));
+  function xmlEscape(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+  const textRun=(t,props='')=>`<w:r>${props?`<w:rPr>${props}</w:rPr>`:''}<w:t xml:space="preserve">${xmlEscape(t)}</w:t></w:r>`;
+  const br=()=>`<w:r><w:br/></w:r>`; const para=(inner,pPr='')=>`<w:p>${pPr?`<w:pPr>${pPr}</w:pPr>`:''}${inner||''}</w:p>`;
   function nodeToParas(node){
-    const out=[];
-    const walk = (n, accRuns=[])=>{
-      if(n.nodeType===3){
-        if(n.nodeValue) accRuns.push(textRun(n.nodeValue));
-      } else if(n.nodeType===1){
-        const tag = n.tagName.toLowerCase();
-        if(tag==='br'){ accRuns.push(br()); }
+    const out=[]; const walk=(n,acc=[])=>{
+      if(n.nodeType===3){ if(n.nodeValue) acc.push(textRun(n.nodeValue)); }
+      else if(n.nodeType===1){
+        const tag=n.tagName.toLowerCase();
+        if(tag==='br'){ acc.push(br()); }
         else if(['strong','b','em','i','u'].includes(tag)){
-          const innerRuns=[]; n.childNodes.forEach(c=>walk(c, innerRuns));
+          const inner=[]; n.childNodes.forEach(c=>walk(c,inner));
           let rPr=''; if(tag==='strong'||tag==='b') rPr+='<w:b/>'; if(tag==='em'||tag==='i') rPr+='<w:i/>'; if(tag==='u') rPr+='<w:u w:val="single"/>';
-          const textOnly = innerRuns.join('').replace(/^<w:r>|<\/w:r>$/g,'');
-          accRuns.push(`<w:r><w:rPr>${rPr}</w:rPr>${textOnly}</w:r>`);
-        }
-        else if(tag==='span'){ n.childNodes.forEach(c=>walk(c, accRuns)); }
+          const textOnly=inner.join('').replace(/^<w:r>|<\/w:r>$/g,''); acc.push(`<w:r><w:rPr>${rPr}</w:rPr>${textOnly}</w:r>`);
+        } else if(tag==='span'){ n.childNodes.forEach(c=>walk(c,acc)); }
         else if(['h1','h2','h3','p'].includes(tag)){
-          const runs=[]; n.childNodes.forEach(c=>walk(c, runs));
-          if(tag==='p'){
-            out.push(para(runs.join('')));
-          }else{
+          const runs=[]; n.childNodes.forEach(c=>walk(c,runs));
+          if(tag==='p'){ out.push(para(runs.join(''))); }
+          else{
             const size = tag==='h1'?36:tag==='h2'?28:24;
-            const first = runs.length ? runs[0].replace('<w:r>','<w:r><w:rPr><w:b/><w:sz w:val="'+size+'"/><w:szCs w:val="'+size+'"/></w:rPr>') : textRun('', `<w:b/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/>`);
-            const rest = runs.length ? runs.slice(1).join('') : '';
-            out.push(para(first+rest, '<w:spacing w:after="160"/>'));
+            const first=runs.length? runs[0].replace('<w:r>','<w:r><w:rPr><w:b/><w:sz w:val="'+size+'"/><w:szCs w:val="'+size+'"/></w:rPr>') : textRun('', `<w:b/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/>`);
+            const rest=runs.length? runs.slice(1).join('') : '';
+            out.push(para(first+rest,'<w:spacing w:after="160"/>'));
           }
-        }
-        else if(tag==='ul'){
-          n.childNodes.forEach(li=>{
-            if(li.tagName && li.tagName.toLowerCase()==='li'){
-              const runs=[textRun('• ')];
-              li.childNodes.forEach(c=>walk(c, runs));
-              out.push(para(runs.join('')));
-            }
-          });
-        }
-        else{
-          n.childNodes.forEach(c=>walk(c, accRuns));
-        }
-      }
-      return accRuns;
+        } else if(tag==='ul'){
+          n.childNodes.forEach(li=>{ if(li.tagName && li.tagName.toLowerCase()==='li'){ const runs=[textRun('• ')]; li.childNodes.forEach(c=>walk(c,runs)); out.push(para(runs.join(''))); }});
+        } else{ n.childNodes.forEach(c=>walk(c,acc)); }
+      } return acc;
     };
-
     if(node.childNodes && node.childNodes.length){
       node.childNodes.forEach(ch=>{
         if(ch.nodeType===3){ out.push(para(textRun(ch.nodeValue))); }
-        else if(ch.nodeType===1 && ['h1','h2','h3','p','ul'].includes(ch.tagName.toLowerCase())){
-          walk(ch);
-        } else if(ch.nodeType===1){
-          const runs=[]; walk(ch, runs); if(runs.length) out.push(para(runs.join('')));
-        }
+        else if(ch.nodeType===1 && ['h1','h2','h3','p','ul'].includes(ch.tagName.toLowerCase())){ walk(ch); }
+        else if(ch.nodeType===1){ const runs=[]; walk(ch,runs); if(runs.length) out.push(para(runs.join(''))); }
       });
-    }
-    return out.join('');
+    } return out.join('');
   }
-
   function buildDocumentXML(html){
-    const doc = new DOMParser().parseFromString(html,'text/html');
-    const body = doc.body;
-    const content = nodeToParas(body) || para(textRun(''));
-    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
- xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
- xmlns:m="http://schemas.microsoft.com/office/2006/math"
- xmlns:v="urn:schemas-microsoft-com:vml"
- xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
- xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
- xmlns:w10="urn:schemas-microsoft-com:office:word"
- xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
- xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
- xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
- xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
- xmlns:wne="http://schemas.microsoft.com/office/2006/wordml"
- xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14">
-  <w:body>
-    ${content}
-    <w:sectPr>
-      <w:pgSz w:w="12240" w:h="15840"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
-      <w:cols w:space="708"/>
-      <w:docGrid w:linePitch="360"/>
-    </w:sectPr>
-  </w:body>
-</w:document>`;
+    const doc=new DOMParser().parseFromString(html,'text/html'); const body=doc.body;
+    const content=nodeToParas(body)||para(textRun(''));
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.microsoft.com/office/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/2010/word/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>${content}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>`;
   }
-
-  function u8cat(chunks){ let len=0; chunks.forEach(c=>len+=c.length); const out=new Uint8Array(len); let o=0; chunks.forEach(c=>{out.set(c,o);o+=c.length;}); return out; }
-  const CRC_TABLE = (()=>{ let c,t=new Uint32Array(256); for(let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1)); t[n]=c>>>0; } return t; })();
+  function u8cat(chunks){ let len=0; chunks.forEach(c=>len+=c.length); const out=new Uint8Array(len); let o=0; chunks.forEach(c=>{out.set(c,o);o+=c.length}); return out; }
+  const CRC_TABLE=(()=>{ let c,t=new Uint32Array(256); for(let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c=((c&1)?(0xEDB88320^(c>>>1)):(c>>>1)); t[n]=c>>>0; } return t; })();
   function crc32(buf){ let c=~0>>>0; for(let i=0;i<buf.length;i++){ c=(c>>>8)^CRC_TABLE[(c^buf[i])&0xFF]; } return (~c)>>>0; }
-  function dateToDos(d=new Date()){
-    const time = (d.getHours()<<11) | (d.getMinutes()<<5) | ((d.getSeconds()/2)|0);
-    const date = ((d.getFullYear()-1980)<<9) | ((d.getMonth()+1)<<5) | d.getDate();
-    return {time, date};
-  }
+  function dateToDos(d=new Date()){ const time=(d.getHours()<<11)|(d.getMinutes()<<5)|((d.getSeconds()/2)|0); const date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate(); return {time,date}; }
   function zipStore(files){
-    const cd=[]; let offset=0; const chunks=[];
-    const now = dateToDos(new Date());
+    const cd=[]; let offset=0; const chunks=[]; const now=dateToDos(new Date());
     files.forEach(f=>{
-      const nameBytes = utf8(f.name);
-      const data = f.data;
-      const crc = crc32(data);
-      const localHeader = new Uint8Array(30 + nameBytes.length);
-      const dv = new DataView(localHeader.buffer);
-      dv.setUint32(0,0x04034b50,true);
-      dv.setUint16(4,20,true);
-      dv.setUint16(6,0,true);
-      dv.setUint16(8,0,true);
-      dv.setUint16(10, now.time, true);
-      dv.setUint16(12, now.date, true);
-      dv.setUint32(14, crc, true);
-      dv.setUint32(18, data.length, true);
-      dv.setUint32(22, data.length, true);
-      dv.setUint16(26, nameBytes.length, true);
-      dv.setUint16(28, 0, true);
-      localHeader.set(nameBytes,30);
-      chunks.push(localHeader, data);
-
-      const cdH = new Uint8Array(46 + nameBytes.length);
-      const cdv = new DataView(cdH.buffer);
-      cdv.setUint32(0,0x02014b50,true);
-      cdv.setUint16(4,20,true);
-      cdv.setUint16(6,20,true);
-      cdv.setUint16(8,0,true);
-      cdv.setUint16(10,0,true);
-      cdv.setUint16(12, now.time, true);
-      cdv.setUint16(14, now.date, true);
-      cdv.setUint32(16, crc, true);
-      cdv.setUint32(20, data.length, true);
-      cdv.setUint32(24, data.length, true);
-      cdv.setUint16(28, nameBytes.length, true);
-      cdv.setUint16(30,0,true);
-      cdv.setUint16(32,0,true);
-      cdv.setUint16(34,0,true);
-      cdv.setUint16(36,0,true);
-      cdv.setUint32(38,0,true);
-      cdv.setUint32(42,offset,true);
-      cdH.set(nameBytes,46);
-      cd.push(cdH);
-
-      offset += localHeader.length + data.length;
+      const nameBytes=utf8(f.name); const data=f.data; const crc=crc32(data);
+      const localHeader=new Uint8Array(30+nameBytes.length); const dv=new DataView(localHeader.buffer);
+      dv.setUint32(0,0x04034b50,true); dv.setUint16(4,20,true); dv.setUint16(6,0,true); dv.setUint16(8,0,true);
+      dv.setUint16(10,now.time,true); dv.setUint16(12,now.date,true); dv.setUint32(14,crc,true);
+      dv.setUint32(18,data.length,true); dv.setUint32(22,data.length,true); dv.setUint16(26,nameBytes.length,true); dv.setUint16(28,0,true);
+      localHeader.set(nameBytes,30); chunks.push(localHeader,data);
+      const cdH=new Uint8Array(46+nameBytes.length); const cdv=new DataView(cdH.buffer);
+      cdv.setUint32(0,0x02014b50,true); cdv.setUint16(4,20,true); cdv.setUint16(6,20,true); cdv.setUint16(8,0,true); cdv.setUint16(10,0,true);
+      cdv.setUint16(12,now.time,true); cdv.setUint16(14,now.date,true); cdv.setUint32(16,crc,true);
+      cdv.setUint32(20,data.length,true); cdv.setUint32(24,data.length,true); cdv.setUint16(28,nameBytes.length,true);
+      cdv.setUint16(30,0,true); cdv.setUint16(32,0,true); cdv.setUint16(34,0,true); cdv.setUint16(36,0,true); cdv.setUint32(38,0,true); cdv.setUint32(42,offset,true);
+      cdH.set(nameBytes,46); cd.push(cdH); offset += localHeader.length + data.length;
     });
-    const central = u8cat(cd);
-    const end = new Uint8Array(22);
-    const edv = new DataView(end.buffer);
-    edv.setUint32(0,0x06054b50,true);
-    edv.setUint16(4,0,true);
-    edv.setUint16(6,0,true);
-    edv.setUint16(8, files.length, true);
-    edv.setUint16(10, files.length, true);
-    edv.setUint32(12, central.length, true);
-    edv.setUint32(16, offset, true);
-    edv.setUint16(20, 0, true);
-    return new Blob([u8cat([...chunks, central, end])], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const central=u8cat(cd); const end=new Uint8Array(22); const edv=new DataView(end.buffer);
+    edv.setUint32(0,0x06054b50,true); edv.setUint16(4,0,true); edv.setUint16(6,0,true); edv.setUint16(8,files.length,true); edv.setUint16(10,files.length,true);
+    edv.setUint32(12,central.length,true); edv.setUint32(16,offset,true); edv.setUint16(20,0,true);
+    return new Blob([u8cat([...chunks,central,end])],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   }
-  function asBlob(html){
-    const docXml = buildDocumentXML(html);
-    const files = [
-      { name:'[Content_Types].xml', data: utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
- <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
- <Default Extension="xml" ContentType="application/xml"/>
- <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>`)},
-      { name:'_rels/.rels', data: utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
- <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`)},
-      { name:'word/document.xml', data: utf8(docXml) }
+  window.htmlDocx = { asBlob(html){
+    const docXml=buildDocumentXML(html);
+    const files=[
+      { name:'[Content_Types].xml', data:utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`)},
+      { name:'_rels/.rels', data:utf8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`)},
+      { name:'word/document.xml', data:utf8(docXml) }
     ];
     return zipStore(files);
-  }
-  window.htmlDocx = { asBlob };
+  }};
 })();
 </script>
 </body>
 </html>
+
+<!-- =========================
+ADD-ON: EBP Index export button (drop near your existing action buttons)
+Why: Export selected EBP case as .docx from the index page.
+Assumes you already have ALL/FILTER/ACTIVE and htmlDocx from the PD block (reuse that).
+========================= -->
+<script>
+// Only add if #btnExportCase_EBP not present
+(function(){
+  if(!document.getElementById('btnExportCase_EBP') && document.getElementById('detailCard')){
+    const actions = document.querySelector('#detailCard .hd .actions') || document.querySelector('#detailCard .hd div');
+    if(actions){
+      const b = document.createElement('button'); b.id='btnExportCase_EBP'; b.textContent='Export Case (.docx)';
+      b.onclick = ()=>{
+        const c = (window.ALL||[]).find(x=>x.id===window.ACTIVE); if(!c) return;
+        const html = (function buildEBP(c){
+          const esc = s => String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+          const br = s => esc(s).replace(/\n/g,'<br>');
+          const p  = s => (String(s||'').replace(/\r\n/g,'\n').split(/\n\s*\n/).map(x=>`<p>${br(x)}</p>`).join('')) || '<p></p>';
+          const h = (n,t)=>`<h${n}>${esc(t)}</h${n}>`;
+          const parts=[];
+          parts.push(h(1,'EBP — Scenario Packet'));
+          parts.push(h(2, c.title||'Untitled Case'));
+          parts.push(`<p><strong>Client profile:</strong> ${br(c.client_profile)}</p>`);
+          parts.push(`<p><strong>Setting:</strong> ${br(c.setting)}</p>`);
+          parts.push(`<p><strong>Presenting problem:</strong><br>${br(c.presenting_problem)}</p>`);
+          parts.push(`<p><strong>Relevant history:</strong><br>${br(c.relevant_history)}</p>`);
+          parts.push(`<p><strong>Goals & preferences:</strong><br>${br(c.goals_and_preferences)}</p>`);
+          parts.push(`<p><strong>Strengths & resources:</strong><br>${br(c.strengths_and_resources)}</p>`);
+          parts.push(`<p><strong>Contextual factors & barriers:</strong><br>${br(c.contextual_factors_and_barriers)}</p>`);
+          parts.push(`<p><strong>EBP decision point:</strong> ${br(c.ebp_decision_point)}</p>`);
+          parts.push(`<p><strong>Target outcomes:</strong> ${br(c.target_outcomes)}</p>`);
+          parts.push(`<p><strong>Risks & ethics:</strong> ${br(c.risks_and_ethics)}</p>`);
+          parts.push(`<p><strong>Equity signal:</strong> ${br(c.equity_signal)}</p>`);
+          if(c.narrative){ parts.push(h(3,'Narrative vignette')); parts.push(p(c.narrative)); }
+          const ex=c.extra||c.__extra__||{}; const names=Object.keys(ex).filter(k=>ex[k] && String(ex[k]).trim());
+          if(names.length){ parts.push(h(2,'Additional fields')); names.forEach(k=>{ const v=Array.isArray(ex[k])?ex[k].join('\n'):ex[k]; parts.push(`<p><strong>${esc(k)}:</strong><br>${br(v)}</p>`); }); }
+          return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(c.title||'Case')}</title></head><body>${parts.join('\n')}</body></html>`;
+        })(c);
+        const blob = window.htmlDocx.asBlob(html);
+        const a = document.createElement('a');
+        a.href=URL.createObjectURL(blob); a.download=((c.title||'Case').replace(/[^\w\s-]/g,'').slice(0,40)+'_Scenario_Only.docx'); a.click();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+      };
+      actions.appendChild(b);
+    }
+  }
+})();
+</script>
+
+<!-- =========================
+HOOK: Builders export notes only when locked + preload selection
+Paste into: /program-evaluation-generator.html and /ebp.html after your existing scripts.
+========================= -->
+<script>
+// Preload selected case from index
+document.addEventListener('DOMContentLoaded', ()=>{
+  try{
+    const key = location.pathname.includes('program-evaluation') ? 'PD_PRELOAD_TITLE' : 'EBP_PRELOAD_TITLE';
+    const want = localStorage.getItem(key);
+    if(want && Array.isArray(window.CASES)){
+      const m = window.CASES.find(c=>c.title===want);
+      if(m){ window.current=m; window.locked=false; (window.clearForm||(()=>{}))(); (window.renderCase||(()=>{}))(); }
+    }
+    localStorage.removeItem('PD_PRELOAD_TITLE'); localStorage.removeItem('EBP_PRELOAD_TITLE');
+  }catch(_){}
+});
+
+// Disable Export until locked (keeps parity with “once locked” requirement)
+(function(){
+  const exportBtn = document.getElementById('btnExport');
+  const lockBtn = document.getElementById('btnLock');
+  const status = document.getElementById('status');
+  if(!exportBtn || !lockBtn) return;
+  const update = ()=>{
+    const can = !!window.locked;
+    exportBtn.disabled = !can;
+    if(status) status.textContent = can ? 'Editing enabled (autosave on)' : 'Editing disabled';
+  };
+  update();
+  lockBtn.addEventListener('click', ()=>{ setTimeout(update, 0); });
+})();
+</script>
